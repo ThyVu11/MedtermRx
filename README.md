@@ -9,6 +9,15 @@ MedTermRx is a TypeScript study app for medical terminology. It combines an Expo
 - `backend/` — Node.js + TypeScript REST API
 - `mobile/` — Expo React Native app
 
+## Tech stack
+
+- Backend: Node.js, Express, TypeScript
+- Mobile: Expo, React Native, TypeScript
+- State management: Redux Toolkit
+- Data validation: Zod
+- Storage: AsyncStorage
+- Build/runtime tools: tsx, ts-node-dev, TypeScript
+
 ## What it does
 
 - Search and explore medical terms, roots, prefixes, and suffixes
