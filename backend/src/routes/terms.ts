@@ -21,8 +21,6 @@ router.get("/", (req, res) => {
     results = results.filter((t) => t.word.toLowerCase().includes(needle));
   }
 
-  console.log("results", results.length, { q, category });
-
   res.json(results);
 });
 

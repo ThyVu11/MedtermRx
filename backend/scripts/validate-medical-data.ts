@@ -152,8 +152,6 @@ async function main() {
         "confusables"
     );
 
-    console.log("");
-
     validateTerms(terms);
 
     validateRoots(roots);
