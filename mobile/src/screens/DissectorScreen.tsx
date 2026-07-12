@@ -5,8 +5,7 @@ import { colors, radii, spacing, typography } from "@/theme";
 import TermCard from "@/components/TermCard";
 import type { RootStackParamList } from "@/navigation/AppNavigator";
 import { CategoryType, Term } from "@/types";
-import { fetchTerms } from "@/features/termsSlice";
-import { useAppDispatch, useAppSelector } from "@/hooks";
+import { searchTerms } from "@/api/terms";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dissector">;
 
@@ -23,35 +22,49 @@ const FILTERS: { key: CategoryType | "all"; label: string }[] = [
 ];
 
 export default function DissectorScreen({ navigation, route }: Props) {
-  const dispatch = useAppDispatch();
-  const { items: searchTerms, status } = useAppSelector((state) => state.terms);
+  const [terms, setTerms] = useState<Term[]>([]);
   const [filter, setFilter] = useState<CategoryType | "all">("all");
   const [query, setQuery] = useState(route.params?.initialQuery ?? "");
+  const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (status === "idle") {
-  //     dispatch(fetchTerms());
-  //   }
-  // }, [dispatch, status]);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+
+    searchTerms(query)
+      .then((results) => {
+        if (!active) return;
+        setTerms(results);
+      })
+      .catch(() => {
+        if (!active) return;
+        setTerms([]);
+      })
+      .finally(() => {
+        if (!active) return;
+        setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [query]);
 
   const results = useMemo(() => {
-    let data = searchTerms;
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      data = data.filter((term) =>
-        Object.values(term).some(
-          (value) => typeof value === "string" && value.toLowerCase().includes(lowerQuery)
-        )
+    const lowerQuery = query.trim().toLowerCase();
+
+    const filtered = terms.filter((term) => {
+      if (filter !== "all" && term.category !== filter) return false;
+      if (!lowerQuery) return true;
+
+      return (
+        term.word.toLowerCase().includes(lowerQuery) ||
+        term.searchTerms.some((value) => value.toLowerCase().includes(lowerQuery))
       );
-    }
-    if (filter !== "all") data = data.filter((r) => r.category === filter);
-    return data;
-  }, [filter, query, searchTerms]);
-   
+    });
 
-
-
-  console.log("results", [...new Set(results.map((r) => r.category))]);
+    return filtered;
+  }, [filter, query, terms]);
 
   return (
     <View style={styles.screen}>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate a 20,000+ entry terms.json from the official 2026 NLM MeSH XML release.
+Generate a 31,000+ entry terms.json from the official 2026 NLM MeSH XML release.
 
 Source:
 https://nlmpubs.nlm.nih.gov/projects/mesh/MESH_FILES/xmlmesh/desc2026.zip
