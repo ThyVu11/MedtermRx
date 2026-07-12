@@ -1,0 +1,29 @@
+{
+  "name": "medterm-backend",
+  "version": "1.0.0",
+  "description": "REST API for the Medical Terminology Study app",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "validate:data": "tsx scripts/validate-medical-data.ts",
+    "build:data": "tsx scripts/build-medical-data.ts",
+    "prepare:data": "npm run validate:data && npm run build:data",
+    "download:mesh": "tsx scripts/download-mesh.ts",
+    "download:mesh:force": "tsx scripts/download-mesh.ts 2026 --force"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "fast-glob": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.19.43",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.3",
+    "tsx": "^4.23.0"
+  }
+}

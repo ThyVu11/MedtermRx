@@ -1,0 +1,27 @@
+# Dependencies
+backend/node_modules/
+mobile/node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Generated dataset
+backend/dist/
+backend/data/
+
+
+# Logs
+*.log
+
+# macOS
+.DS_Store
+
+# Build output
+build/
+backend/.mesh-cache/
