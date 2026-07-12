@@ -1,12 +1,24 @@
-# MedTerm Study
+# MedTermRx
 
-A TypeScript mobile app to help med students learn medical terminology through
-flashcards and multiple-choice quizzes, backed by a small REST API.
+MedTermRx is a TypeScript study app for medical terminology. It combines an Expo-powered React Native mobile client with a lightweight Express backend to support flashcards, quizzes, root/term search, scanning, and confusable term review.
 
-- **mobile/** — React Native app (Expo + TypeScript)
-- **backend/** — Node.js REST API (Express + TypeScript)
+## Repository structure
 
-## 1. Run the backend
+- `backend/` — Node.js + TypeScript REST API
+- `mobile/` — Expo React Native app
+
+## What it does
+
+- Search and explore medical terms, roots, prefixes, and suffixes
+- Flip flashcards and track spaced-repetition review progress
+- Take multiple-choice quizzes
+- Scan text and match medical terms automatically
+- Browse confusable term pairs and high-risk look-alikes
+- Persist review deck state locally on the device
+
+## Quickstart
+
+### 1. Start the backend
 
 ```bash
 cd backend
@@ -14,37 +26,13 @@ npm install
 npm run dev
 ```
 
-This starts the API at `http://localhost:3000`. Try it: `http://localhost:3000/api/terms`.
+The backend listens on `http://localhost:3000` by default. Verify with:
 
-
-(If needed) Install MeSH 2026 (Medical Subject Headings) 
 ```bash
-npm run download:mesh
+curl http://localhost:3000/api/terms
 ```
 
-### Endpoints
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/terms` | All terms (optional `?category=`) |
-| GET | `/api/terms/:id` | Single term |
-| GET | `/api/terms/categories` | Categories with counts |
-| GET | `/api/terms/random?count=10&category=` | Random terms for flashcards |
-| GET | `/api/terms/quiz?count=10&category=` | Multiple-choice quiz questions |
-
-Term data lives in `backend/src/data/terms.ts` — add more terms there any time,
-no schema changes needed.
-
-## 2. Point the app at your backend
-
-Edit `mobile/src/api/client.ts` — the default `http://localhost:3000/api` only
-works in the **iOS simulator**. Otherwise:
-
-- **Android emulator** → `http://10.0.2.2:3000/api`
-- **Physical phone (Expo Go)** → `http://<your-computer's-LAN-IP>:3000/api`
-  (find it with `ipconfig getifaddr en0` on Mac, or `ipconfig` on Windows —
-  your phone and computer must be on the same Wi-Fi network)
-
-## 3. Run the mobile app
+### 2. Start the mobile app
 
 ```bash
 cd mobile
@@ -52,26 +40,110 @@ npm install
 npm start
 ```
 
-This opens the Expo dev tools. From there:
-- Press `i` for the iOS simulator (Mac only, needs Xcode)
-- Press `a` for the Android emulator (needs Android Studio)
-- Scan the QR code with the **Expo Go** app on your phone for the fastest way
-  to try it on a real device
+This opens Expo Dev Tools. Then:
 
-## App features
+- Press `i` to open the iOS simulator (Mac only)
+- Press `a` to open the Android emulator
+- Scan the QR code with Expo Go to run on a physical device
 
-- **Flashcards** — tap a card to flip between the term and its definition, with
-  an example sentence for context
-- **Quiz** — multiple-choice questions pulled from the term bank, with instant
-  right/wrong feedback and a score summary
-- **Browse by category** — Prefixes, Suffixes, Roots, and body-system term sets
-  (Cardiovascular, Respiratory, Musculoskeletal, GI, Neuro) plus common
-  abbreviations
+### 3. Configure the API base URL
+
+The mobile app loads the backend URL from `mobile/src/api/client.ts`:
+
+```ts
+const LAN_IP = process.env.LAN_IP || "localhost";
+export const API_BASE_URL = `http://${LAN_IP}:3000/api`;
+```
+
+- For iOS simulator, `localhost` usually works
+- For Android emulator, `LAN_IP=10.0.2.2` is often required
+- For a real phone, set `LAN_IP` to your computer's LAN IP and keep both devices on the same network
+
+## Backend features
+
+The backend provides term, root, confusable, and progress APIs.
+
+### Main endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/api/terms` | List terms; supports `?category=` and `?q=` |
+| POST | `/api/terms/scan` | Scan text and return matching terms |
+| GET | `/api/terms/confusables/all` | All confusable pairs; optional `?termId=` |
+| GET | `/api/terms/:id` | Get a single term |
+| GET | `/api/roots` | List roots and affixes; supports `?category=`, `?type=`, `?q=` |
+| GET | `/api/roots/categories` | List available root categories |
+| GET | `/api/roots/:id` | Get a single root entry |
+| GET | `/api/progress/:userId` | Load saved deck progress for a user |
+| PUT | `/api/progress/:userId` | Save review deck progress |
+
+### Data and scripts
+
+- Term and root data are stored in `backend/data/`
+- Confusable pairs live in `backend/data/confusables/confusables.json`
+- Extra scripts are available in `backend/scripts/`
+
+Useful backend commands:
+
+```bash
+npm run validate:data
+npm run build:data
+npm run prepare:data
+npm run download:mesh
+npm run download:mesh:force
+```
+
+## Mobile app features
+
+- Dashboard with due review count, deck size, and mastery progress
+- Review session powered by spaced repetition
+- Scanner tool that detects medical terms in free text
+- Term dissector for prefix/root/suffix breakdown
+- Root library for browsing prefixes, roots, and suffixes
+- Confusables review for high-risk look-alike terms
+- Local deck storage via AsyncStorage
+
+## Development notes
+
+- The backend does not use a persistent database; progress data is stored in memory in `backend/src/routes/progress.ts`
+- The mobile app keeps review deck state on-device in `mobile/src/utils/deckStorage.ts`
+- If you add terms or roots, update the JSON files under `backend/data/` and rebuild if needed
+
+## Useful commands
+
+### Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Mobile
+
+```bash
+cd mobile
+npm install
+npm start
+```
+
+### Build backend for production
+
+```bash
+cd backend
+npm run build
+npm start
+```
+
+### Build mobile data assets
+
+```bash
+cd mobile
+npm run build:data
+```
 
 ## Notes
 
-- No database — the backend keeps terms in memory for simplicity. Swap in
-  Postgres/SQLite later without touching the mobile app, since it only talks
-  to the REST endpoints.
-- No auth/user accounts yet. If you want to track individual progress or
-  spaced-repetition scheduling, that's a natural next step — happy to add it.
+- The app is designed as a lightweight study tool, not a full LMS
+- No authentication is included yet
+- The API and mobile client are separated so the backend can be replaced without changing the app
