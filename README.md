@@ -1,5 +1,7 @@
 # MedTermRx
 
+![Version 1.0.0](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)
+
 MedTermRx is a TypeScript study app for medical terminology. It combines an Expo-powered React Native mobile client with a lightweight Express backend to support flashcards, quizzes, root/term search, scanning, and confusable term review.
 
 ## Repository structure
@@ -142,8 +144,40 @@ cd mobile
 npm run build:data
 ```
 
+### Generate MeSH term data
+
+From the repo root, run:
+
+```bash
+python generate_mesh_terms.py
+```
+
+This downloads the official 2026 MeSH ZIP once into `.mesh-cache/`, extracts the XML, and generates:
+
+- `terms.json`
+- `terms.index.json`
+
+Optional flags:
+
+```bash
+python generate_mesh_terms.py --output mesh-terms.json --merge curated_terms.json
+```
+
 ## Notes
 
 - The app is designed as a lightweight study tool, not a full LMS
 - No authentication is included yet
 - The API and mobile client are separated so the backend can be replaced without changing the app
+
+## Screenshots
+
+
+![Dashboard screenshot](images/v1/Screenshot%202026-07-11%20at%2011.30.39%E2%80%AFPM.png)
+
+![Quiz screenshot](images/v1/Screenshot%202026-07-11%20at%2011.30.50%E2%80%AFPM.png)
+
+![Scanner screenshot](images/v1/Screenshot%202026-07-11%20at%2011.31.01%E2%80%AFPM.png)
+
+![Confusables screenshot](images/v1/Screenshot%202026-07-11%20at%2011.31.15%E2%80%AFPM.png)
+
+
