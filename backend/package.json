@@ -9,9 +9,7 @@
     "start": "node dist/index.js",
     "validate:data": "tsx scripts/validate-medical-data.ts",
     "build:data": "tsx scripts/build-medical-data.ts",
-    "prepare:data": "npm run validate:data && npm run build:data",
-    "download:mesh": "tsx scripts/download-mesh.ts",
-    "download:mesh:force": "tsx scripts/download-mesh.ts 2026 --force"
+    "prepare:data": "npm run validate:data && npm run build:data"
   },
   "dependencies": {
     "cors": "^2.8.5",
