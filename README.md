@@ -66,6 +66,11 @@ const LAN_IP = process.env.LAN_IP || "localhost";
 export const API_BASE_URL = `http://${LAN_IP}:3000/api`;
 ```
 
+Find your LAN IP, running command below to: 
+```
+ipconfig getifaddr en0
+```
+
 - For iOS simulator, `localhost` usually works
 - For Android emulator, `LAN_IP=10.0.2.2` is often required
 - For a real phone, set `LAN_IP` to your computer's LAN IP and keep both devices on the same network

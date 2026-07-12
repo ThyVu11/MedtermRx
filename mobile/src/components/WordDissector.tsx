@@ -30,6 +30,20 @@ export default function WordDissector({ term, onAddToDeck, inDeck }: Props) {
       <Text style={styles.defLabel}>Definition</Text>
       <Text style={styles.definition}>{term.definition}</Text>
 
+      {term.relatedTerms?.length > 0 && (
+        <>
+          <Text style={styles.metaLabel}>Related terms</Text>
+          <Text style={styles.metaText}>{term.relatedTerms.join(", ")}</Text>
+        </>
+      )}
+
+      {term.mnemonicSeed ? (
+        <>
+          <Text style={styles.metaLabel}>Mnemonic</Text>
+          <Text style={styles.metaText}>{term.mnemonicSeed}</Text>
+        </>
+      ) : null}
+
       {onAddToDeck && (
         <TouchableOpacity
           style={[styles.addButton, inDeck && styles.addButtonDone]}
@@ -90,6 +104,21 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 21,
     color: colors.textPrimary,
+  },
+  metaLabel: {
+    ...typography.label,
+    fontSize: 11,
+    color: colors.textSecondary,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
+  },
+  metaText: {
+    fontSize: 15,
+    lineHeight: 21,
+    color: colors.textPrimary,
+    backgroundColor: colors.paper,
+    borderRadius: radii.sm,
+    padding: spacing.sm,
   },
   addButton: {
     marginTop: spacing.lg,

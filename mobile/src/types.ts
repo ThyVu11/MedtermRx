@@ -1,5 +1,5 @@
 export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
-export type CategoryType = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory";
+export type CategoryType = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory" | "technology";
 
 
 export interface WordPart {

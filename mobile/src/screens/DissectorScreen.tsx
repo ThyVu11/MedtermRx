@@ -18,7 +18,10 @@ const FILTERS: { key: CategoryType | "all"; label: string }[] = [
   { key: "gastrointestinal", label: "Gastrointestinal" },
   { key: "musculoskeletal", label: "Musculoskeletal" },
   { key: "hematology", label: "Hematology" },
-  { key: "sensory", label: "Sensory" }
+  { key: "sensory", label: "Sensory" },
+  { key: "anatomy", label: "Anatomy" },
+  { key: "organisms", label: "Organisms" },
+  // { key: "technology", label: "Technology" }
 ];
 
 export default function DissectorScreen({ navigation, route }: Props) {
