@@ -7,7 +7,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fg from "fast-glob";
-import { RootEntry, Term } from "../../mobile/src/types";
+import { ConfusablePair, RootEntry, Term } from "../../mobile/src/types";
 import { loadDataset } from "./libs/loadDataset";
 
 interface BaseRecord {
@@ -89,13 +89,13 @@ async function main(): Promise<void> {
     );
 
 const roots =
-    await loadDataset<Root>(
+    await loadDataset<RootEntry>(
         "roots/**/*.json",
         "roots"
     );
 
 const confusables =
-    await loadDataset<Confusable>(
+    await loadDataset<ConfusablePair>(
         "confusables/**/*.json",
         "confusables"
     );

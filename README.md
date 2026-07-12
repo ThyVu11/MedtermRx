@@ -16,6 +16,12 @@ npm run dev
 
 This starts the API at `http://localhost:3000`. Try it: `http://localhost:3000/api/terms`.
 
+
+(If needed) Install MeSH 2026 (Medical Subject Headings) 
+```bash
+npm run download:mesh
+```
+
 ### Endpoints
 | Method | Path | Description |
 |---|---|---|
