@@ -16,7 +16,7 @@ export default function WordDissector({ term, onAddToDeck, inDeck }: Props) {
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Specimen</Text>
         <Text style={styles.word}>{term.word}</Text>
-        <Text style={styles.pronunciation}>/{term.pronunciation}/</Text>
+        <Text style={styles.pronunciation}>{term.pronunciation !== "" ? `/${term.pronunciation}/` : ""}</Text>
       </View>
 
       <View style={styles.partsRow}>

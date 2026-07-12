@@ -107,19 +107,6 @@ export default function DissectorScreen({ navigation, route }: Props) {
         }
         contentContainerStyle={results.length === 0 ? styles.emptyContainer : undefined}
       />
-      
-
-      {/* <FlatList
-        data={results}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TermCard term={item} onPress={() =>  navigation.navigate("TermDetail", { termId: item.id })} />
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>No terms match “{query}” yet — try a different spelling.</Text>
-        }
-        contentContainerStyle={results.length === 0 ? styles.emptyContainer : undefined}
-      /> */}
     </View>
   );
 }
