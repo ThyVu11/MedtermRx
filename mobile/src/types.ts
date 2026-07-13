@@ -1,6 +1,26 @@
 export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
-export type CategoryType = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory" | "technology";
+export type Category = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory" | "technology" | "information_science" | "behavioral_health" | "population" | "healthcare" | "specialties" | "humanities" | "endocrine" | "reproductive" | "diagnostics_and_therapeutics" | "disease" | "biological_sciences";
 
+export type RootStackParamList = {
+  Dashboard: undefined;
+  Dissector: { initialQuery?: string } | undefined;
+  Scanner: undefined;
+  RootLibrary: undefined;
+  Confusables: undefined;
+  Review: undefined;
+  Flashcard: { category?: Category} | undefined;
+  TermDetail: { termId: string };
+  MemoryMap: undefined;
+  OrganDetail: { category: AnatomicalCategory };
+  KeywordMnemonics: undefined;
+  Quiz: { category?: Category } | undefined;
+  QuizResult: { score: number; total: number };
+};
+
+export interface TermSection {
+  title: string;
+  data: Term[];
+}
 
 export interface WordPart {
   text: string;
@@ -81,6 +101,8 @@ export interface Term {
   tags: string[];
 
   mnemonicSeed?: string;
+  
+  keywordHint: string | undefined;
 }
 
 export type ReviewMode = "root_recall" | "spelling" | "confusable" | "definition";
@@ -96,3 +118,31 @@ export interface DeckCard {
 }
 
 export type ReviewQuality = 0 | 1 | 2 | 3 | 4 | 5;
+
+// Categories with a real anatomical home, used by the Memory Map.
+export type AnatomicalCategory =
+  | "Neurological"
+  | "Respiratory"
+  | "Cardiovascular"
+  | "Gastrointestinal"
+  | "Musculoskeletal"
+  | "Sensory"
+  | "Endocrine"
+  | "Urinary";
+
+// Categories with no body location, anchored via keyword imagery instead.
+export type WordPartCategory = "Prefix" | "Suffix" | "Root";
+
+export interface CategorySummary {
+  category: Category;
+  count: number;
+}
+
+
+export interface QuizQuestion {
+  id: string;
+  term: string;
+  choices: string[];
+  correctAnswer: string;
+  category: Category;
+}

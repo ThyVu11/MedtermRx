@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { MedicalTerm } from "../types";
+import { Term } from "../types";
 
 interface Props {
-  term: MedicalTerm;
+  term: Term;
 }
 
 export default function Flashcard({ term }: Props) {
@@ -19,13 +19,13 @@ export default function Flashcard({ term }: Props) {
       <Text style={styles.category}>{term.category}</Text>
       {!revealed ? (
         <>
-          <Text style={styles.term}>{term.term}</Text>
+          <Text style={styles.term}>{term.word}</Text>
           <Text style={styles.hint}>Tap to reveal definition</Text>
         </>
       ) : (
         <>
           <Text style={styles.definition}>{term.definition}</Text>
-          {term.example ? <Text style={styles.example}>{term.example}</Text> : null}
+          {term.examples ? <Text style={styles.example}>{term.examples}</Text> : null}
           <Text style={styles.hint}>Tap to go back</Text>
         </>
       )}

@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { View, TextInput, FlatList, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { View, TextInput, StyleSheet, Text, TouchableOpacity, SectionList } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, radii, spacing, typography } from "@/theme";
 import TermCard from "@/components/TermCard";
-import type { RootStackParamList } from "@/navigation/AppNavigator";
-import { CategoryType, Term } from "@/types";
+import { Category, RootStackParamList, Term, TermSection } from "@/types";
 import { searchTerms } from "@/api/terms";
+import { useDebounce } from "@/hooks/useDebounce";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dissector">;
 
-const FILTERS: { key: CategoryType | "all"; label: string }[] = [
+const FILTERS: { key: Category| "all"; label: string }[] = [
   { key: "all", label: "All" },
   { key: "cardiovascular", label: "Cardiovascular" },
   { key: "urinary", label: "Urinary" },
@@ -21,20 +21,38 @@ const FILTERS: { key: CategoryType | "all"; label: string }[] = [
   { key: "sensory", label: "Sensory" },
   { key: "anatomy", label: "Anatomy" },
   { key: "organisms", label: "Organisms" },
-  // { key: "technology", label: "Technology" }
+  { key: "technology", label: "Technology" },
+  // { key: "information_science", label: "Information Science" },
+  // { key: "behavioral_health", label: "Behavioral Health" },
+  // { key: "population", label: "Population" },
+  // { key: "healthcare", label: "Healthcare" },
+  // { key: "specialties", label: "Specialties" },
+  // { key: "humanities", label: "Humanities" },
+  { key: "endocrine", label: "Endocrine" },
+  // { key: "reproductive", label: "Reproductive" },
+  // { key: "diagnostics_and_therapeutics", label: "Diagnostics & Therapeutics" },
+  { key: "disease", label: "Disease" },
+  // { key: "biological_sciences", label: "Biological Sciences" },
 ];
+
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
 
 export default function DissectorScreen({ navigation, route }: Props) {
   const [terms, setTerms] = useState<Term[]>([]);
-  const [filter, setFilter] = useState<CategoryType | "all">("all");
+  const [filter, setFilter] = useState<Category | "all">("all");
   const [query, setQuery] = useState(route.params?.initialQuery ?? "");
+  const debouncedQuery = useDebounce(query, 300);
   const [loading, setLoading] = useState(false);
+  const sectionListRef = useRef<SectionList<Term, TermSection>>(null);
+  const pendingSectionIndexRef = useRef<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
 
-    searchTerms(query)
+    searchTerms(debouncedQuery)
       .then((results) => {
         if (!active) return;
         setTerms(results);
@@ -51,26 +69,78 @@ export default function DissectorScreen({ navigation, route }: Props) {
     return () => {
       active = false;
     };
-  }, [query]);
+  }, [debouncedQuery]);
 
-  const results = useMemo(() => {
-    const lowerQuery = query.trim().toLowerCase();
+  const filteredTerms = useMemo(() => {
+  if (filter === "all") {
+    return terms;
+  }
 
-    const filtered = terms.filter((term) => {
-      if (filter !== "all" && term.category !== filter) return false;
-      if (!lowerQuery) return true;
+  return terms.filter(
+    (term) => term.category === filter,
+  );
+}, [filter, terms]);
 
-      return (
-        term.word.toLowerCase().includes(lowerQuery) ||
-        term.searchTerms.some((value) => value.toLowerCase().includes(lowerQuery))
-      );
-    });
+const sections = useMemo<TermSection[]>(() => {
+  const groups = new Map<string, Term[]>();
 
-    return filtered;
-  }, [filter, query, terms]);
+  const sortedTerms = [...filteredTerms].sort(
+    (a, b) =>
+      a.word.localeCompare(b.word, undefined, {
+        sensitivity: "base",
+      }),
+  );
+
+  for (const term of sortedTerms) {
+    const firstCharacter =
+      term.word.trim().charAt(0).toUpperCase();
+
+    const letter = /^[A-Z]$/.test(firstCharacter)
+      ? firstCharacter
+      : "#";
+
+    const group = groups.get(letter) ?? [];
+
+    group.push(term);
+    groups.set(letter, group);
+  }
+
+  const orderedLetters = [
+    ...ALPHABET,
+    "#",
+  ];
+
+  return orderedLetters
+    .filter((letter) => groups.has(letter))
+    .map((letter) => ({
+      title: letter,
+      data: groups.get(letter) ?? [],
+    }));
+}, [filteredTerms]);
+
+const scrollToLetter = (letter: string): void => {
+  const sectionIndex = sections.findIndex(
+    (section) => section.title === letter,
+  );
+
+  if (sectionIndex === -1) {
+    return;
+  }
+
+  pendingSectionIndexRef.current = sectionIndex;
+
+  sectionListRef.current?.scrollToLocation({
+    sectionIndex,
+    itemIndex: 0,
+    animated: true,
+    viewPosition: 0,
+    viewOffset: 8,
+  });
+};
 
   return (
     <View style={styles.screen}>
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.title}>Word Dissector</Text>
         <Text style={styles.subtitle}>Search any term to split it into prefix, root, suffix</Text>
@@ -85,52 +155,172 @@ export default function DissectorScreen({ navigation, route }: Props) {
         />
         
       </View>
+
+      {/* CATEGORY FILTERS */}
       <View style={styles.chipRow}>
-        {FILTERS.map((f) => (
-          <TouchableOpacity
-            key={f.key}
-            style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
-            onPress={() => setFilter(f.key)}
-          >
-            <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
-              {f.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      {FILTERS.map((f) => (
+        <TouchableOpacity
+          key={f.key}
+          style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
+          onPress={() => setFilter(f.key)}
+        >
+          <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
+            {f.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
       </View>
 
-      <FlatList
-      data={results}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <TermCard
-          term={item}
+       {/* REVIEW ACTIONS */}
+      {filter !== "all" && (
+        <View style={styles.reviewActions}>
+          <TouchableOpacity
+          style={styles.reviewButton}
           onPress={() =>
-            navigation.navigate("TermDetail", {
-              termId: item.id,
+            navigation.navigate("Flashcard", {
+              category:filter
             })
           }
-        />
-      )}
-      ListEmptyComponent={
-        loading ? (
-          <Text style={styles.empty}>
-            Loading medical terms...
+        >
+          <Text style={styles.reviewButtonTitle}>
+            🗂 Flashcards
           </Text>
-        ) : (
-          <Text style={styles.empty}>
-            {query.trim()
-              ? `No terms match “${query}” yet — try a different spelling.`
-              : "No medical terms are available."}
+
+          <Text style={styles.reviewButtonSubtitle}>
+            Review this category
           </Text>
-        )
-      }
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.reviewButton}
+          onPress={() =>
+            navigation.navigate("Quiz", {
+              category: filter
+            })
+          }
+        >
+          <Text style={styles.reviewButtonTitle}>
+            📝 Quiz
+          </Text>
+
+          <Text style={styles.reviewButtonSubtitle}>
+            Test your knowledge
+          </Text>
+        </TouchableOpacity>
+      </View>
+       )}  
+
+
+      {/* AlphabetRow */}
+      <View style={styles.listContainer}>
+  <SectionList
+        ref={sectionListRef}
+        sections={sections}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TermCard
+            term={item}
+            onPress={() =>
+              navigation.navigate("TermDetail", {
+                termId: item.id,
+              })
+            }
+          />
+        )}
+        renderSectionHeader={({ section }) => (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionLetter}>
+              {section.title}
+            </Text>
+          </View>
+        )}
+        onScrollToIndexFailed={(info) => {
+          const targetSectionIndex =
+            pendingSectionIndexRef.current;
+
+          if (targetSectionIndex === null) {
+            return;
+          }
+
+          /*
+          * Move approximately toward the unmeasured item so
+          * React Native renders and measures that area.
+          */
+          sectionListRef.current
+            ?.getScrollResponder()
+            ?.scrollTo({
+              y: info.averageItemLength * info.index,
+              animated: false,
+            });
+
+          setTimeout(() => {
+            sectionListRef.current?.scrollToLocation({
+              sectionIndex: targetSectionIndex,
+              itemIndex: 0,
+              animated: true,
+              viewPosition: 0,
+              viewOffset: 8,
+            });
+
+            pendingSectionIndexRef.current = null;
+          }, 150);
+        }}
+        ListEmptyComponent={
+          loading ? (
+            <Text style={styles.empty}>
+              Loading medical terms...
+            </Text>
+          ) : (
+            <Text style={styles.empty}>
+              {query.trim()
+                ? `No terms match “${query}” yet — try a different spelling.`
+                : "No medical terms are available."}
+            </Text>
+          )
+        }
         contentContainerStyle={[
           styles.listContent,
-          results.length === 0 &&
+          sections.length === 0 &&
             styles.emptyContainer,
         ]}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        stickySectionHeadersEnabled
+        initialNumToRender={30}
+        maxToRenderPerBatch={30}
+        windowSize={15}
       />
+
+    <View style={styles.alphabetSidebar}>
+      {ALPHABET.map((letter) => {
+        const available = sections.some(
+          (section) => section.title === letter,
+        );
+
+        return (
+          <TouchableOpacity
+            key={letter}
+            style={styles.letterButton}
+            disabled={!available}
+            onPress={() =>
+              scrollToLetter(letter)
+            }
+          >
+            <Text
+              style={[
+                styles.letterText,
+                !available &&
+                  styles.letterTextDisabled,
+              ]}
+            >
+              {letter}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+      </View>
+       
     </View>
   );
 }
@@ -189,5 +379,117 @@ const styles = StyleSheet.create({
   },
   filterText: { fontSize: 12, color: colors.textSecondary, fontWeight: "600" },
   filterTextActive: { color: colors.textOnBrand },
-  listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+  // listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+alphabetRow: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  paddingHorizontal: spacing.lg,
+  paddingBottom: spacing.md,
+  gap: 6,
+},
+
+// letterButton: {
+//   width: 28,
+//   height: 28,
+//   alignItems: "center",
+//   justifyContent: "center",
+//   borderRadius: radii.pill,
+//   backgroundColor: colors.paperDim,
+//   borderWidth: 1,
+//   borderColor: colors.line,
+// },
+
+letterButtonDisabled: {
+  opacity: 0.3,
+},
+
+// letterText: {
+//   fontSize: 11,
+//   fontWeight: "700",
+//   color: colors.teal,
+// },
+
+// letterTextDisabled: {
+//   color: colors.textSecondary,
+// },
+
+sectionHeader: {
+  backgroundColor: colors.paper,
+  paddingVertical: spacing.xs,
+  paddingHorizontal: spacing.sm,
+  borderBottomWidth: 1,
+  borderBottomColor: colors.line,
+},
+
+sectionLetter: {
+  ...typography.display,
+  fontSize: 20,
+  color: colors.teal,
+},
+reviewActions: {
+  flexDirection: "row",
+  gap: spacing.md,
+  // marginTop: spacing.md,
+  // marginBottom: spacing.md,
+  padding: spacing.lg, 
+  // paddingBottom: spacing.md,
+
+
+},
+
+reviewButton: {
+  flex: 1,
+  backgroundColor: colors.paperDim,
+  borderRadius: radii.lg,
+  borderWidth: 1,
+  borderColor: colors.line,
+  padding: spacing.md,
+},
+
+reviewButtonTitle: {
+  ...typography.display,
+  fontSize: 16,
+  color: colors.teal,
+},
+
+reviewButtonSubtitle: {
+  marginTop: spacing.xs,
+  fontSize: 12,
+  color: colors.textSecondary,
+},
+listContainer: {
+  flex: 1,
+},
+alphabetSidebar: {
+  position: "absolute",
+  right: 2,
+  top: 20,
+  bottom: 20,
+
+  justifyContent: "space-evenly",
+  alignItems: "center",
+
+  width: 24,
+},
+letterButton: {
+  width: 20,
+  height: 20,
+
+  alignItems: "center",
+  justifyContent: "center",
+},
+letterText: {
+  fontSize: 11,
+  fontWeight: "700",
+  color: colors.teal,
+},
+letterTextDisabled: {
+  color: colors.textSecondary,
+  opacity: 0.3,
+},
+listContent: {
+  paddingHorizontal: spacing.lg,
+  paddingRight: 36,
+  paddingBottom: spacing.xl,
+},
 });

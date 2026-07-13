@@ -28,7 +28,7 @@ import { matchTermsInText } from "@/utils/matchTerms";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { fetchTerms } from "@/features/termsSlice";
 import type { Term } from "@/types";
-import type { RootStackParamList } from "@/navigation/AppNavigator";
+import type { RootStackParamList } from "@/types";
 
 type Props = NativeStackScreenProps<
   RootStackParamList,

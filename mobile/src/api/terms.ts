@@ -1,5 +1,5 @@
 import { apiGet } from "./client";
-import type { ConfusablePair, Term } from "@/types";
+import type { Category, ConfusablePair, QuizQuestion, Term } from "@/types";
 
 const ALLOWED_CATEGORIES = new Set([
   "anatomy",
@@ -20,7 +20,7 @@ const ALLOWED_CATEGORIES = new Set([
   "musculoskeletal",
   // "integumentary",
   // "general",
-  // "endocrine",
+  "endocrine",
   // "reproductive",
   "sensory",
   "diagnostics_and_therapeutics",
@@ -59,10 +59,25 @@ export function getTermById(id: string): Promise<Term> {
   return apiGet<Term>(`/terms/${encodeURIComponent(id)}`);
 }
 
+export function getRandomTerms(category?: Category): Promise<Term[]> {
+  const params = new URLSearchParams();
+  if (category) {
+    params.set("category", category);
+  }
+  console.log(`Fetching random terms with params: ${params.toString()}`);
+  return apiGet<Term[]>(`/terms/random?${params.toString()}`);
+}
+
 export function getConfusablesForTerm(termId: string): Promise<ConfusablePair[]> {
   return apiGet<ConfusablePair[]>(`/terms/confusables/all?termId=${encodeURIComponent(termId)}`);
 }
 
 export function getAllConfusables(): Promise<ConfusablePair[]> {
   return apiGet<ConfusablePair[]>("/terms/confusables/all");
+}
+
+export function getQuiz( category?: Category): Promise<QuizQuestion[]> {
+  const params = new URLSearchParams();
+  if (category) params.set("category", category);
+  return apiGet<QuizQuestion[]>(`/terms/quiz?${params.toString()}`);
 }

@@ -8,7 +8,7 @@ import { dueCards } from "@/utils/spacedRepetition";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { fetchTerms } from "@/features/termsSlice";
 import { fetchConfusables } from "@/features/confusablesSlice";
-import type { RootStackParamList } from "@/navigation/AppNavigator";
+import type { RootStackParamList } from "@/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dashboard">;
 
@@ -82,6 +82,14 @@ export default function DashboardScreen({ navigation }: Props) {
           desc="Point your camera at a textbook and dissect words instantly"
           onPress={() => navigation.navigate("Scanner")}
         />
+
+        
+        {/* <ToolCard
+            label="Keyword Mnemonics (word parts)"
+            desc="Search any term and see its prefix, root, and suffix"
+            onPress={() => navigation.navigate("KeywordMnemonics")}
+          /> */}
+
         <ToolCard
           label="Dissector"
           desc="Search any term and see its prefix, root, and suffix"
@@ -97,7 +105,15 @@ export default function DashboardScreen({ navigation }: Props) {
           desc="Browse every prefix, root, and suffix by body system"
           onPress={() => navigation.navigate("RootLibrary")}
         />
+       
+        <ToolCard
+          label="Memory Map (anatomy)"
+          desc="Search any term and see its prefix, root, and suffix"
+          onPress={() => navigation.navigate("MemoryMap")}
+        />
+       
       </View>
+      
 
       <Text style={styles.footerNote}>
         {terms.length} terms dissected and growing — every scan or search adds new ones to your

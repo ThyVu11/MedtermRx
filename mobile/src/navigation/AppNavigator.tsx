@@ -10,16 +10,12 @@ import RootLibraryScreen from "../screens/RootLibraryScreen";
 import ConfusablesScreen from "../screens/ConfusablesScreen";
 import ReviewScreen from "../screens/ReviewScreen";
 import TermDetailScreen from "../screens/TermDetailScreen";
-
-export type RootStackParamList = {
-  Dashboard: undefined;
-  Dissector: { initialQuery?: string } | undefined;
-  Scanner: undefined;
-  RootLibrary: undefined;
-  Confusables: undefined;
-  Review: undefined;
-  TermDetail: { termId: string };
-};
+import { RootStackParamList } from "@/types";
+import FlashcardScreen from "@/screens/FlashcardScreen";
+import MemoryMapScreen from "@/screens/MemoryMapScreen";
+import KeywordMnemonicScreen from "@/screens/KeywordMnemonicScreen";
+import OrganDetailScreen from "@/screens/OrganDetailScreen";
+import QuizScreen from "@/screens/QuizScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -56,6 +52,23 @@ export default function AppNavigator() {
           name="TermDetail"
           component={TermDetailScreen}
           options={{ title: "Dissection" }}
+        />
+        <Stack.Screen name="MemoryMap" component={MemoryMapScreen} options={{ title: "Memory Map" }} />
+        <Stack.Screen name="OrganDetail" component={OrganDetailScreen} options={{ title: "Region" }} />
+        {/* <Stack.Screen
+          name="KeywordMnemonics"
+          component={KeywordMnemonicScreen}
+          options={{ title: "Keyword Mnemonics" }}
+        /> */}
+        <Stack.Screen
+          name="Flashcard"
+          component={FlashcardScreen}
+          options={{ title: "Flashcards" }}
+        />
+        <Stack.Screen
+          name="Quiz"
+          component={QuizScreen}
+          options={{ title: "Quiz" }}
         />
       </Stack.Navigator>
     </NavigationContainer>

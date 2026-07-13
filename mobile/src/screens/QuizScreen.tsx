@@ -4,13 +4,11 @@ import {
   Text,
   Pressable,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList, QuizQuestion } from "../types";
 import { getQuiz } from "../api/terms";
-
 type Props = NativeStackScreenProps<RootStackParamList, "Quiz">;
 
 export default function QuizScreen({ route, navigation }: Props) {
@@ -23,25 +21,25 @@ export default function QuizScreen({ route, navigation }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getQuiz(10, category)
+    getQuiz(category)
       .then(setQuestions)
-      .catch((e) => setError(e.message))
+      .catch((e:any) => setError(e.message))
       .finally(() => setLoading(false));
   }, [category]);
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.center}>
+      <View style={styles.center}>
         <ActivityIndicator size="large" color="#0F766E" />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={styles.center}>
+      <View style={styles.center}>
         <Text style={styles.error}>{error}</Text>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -65,7 +63,7 @@ export default function QuizScreen({ route, navigation }: Props) {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <View style={styles.container}>
         <Text style={styles.progress}>
           Question {index + 1} / {questions.length}
@@ -73,7 +71,8 @@ export default function QuizScreen({ route, navigation }: Props) {
         <Text style={styles.question}>What does "{current.term}" mean?</Text>
 
         <View style={styles.choices}>
-          {current.choices.map((choice) => {
+          {current.choices.map((choice:string) => {
+            if (typeof choice !== "string") return null;
             const isSelected = selected === choice;
             const isCorrect = choice === current.correctAnswer;
             const showState = selected !== null;
@@ -102,7 +101,7 @@ export default function QuizScreen({ route, navigation }: Props) {
           </Pressable>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -1,5 +1,5 @@
 export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
-export type CategoryType = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory";
+export type Category = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory";
 
 
 export interface WordPart {
@@ -91,4 +91,13 @@ export interface DeckCard {
   easeFactor: number;
   dueDate: string;
   lastReviewed?: string;
+}
+
+
+export interface QuizQuestion {
+  id: string;
+  term: string;
+  choices: string[];
+  correctAnswer: string;
+  category: Category;
 }
