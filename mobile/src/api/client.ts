@@ -1,12 +1,26 @@
-//   (find it with `ipconfig getifaddr en0` on Mac, or `ipconfig` on Windows)
-const LAN_IP = process.env.LAN_IP || "localhost";
-export const API_BASE_URL = `http://${LAN_IP}:3000/api`;
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error(
+    "EXPO_PUBLIC_API_URL is not configured. Add it to the mobile/.env file.",
+  );
+}
 
 export async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`);
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${API_BASE_URL}${normalizedPath}`;
+
+  const res = await fetch(url);
+
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || `Request failed: ${res.status}`);
+    const body = await res
+      .json()
+      .catch(() => null) as { error?: string } | null;
+
+    throw new Error(
+      body?.error ?? `Request failed: ${res.status}`,
+    );
   }
-  return res.json() as Promise<T>;
+
+  return (await res.json()) as T;
 }

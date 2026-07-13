@@ -99,16 +99,37 @@ export default function DissectorScreen({ navigation, route }: Props) {
         ))}
       </View>
 
-       <FlatList
-        data={results}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TermCard term={item} onPress={() =>  navigation.navigate("TermDetail", { termId: item.id })} />
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>No terms match “{query}” yet — try a different spelling.</Text>
-        }
-        contentContainerStyle={results.length === 0 ? styles.emptyContainer : undefined}
+      <FlatList
+      data={results}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <TermCard
+          term={item}
+          onPress={() =>
+            navigation.navigate("TermDetail", {
+              termId: item.id,
+            })
+          }
+        />
+      )}
+      ListEmptyComponent={
+        loading ? (
+          <Text style={styles.empty}>
+            Loading medical terms...
+          </Text>
+        ) : (
+          <Text style={styles.empty}>
+            {query.trim()
+              ? `No terms match “${query}” yet — try a different spelling.`
+              : "No medical terms are available."}
+          </Text>
+        )
+      }
+        contentContainerStyle={[
+          styles.listContent,
+          results.length === 0 &&
+            styles.emptyContainer,
+        ]}
       />
     </View>
   );
@@ -168,4 +189,5 @@ const styles = StyleSheet.create({
   },
   filterText: { fontSize: 12, color: colors.textSecondary, fontWeight: "600" },
   filterTextActive: { color: colors.textOnBrand },
+  listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
 });
