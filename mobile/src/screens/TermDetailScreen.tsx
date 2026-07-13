@@ -9,7 +9,7 @@ import { fetchConfusables } from "@/features/confusablesSlice";
 import WordDissector from "@/components/WordDissector";
 import { generateMnemonic } from "@/utils/mnemonicGenerator";
 import { loadDeck, addTermToDeck } from "@/utils/deckStorage";
-import type { RootStackParamList } from "@/navigation/AppNavigator";
+import { RootStackParamList } from "@/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "TermDetail">;
 
@@ -67,9 +67,19 @@ export default function TermDetailScreen({ route, navigation }: Props) {
           setInDeck(true);
         }}
       />
+      <TouchableOpacity
+              style={styles.aiTutorButton}
+              onPress={() =>
+                navigation.navigate("AITutor", {
+                  termId: term.id,
+                })
+              }
+            >
+              <Text style={styles.aiTutorButtonText}>
+                ✨ Ask AI Tutor
+              </Text>
+            </TouchableOpacity>
             
-
-
       <View style={styles.mnemonicCard}>
         <Text style={styles.mnemonicEyebrow}>
           {mnemonic.generated ? "Auto-generated memory anchor" : "Memory anchor"}
@@ -77,6 +87,7 @@ export default function TermDetailScreen({ route, navigation }: Props) {
         <Text style={styles.emojiStrip}>{mnemonic.emojiStrip}</Text>
         <Text style={styles.mnemonicScene}>{mnemonic.scene}</Text>
       </View>
+
       {relatedConfusables.length > 0 && (
         <View style={styles.confusableAlert}>
           <Text>Related Terms: {term.relatedTerms.join(", ")}</Text>
@@ -85,8 +96,6 @@ export default function TermDetailScreen({ route, navigation }: Props) {
             This term is easy to confuse with a look-alike or sound-alike. Review the side-by-side
             comparison before your exam.
           </Text>
-
-          
 
           <TouchableOpacity
             style={styles.confusableButton}
@@ -146,5 +155,18 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontWeight: "700",
     fontSize: 13,
+  },
+  aiTutorButton: {
+    backgroundColor: colors.teal,
+    borderRadius: radii.pill,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+    marginTop: spacing.lg,
+  },
+
+  aiTutorButtonText: {
+    color: colors.textOnBrand,
+    fontWeight: "700",
+    fontSize: 15,
   },
 });

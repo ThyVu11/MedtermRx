@@ -5,6 +5,7 @@ import termsRouter from "./routes/terms";
 import progressRouter from "./routes/progress";
 import ocrRouter from "./routes/ocr";
 import "dotenv/config";
+import aiTutorRouter from "./routes/aiTutor";
 
 
 const app = express();
@@ -51,6 +52,7 @@ app.use(
 app.use("/api/roots", rootsRouter);
 app.use("/api/terms", termsRouter);
 app.use("/api/progress", progressRouter);
+app.use("/api/ai-tutor", aiTutorRouter);
 
 const port = Number(
   process.env.PORT ?? 3000,

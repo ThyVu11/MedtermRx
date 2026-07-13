@@ -15,6 +15,9 @@ export type RootStackParamList = {
   KeywordMnemonics: undefined;
   Quiz: { category?: Category } | undefined;
   QuizResult: { score: number; total: number };
+  AITutor: {
+    termId: string;
+  };
 };
 
 export interface TermSection {
@@ -101,7 +104,7 @@ export interface Term {
   tags: string[];
 
   mnemonicSeed?: string;
-  
+
   keywordHint: string | undefined;
 }
 

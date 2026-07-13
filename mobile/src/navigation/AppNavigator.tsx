@@ -16,6 +16,7 @@ import MemoryMapScreen from "@/screens/MemoryMapScreen";
 import KeywordMnemonicScreen from "@/screens/KeywordMnemonicScreen";
 import OrganDetailScreen from "@/screens/OrganDetailScreen";
 import QuizScreen from "@/screens/QuizScreen";
+import AITutorScreen from "@/screens/AITutorScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -64,6 +65,13 @@ export default function AppNavigator() {
           name="Quiz"
           component={QuizScreen}
           options={{ title: "Quiz" }}
+        />
+        <Stack.Screen
+          name="AITutor"
+          component={AITutorScreen}
+          options={{
+            title: "AI Tutor",
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

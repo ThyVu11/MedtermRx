@@ -18,6 +18,7 @@ export default function WordDissector({ term, onAddToDeck, inDeck }: Props) {
         <Text style={styles.word}>{term.word}</Text>
         <Text style={styles.pronunciation}>{term.pronunciation !== "" ? `/${term.pronunciation}/` : ""}</Text>
       </View>
+      
 
       <View style={styles.partsRow}>
         {term.parts.map((part, idx) => (
@@ -137,5 +138,17 @@ const styles = StyleSheet.create({
   },
   addButtonTextDone: {
     color: colors.success,
+  },
+  aiTutorButton: {
+    marginTop: spacing.lg,
+    backgroundColor: colors.teal,
+    borderRadius: radii.pill,
+    paddingVertical: spacing.sm + 2,
+    alignItems: "center",
+  },
+  aiTutorButtonText: {
+    color: colors.textOnBrand,
+    fontWeight: "700",
+    fontSize: 14,
   },
 });
