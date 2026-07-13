@@ -1,3 +1,5 @@
+import { apiPost } from "./api/client";
+
 export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
 export type Category = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory" | "technology" | "information_science" | "behavioral_health" | "population" | "healthcare" | "specialties" | "humanities" | "endocrine" | "reproductive" | "diagnostics_and_therapeutics" | "disease" | "biological_sciences";
 
@@ -148,4 +150,35 @@ export interface QuizQuestion {
   choices: string[];
   correctAnswer: string;
   category: Category;
+}
+
+export type TutorMode =
+  | "chat"
+  | "simple"
+  | "mnemonic"
+  | "clinical_example"
+  | "compare"
+  | "quiz";
+
+export interface TutorRequest {
+  termId: string;
+  message?: string;
+  mode?: TutorMode;
+  previousResponseId?: string;
+}
+
+export interface TutorResponse {
+  answer: string;
+  responseId: string;
+  termId: string;
+  term: string;
+}
+
+export function askAITutor(
+  request: TutorRequest,
+): Promise<TutorResponse> {
+  return apiPost<
+    TutorResponse,
+    TutorRequest
+  >("/ai-tutor", request);
 }

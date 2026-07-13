@@ -18,17 +18,15 @@ import {
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import {
-  askAITutor,
-  type TutorMode,
-} from "@/api/aiTutor";
-import {
   colors,
   radii,
   spacing,
   typography,
 } from "@/theme";
-import type {
-  RootStackParamList,
+import {
+    askAITutor,
+  type RootStackParamList,
+  type TutorMode,
 } from "@/types";
 
 type Props = NativeStackScreenProps<
