@@ -153,7 +153,6 @@ const scrollToLetter = (letter: string): void => {
           autoCapitalize="none"
           autoCorrect={false}
         />
-        
       </View>
 
       {/* CATEGORY FILTERS */}
@@ -209,7 +208,6 @@ const scrollToLetter = (letter: string): void => {
         </TouchableOpacity>
       </View>
        )}  
-
 
       {/* AlphabetRow */}
       <View style={styles.listContainer}>
@@ -388,30 +386,9 @@ alphabetRow: {
   gap: 6,
 },
 
-// letterButton: {
-//   width: 28,
-//   height: 28,
-//   alignItems: "center",
-//   justifyContent: "center",
-//   borderRadius: radii.pill,
-//   backgroundColor: colors.paperDim,
-//   borderWidth: 1,
-//   borderColor: colors.line,
-// },
-
 letterButtonDisabled: {
   opacity: 0.3,
 },
-
-// letterText: {
-//   fontSize: 11,
-//   fontWeight: "700",
-//   color: colors.teal,
-// },
-
-// letterTextDisabled: {
-//   color: colors.textSecondary,
-// },
 
 sectionHeader: {
   backgroundColor: colors.paper,
@@ -429,12 +406,7 @@ sectionLetter: {
 reviewActions: {
   flexDirection: "row",
   gap: spacing.md,
-  // marginTop: spacing.md,
-  // marginBottom: spacing.md,
   padding: spacing.lg, 
-  // paddingBottom: spacing.md,
-
-
 },
 
 reviewButton: {

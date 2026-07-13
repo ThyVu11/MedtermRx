@@ -82,14 +82,6 @@ export default function DashboardScreen({ navigation }: Props) {
           desc="Point your camera at a textbook and dissect words instantly"
           onPress={() => navigation.navigate("Scanner")}
         />
-
-        
-        {/* <ToolCard
-            label="Keyword Mnemonics (word parts)"
-            desc="Search any term and see its prefix, root, and suffix"
-            onPress={() => navigation.navigate("KeywordMnemonics")}
-          /> */}
-
         <ToolCard
           label="Dissector"
           desc="Search any term and see its prefix, root, and suffix"
@@ -113,8 +105,6 @@ export default function DashboardScreen({ navigation }: Props) {
         />
        
       </View>
-      
-
       <Text style={styles.footerNote}>
         {terms.length} terms dissected and growing — every scan or search adds new ones to your
         library.

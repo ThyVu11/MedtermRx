@@ -83,7 +83,6 @@ export interface Term {
   mnemonicSeed?: string;
 }
 
-
 export interface DeckCard {
   termId: string;
   interval: number;
@@ -92,7 +91,6 @@ export interface DeckCard {
   dueDate: string;
   lastReviewed?: string;
 }
-
 
 export interface QuizQuestion {
   id: string;

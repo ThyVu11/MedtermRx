@@ -55,11 +55,6 @@ export default function AppNavigator() {
         />
         <Stack.Screen name="MemoryMap" component={MemoryMapScreen} options={{ title: "Memory Map" }} />
         <Stack.Screen name="OrganDetail" component={OrganDetailScreen} options={{ title: "Region" }} />
-        {/* <Stack.Screen
-          name="KeywordMnemonics"
-          component={KeywordMnemonicScreen}
-          options={{ title: "Keyword Mnemonics" }}
-        /> */}
         <Stack.Screen
           name="Flashcard"
           component={FlashcardScreen}
