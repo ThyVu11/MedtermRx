@@ -3,6 +3,19 @@ import type { Category, ConfusablePair, QuizQuestion, Term } from "@/types";
 
 const ALLOWED_CATEGORIES = new Set([
   "anatomy",
+  "hematology",
+  "cardiovascular",
+  "urinary",
+  "neurology",
+  "respiratory",
+  "gastrointestinal",
+  "musculoskeletal",
+  "endocrine",
+  "reproductive",
+  "sensory",
+  "diagnostics_and_therapeutics",
+  "disease",
+  "biological_sciences",
   // "technology",
   // "information_science",
   // "organisms",
@@ -11,47 +24,32 @@ const ALLOWED_CATEGORIES = new Set([
   // "healthcare",
   // "specialties",
   // "humanities",
-  "hematology",
-  "cardiovascular",
-  "urinary",
-  "neurology",
-  "respiratory",
-  "gastrointestinal",
-  "musculoskeletal",
   // "integumentary",
   // "general",
-  "endocrine",
-  // "reproductive",
-  "sensory",
-  "diagnostics_and_therapeutics",
-  "disease",
-  "biological_sciences"
 ]);
-
 
 export function getAllTerms(): Promise<Term[]> {
   return apiGet<Term[]>("/terms");
 }
 
-export function searchTerms(query: string): Promise<Term[]> {
+export async function searchTerms(query: string): Promise<Term[]> {
   const q = query.trim().toLowerCase();
 
-  return apiGet<Term[]>(`/terms?query=${encodeURIComponent(query)}`)
-    .then((terms) => {
-      return terms.filter((t) => {
-        if (!ALLOWED_CATEGORIES.has(t.category)) {
-          return false;
-        }
+  const terms = await apiGet<Term[]>(`/terms?query=${encodeURIComponent(q)}`);
 
-      if (!q) {
-        return true;
-      }
+  return terms.filter((term) => {
+    const hasAllowedCategory = term.category.some((category: Category) =>
+      ALLOWED_CATEGORIES.has(category),
+    );
 
-      return (
-        t.word.toLowerCase().includes(q) ||
-        t.searchTerms.some((s) => s.toLowerCase().includes(q))
+    const matchesQuery =
+      !q ||
+      term.word.toLowerCase().includes(q) ||
+      term.searchTerms.some((searchTerm) =>
+        searchTerm.toLowerCase().includes(q),
       );
-    });
+
+    return hasAllowedCategory && matchesQuery;
   });
 }
 
@@ -68,15 +66,19 @@ export function getRandomTerms(category?: Category): Promise<Term[]> {
   return apiGet<Term[]>(`/terms/random?${params.toString()}`);
 }
 
-export function getConfusablesForTerm(termId: string): Promise<ConfusablePair[]> {
-  return apiGet<ConfusablePair[]>(`/terms/confusables/all?termId=${encodeURIComponent(termId)}`);
+export function getConfusablesForTerm(
+  termId: string,
+): Promise<ConfusablePair[]> {
+  return apiGet<ConfusablePair[]>(
+    `/terms/confusables/all?termId=${encodeURIComponent(termId)}`,
+  );
 }
 
 export function getAllConfusables(): Promise<ConfusablePair[]> {
   return apiGet<ConfusablePair[]>("/terms/confusables/all");
 }
 
-export function getQuiz( category?: Category): Promise<QuizQuestion[]> {
+export function getQuiz(category?: Category): Promise<QuizQuestion[]> {
   const params = new URLSearchParams();
   if (category) params.set("category", category);
   return apiGet<QuizQuestion[]>(`/terms/quiz?${params.toString()}`);

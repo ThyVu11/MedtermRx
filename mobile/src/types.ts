@@ -1,6 +1,30 @@
 export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
-export type Category = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory" | "technology" | "information_science" | "behavioral_health" | "population" | "healthcare" | "specialties" | "humanities" | "endocrine" | "reproductive" | "diagnostics_and_therapeutics" | "disease" | "biological_sciences";
+export const CATEGORIES = [
+  "anatomy",
+  // "organisms",
+  "hematology",
+  "cardiovascular",
+  "urinary",
+  "neurology",
+  "respiratory",
+  "gastrointestinal",
+  "musculoskeletal",
+  "sensory",
+  "endocrine",
+  "reproductive",
+  "diagnostics_and_therapeutics",
+  "disease",
+  // "technology",
+  // "information_science",
+  // "behavioral_health",
+  // "population",
+  // "healthcare",
+  // "specialties",
+  // "humanities",
+  // "biological_sciences",
+] as const;
 
+export type Category = (typeof CATEGORIES)[number];
 export type RootStackParamList = {
   Dashboard: undefined;
   Dissector: { initialQuery?: string } | undefined;
@@ -8,7 +32,7 @@ export type RootStackParamList = {
   RootLibrary: undefined;
   Confusables: undefined;
   Review: undefined;
-  Flashcard: { category?: Category} | undefined;
+  Flashcard: { category?: Category } | undefined;
   TermDetail: { termId: string };
   MemoryMap: undefined;
   OrganDetail: { category: AnatomicalCategory };
@@ -40,23 +64,18 @@ export interface RootEntry {
   text: string;
   type: PartType;
   meaning: string;
-  plainMeaning:string;
+  plainMeaning: string;
   origin: "Greek" | "Latin" | "Greek/Latin" | "English";
   category: string;
-  bodySystem:string;
+  bodySystem: string;
   examples: RootEntryExample[];
-  relatedRoots:string[];
+  relatedRoots: string[];
   difficulty: string;
   frequency: number;
   mnemonicSeed: string;
 }
 
-export type WordPartType =
-  | "prefix"
-  | "root"
-  | "combining_form"
-  | "suffix";
-
+export type WordPartType = "prefix" | "root" | "combining_form" | "suffix";
 
 export interface ConfusablePair {
   id: string;
@@ -76,7 +95,7 @@ export interface Term {
   plainDefinition: string;
   pronunciation: string;
   ipa: string;
-  category: string;
+  category: Category[];
 
   bodySystem: string;
 
@@ -101,11 +120,15 @@ export interface Term {
   tags: string[];
 
   mnemonicSeed?: string;
-  
+
   keywordHint: string | undefined;
 }
 
-export type ReviewMode = "root_recall" | "spelling" | "confusable" | "definition";
+export type ReviewMode =
+  | "root_recall"
+  | "spelling"
+  | "confusable"
+  | "definition";
 
 export interface DeckCard {
   termId: string;
@@ -128,7 +151,8 @@ export type AnatomicalCategory =
   | "Musculoskeletal"
   | "Sensory"
   | "Endocrine"
-  | "Urinary";
+  | "Urinary"
+  | "Reproductive";
 
 // Categories with no body location, anchored via keyword imagery instead.
 export type WordPartCategory = "Prefix" | "Suffix" | "Root";
@@ -137,7 +161,6 @@ export interface CategorySummary {
   category: Category;
   count: number;
 }
-
 
 export interface QuizQuestion {
   id: string;

@@ -1,6 +1,15 @@
 export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
-export type Category = "anatomy" |"organisms"| "hematology" | "cardiovascular" | "urinary" | "neurology" | "respiratory" | "gastrointestinal" | "musculoskeletal" | "sensory";
-
+export type Category =
+  | "anatomy"
+  | "organisms"
+  | "hematology"
+  | "cardiovascular"
+  | "urinary"
+  | "neurology"
+  | "respiratory"
+  | "gastrointestinal"
+  | "musculoskeletal"
+  | "sensory";
 
 export interface WordPart {
   text: string;
@@ -20,23 +29,18 @@ export interface RootEntry {
   text: string;
   type: PartType;
   meaning: string;
-  plainMeaning:string;
+  plainMeaning: string;
   origin: "Greek" | "Latin" | "Greek/Latin" | "English";
   category: string;
-  bodySystem:string;
+  bodySystem: string;
   examples: RootEntryExample[];
-  relatedRoots:string[];
+  relatedRoots: string[];
   difficulty: string;
   frequency: number;
   mnemonicSeed: string;
 }
 
-export type WordPartType =
-  | "prefix"
-  | "root"
-  | "combining_form"
-  | "suffix";
-
+export type WordPartType = "prefix" | "root" | "combining_form" | "suffix";
 
 export interface ConfusablePair {
   id: string;
@@ -56,7 +60,7 @@ export interface Term {
   plainDefinition: string;
   pronunciation: string;
   ipa: string;
-  category: string;
+  category: Category[];
 
   bodySystem: string;
 

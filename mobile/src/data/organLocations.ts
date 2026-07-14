@@ -19,6 +19,7 @@ export const ORGAN_LOCATIONS: OrganLocation[] = [
   { category: "Cardiovascular", label: "Heart", x: 168, y: 175, color: "#DC2626" },
   { category: "Gastrointestinal", label: "Stomach", x: 150, y: 245, color: "#CA8A04" },
   { category: "Urinary", label: "Kidneys", x: 178, y: 268, color: "#0891B2" },
+  { category: "Reproductive", label: "Male & Female Gonads", x: 150, y: 290, color: "#de0b98" },
   { category: "Musculoskeletal", label: "Joints", x: 128, y: 380, color: "#059669" },
 ];
 
