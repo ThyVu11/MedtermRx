@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, radii, spacing, typography } from "@/theme";
@@ -9,7 +15,7 @@ import { fetchConfusables } from "@/features/confusablesSlice";
 import WordDissector from "@/components/WordDissector";
 import { generateMnemonic } from "@/utils/mnemonicGenerator";
 import { loadDeck, addTermToDeck } from "@/utils/deckStorage";
-import type { RootStackParamList } from "@/navigation/AppNavigator";
+import { RootStackParamList } from "@/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "TermDetail">;
 
@@ -41,7 +47,7 @@ export default function TermDetailScreen({ route, navigation }: Props) {
       return () => {
         active = false;
       };
-    }, [termId])
+    }, [termId]),
   );
 
   if (!term) {
@@ -54,11 +60,14 @@ export default function TermDetailScreen({ route, navigation }: Props) {
 
   const mnemonic = generateMnemonic(term);
   const relatedConfusables = confusables.filter(
-    (c) => c.termAId === term.id || c.termBId === term.id
+    (c) => c.termAId === term.id || c.termBId === term.id,
   );
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={{ padding: spacing.lg }}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={{ padding: spacing.lg }}
+    >
       <WordDissector
         term={term}
         inDeck={inDeck}
@@ -67,12 +76,12 @@ export default function TermDetailScreen({ route, navigation }: Props) {
           setInDeck(true);
         }}
       />
-            
-
 
       <View style={styles.mnemonicCard}>
         <Text style={styles.mnemonicEyebrow}>
-          {mnemonic.generated ? "Auto-generated memory anchor" : "Memory anchor"}
+          {mnemonic.generated
+            ? "Auto-generated memory anchor"
+            : "Memory anchor"}
         </Text>
         <Text style={styles.emojiStrip}>{mnemonic.emojiStrip}</Text>
         <Text style={styles.mnemonicScene}>{mnemonic.scene}</Text>
@@ -82,11 +91,9 @@ export default function TermDetailScreen({ route, navigation }: Props) {
           <Text>Related Terms: {term.relatedTerms.join(", ")}</Text>
           <Text style={styles.confusableTitle}>⚠ Has a dangerous twin</Text>
           <Text style={styles.confusableBody}>
-            This term is easy to confuse with a look-alike or sound-alike. Review the side-by-side
-            comparison before your exam.
+            This term is easy to confuse with a look-alike or sound-alike.
+            Review the side-by-side comparison before your exam.
           </Text>
-
-          
 
           <TouchableOpacity
             style={styles.confusableButton}

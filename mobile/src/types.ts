@@ -51,6 +51,7 @@ export type Category = (typeof CATEGORIES)[number];
  * ======================================================= */
 
 export type RootStackParamList = {
+  Home: undefined;
   Dashboard: undefined;
 
   Dissector:

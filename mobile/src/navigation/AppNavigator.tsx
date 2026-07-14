@@ -16,6 +16,7 @@ import MemoryMapScreen from "@/screens/MemoryMapScreen";
 import KeywordMnemonicScreen from "@/screens/KeywordMnemonicScreen";
 import OrganDetailScreen from "@/screens/OrganDetailScreen";
 import QuizScreen from "@/screens/QuizScreen";
+import HomeScreen from "@/screens/HomeScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -30,13 +31,26 @@ export default function AppNavigator() {
           headerShadowVisible: false,
         }}
       >
-        <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: "MedTermRx" }} />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ title: "MedTermRx" }}
+        />
+        <Stack.Screen
+          name="Dashboard"
+          component={DashboardScreen}
+          options={{ title: "MedTermRx" }}
+        />
         <Stack.Screen
           name="Dissector"
           component={DissectorScreen}
           options={{ title: "Word Dissector" }}
         />
-        <Stack.Screen name="Scanner" component={ScannerScreen} options={{ title: "Scan & Dissect" }} />
+        <Stack.Screen
+          name="Scanner"
+          component={ScannerScreen}
+          options={{ title: "Scan & Dissect" }}
+        />
         <Stack.Screen
           name="RootLibrary"
           component={RootLibraryScreen}
@@ -47,14 +61,26 @@ export default function AppNavigator() {
           component={ConfusablesScreen}
           options={{ title: "Confusables" }}
         />
-        <Stack.Screen name="Review" component={ReviewScreen} options={{ title: "Review Session" }} />
+        <Stack.Screen
+          name="Review"
+          component={ReviewScreen}
+          options={{ title: "Review Session" }}
+        />
         <Stack.Screen
           name="TermDetail"
           component={TermDetailScreen}
           options={{ title: "Dissection" }}
         />
-        <Stack.Screen name="MemoryMap" component={MemoryMapScreen} options={{ title: "Memory Map" }} />
-        <Stack.Screen name="OrganDetail" component={OrganDetailScreen} options={{ title: "Region" }} />
+        <Stack.Screen
+          name="MemoryMap"
+          component={MemoryMapScreen}
+          options={{ title: "Memory Map" }}
+        />
+        <Stack.Screen
+          name="OrganDetail"
+          component={OrganDetailScreen}
+          options={{ title: "Region" }}
+        />
         <Stack.Screen
           name="Flashcard"
           component={FlashcardScreen}
