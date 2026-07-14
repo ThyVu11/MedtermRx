@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList, Term } from "../types";
+import { Category, RootStackParamList, Term } from "../types";
 import { searchTerms } from "../api/terms";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
 import MnemonicCard from "@/components/MnemonicCard";
@@ -23,34 +23,37 @@ export default function OrganDetailScreen({ route, navigation }: Props) {
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const fetchTerms = async (category: string) => {
-    searchTerms(category)
-        .then((results) => {
-          if (!loading) return;
-          setTerms(results);
-        })
-        .catch(() => {
-          if (!loading) return;
-          setTerms([]);
-        })
-        .finally(() => {
-          if (!loading) return;
-          setLoading(false);
-        });
-  
-      return () => {
-          setLoading(false);
-      };
-  }
+  const loadTerms = async (): Promise<void> => {
+    setLoading(true);
+    setIndex(0);
+    let choosedCategory: Category = category.toLowerCase() as Category;
+
+    try {
+      const results = await searchTerms("", choosedCategory);
+
+      if (loading) {
+        setTerms(results);
+      }
+    } catch (error) {
+      console.error("Failed to load organ terms:", error);
+      if (loading) {
+        setTerms([]);
+      }
+    } finally {
+      if (loading) {
+        setLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    navigation.setOptions({ title: organ ? `${organ.label} · ${category}` : category });
-    fetchTerms(category);
-  },[])
+    navigation.setOptions({
+      title: organ ? `${organ.label} · ${category}` : category,
+    });
 
-  //   fetchTerms();
-  // }, [category, navigation, organ]);
-   
+    void loadTerms();
+  }, [category, navigation, organ]);
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -78,7 +81,8 @@ export default function OrganDetailScreen({ route, navigation }: Props) {
       >
         <View style={styles.container}>
           <Text style={styles.progress}>
-            {index + 1} / {terms.length} at the {organ?.label ?? category} — {organ?.category}
+            {index + 1} / {terms.length} at the {organ?.label ?? category} —{" "}
+            {organ?.category}
           </Text>
 
           <MnemonicCard
@@ -113,7 +117,12 @@ export default function OrganDetailScreen({ route, navigation }: Props) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F0FDFA" },
   flex: { flex: 1 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F0FDFA" },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F0FDFA",
+  },
   container: { flex: 1, padding: 20, justifyContent: "center", gap: 16 },
   progress: { textAlign: "center", color: "#6B7280", fontWeight: "600" },
   nav: { flexDirection: "row", justifyContent: "space-between", gap: 12 },

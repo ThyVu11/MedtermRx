@@ -230,10 +230,6 @@ export default function DissectorScreen({ navigation, route }: Props) {
               return;
             }
 
-            /*
-             * Move approximately toward the unmeasured item so
-             * React Native renders and measures that area.
-             */
             sectionListRef.current?.getScrollResponder()?.scrollTo({
               y: info.averageItemLength * info.index,
               animated: false,

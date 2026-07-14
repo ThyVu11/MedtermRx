@@ -1,7 +1,23 @@
-export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
+/* =========================================================
+ * Shared constants
+ * ======================================================= */
+
+export const PART_TYPES = [
+  "prefix",
+  "root",
+  "combining_form",
+  "combining_vowel",
+  "suffix",
+] as const;
+
+export const ORIGINS = ["Greek", "Latin", "Greek/Latin", "English"] as const;
+
+export const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
+
+export const PARTS_OF_SPEECH = ["noun", "verb", "adjective", "adverb"] as const;
+
 export const CATEGORIES = [
   "anatomy",
-  // "organisms",
   "hematology",
   "cardiovascular",
   "urinary",
@@ -14,158 +30,248 @@ export const CATEGORIES = [
   "reproductive",
   "diagnostics_and_therapeutics",
   "disease",
-  // "technology",
-  // "information_science",
-  // "behavioral_health",
-  // "population",
-  // "healthcare",
-  // "specialties",
-  // "humanities",
-  // "biological_sciences",
 ] as const;
 
+/* =========================================================
+ * Shared union types
+ * ======================================================= */
+
+export type PartType = (typeof PART_TYPES)[number];
+
+export type Origin = (typeof ORIGINS)[number];
+
+export type Difficulty = (typeof DIFFICULTIES)[number];
+
+export type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number];
+
 export type Category = (typeof CATEGORIES)[number];
+
+/* =========================================================
+ * Navigation
+ * ======================================================= */
+
 export type RootStackParamList = {
   Dashboard: undefined;
-  Dissector: { initialQuery?: string } | undefined;
+
+  Dissector:
+    | {
+        initialQuery?: string;
+      }
+    | undefined;
+
   Scanner: undefined;
+
   RootLibrary: undefined;
+
   Confusables: undefined;
+
   Review: undefined;
-  Flashcard: { category?: Category } | undefined;
-  TermDetail: { termId: string };
+
+  Flashcard:
+    | {
+        category?: Category;
+      }
+    | undefined;
+
+  Quiz:
+    | {
+        category?: Category;
+      }
+    | undefined;
+
+  QuizResult: {
+    score: number;
+    total: number;
+  };
+
+  TermDetail: {
+    termId: string;
+  };
+
   MemoryMap: undefined;
-  OrganDetail: { category: AnatomicalCategory };
+
+  OrganDetail: {
+    category: AnatomicalCategory;
+  };
+
   KeywordMnemonics: undefined;
-  Quiz: { category?: Category } | undefined;
-  QuizResult: { score: number; total: number };
 };
+
+/* =========================================================
+ * Medical terminology
+ * ======================================================= */
+
+export interface WordPart {
+  text: string;
+  type: PartType;
+  meaning: string;
+  origin?: Origin;
+}
+
+export interface Term {
+  id: string;
+  word: string;
+
+  searchTerms: string[];
+  parts: WordPart[];
+
+  definition: string;
+  plainDefinition: string;
+
+  pronunciation: string;
+  ipa?: string;
+
+  category: Category[];
+  bodySystem: string;
+
+  difficulty: Difficulty;
+  partOfSpeech: PartOfSpeech;
+
+  relatedTerms: string[];
+  relatedConfusables: string[];
+
+  synonyms: string[];
+  antonyms: string[];
+
+  examples: string[];
+  clinicalPearls: string[];
+
+  commonAbbreviation?: string;
+  wordFamily: string[];
+  tags: string[];
+
+  mnemonicSeed?: string;
+  keywordHint?: string;
+}
 
 export interface TermSection {
   title: string;
   data: Term[];
 }
 
-export interface WordPart {
-  text: string;
-  type: PartType;
-  meaning: string;
-  origin: "Greek" | "Latin" | "Greek/Latin" | "English";
-}
+/* =========================================================
+ * Medical roots
+ * ======================================================= */
 
 export interface RootEntryExample {
   term: string;
   meaning: string;
-  termId: any;
+  termId?: string;
 }
 
 export interface RootEntry {
   id: string;
   text: string;
+
   type: PartType;
+
   meaning: string;
   plainMeaning: string;
-  origin: "Greek" | "Latin" | "Greek/Latin" | "English";
-  category: string;
-  bodySystem: string;
+
+  origin?: Origin;
+
+  category: Category[];
+  bodySystem?: string;
+
   examples: RootEntryExample[];
   relatedRoots: string[];
-  difficulty: string;
+
+  difficulty: Difficulty;
   frequency: number;
-  mnemonicSeed: string;
+
+  mnemonicSeed?: string;
 }
 
-export type WordPartType = "prefix" | "root" | "combining_form" | "suffix";
+/* =========================================================
+ * Confusable terms
+ * ======================================================= */
+
+export interface ConfusableHighlight {
+  a: string;
+  b: string;
+}
 
 export interface ConfusablePair {
   id: string;
   termAId: string;
   termBId: string;
   riskNote: string;
-  diffHighlight: { a: string; b: string };
+  diffHighlight: ConfusableHighlight;
 }
 
-export interface Term {
-  id: string;
-  word: string;
-  searchTerms: string[];
-  parts: WordPart[];
-  relatedConfusables: string[];
-  definition: string;
-  plainDefinition: string;
-  pronunciation: string;
-  ipa: string;
-  category: Category[];
+/* =========================================================
+ * Review and spaced repetition
+ * ======================================================= */
 
-  bodySystem: string;
+export const REVIEW_MODES = [
+  "root_recall",
+  "spelling",
+  "confusable",
+  "definition",
+] as const;
 
-  difficulty: "beginner" | "intermediate" | "advanced";
-
-  partOfSpeech: "noun" | "verb" | "adjective" | "adverb";
-
-  relatedTerms: string[];
-
-  synonyms: string[];
-
-  antonyms: string[];
-
-  examples: string[];
-
-  clinicalPearls: string[];
-
-  commonAbbreviation?: string;
-
-  wordFamily: string[];
-
-  tags: string[];
-
-  mnemonicSeed?: string;
-
-  keywordHint: string | undefined;
-}
-
-export type ReviewMode =
-  | "root_recall"
-  | "spelling"
-  | "confusable"
-  | "definition";
-
-export interface DeckCard {
-  termId: string;
-  interval: number;
-  repetitions: number;
-  easeFactor: number;
-  dueDate: string;
-  lastReviewed?: string;
-  addedFrom: "search" | "scan" | "manual";
-}
+export type ReviewMode = (typeof REVIEW_MODES)[number];
 
 export type ReviewQuality = 0 | 1 | 2 | 3 | 4 | 5;
 
-// Categories with a real anatomical home, used by the Memory Map.
-export type AnatomicalCategory =
-  | "Neurological"
-  | "Respiratory"
-  | "Cardiovascular"
-  | "Gastrointestinal"
-  | "Musculoskeletal"
-  | "Sensory"
-  | "Endocrine"
-  | "Urinary"
-  | "Reproductive";
+export type DeckSource = "search" | "scan" | "manual";
 
-// Categories with no body location, anchored via keyword imagery instead.
-export type WordPartCategory = "Prefix" | "Suffix" | "Root";
+export interface DeckCard {
+  termId: string;
+
+  interval: number;
+  repetitions: number;
+  easeFactor: number;
+
+  dueDate: string;
+  lastReviewed?: string;
+
+  addedFrom: DeckSource;
+}
+
+/* =========================================================
+ * Memory map
+ * ======================================================= */
+
+export const ANATOMICAL_CATEGORIES = [
+  "Neurological",
+  "Respiratory",
+  "Cardiovascular",
+  "Gastrointestinal",
+  "Musculoskeletal",
+  "Sensory",
+  "Endocrine",
+  "Urinary",
+  "Reproductive",
+] as const;
+
+export type AnatomicalCategory = (typeof ANATOMICAL_CATEGORIES)[number];
+
+export const WORD_PART_CATEGORIES = ["Prefix", "Suffix", "Root"] as const;
+
+export type WordPartCategory = (typeof WORD_PART_CATEGORIES)[number];
+
+/* =========================================================
+ * Categories and summaries
+ * ======================================================= */
 
 export interface CategorySummary {
   category: Category;
   count: number;
 }
 
+/* =========================================================
+ * Quiz
+ * ======================================================= */
+
 export interface QuizQuestion {
   id: string;
   term: string;
   choices: string[];
   correctAnswer: string;
-  category: Category;
+
+  /**
+   * A term may belong to multiple categories.
+   */
+  category: Category[];
 }

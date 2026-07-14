@@ -32,15 +32,25 @@ export function getAllTerms(): Promise<Term[]> {
   return apiGet<Term[]>("/terms");
 }
 
-export async function searchTerms(query: string): Promise<Term[]> {
+export async function searchTerms(
+  query: string,
+  selectedCategory?: Category,
+): Promise<Term[]> {
   const q = query.trim().toLowerCase();
 
-  const terms = await apiGet<Term[]>(`/terms?query=${encodeURIComponent(q)}`);
+  const terms = await apiGet<Term[]>(
+    `/terms?query=${encodeURIComponent(q)}`,
+  );
 
   return terms.filter((term) => {
-    const hasAllowedCategory = term.category.some((category: Category) =>
-      ALLOWED_CATEGORIES.has(category),
+    const hasAllowedCategory = term.category.some(
+      (category) =>
+        ALLOWED_CATEGORIES.has(category),
     );
+
+    const matchesSelectedCategory =
+      !selectedCategory ||
+      term.category.includes(selectedCategory);
 
     const matchesQuery =
       !q ||
@@ -49,7 +59,11 @@ export async function searchTerms(query: string): Promise<Term[]> {
         searchTerm.toLowerCase().includes(q),
       );
 
-    return hasAllowedCategory && matchesQuery;
+    return (
+      hasAllowedCategory &&
+      matchesSelectedCategory &&
+      matchesQuery
+    );
   });
 }
 
