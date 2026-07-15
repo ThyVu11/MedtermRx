@@ -9,6 +9,11 @@ import {
   ViewStyle,
 } from "react-native";
 import Svg, { G, Text as SvgText } from "react-native-svg";
+import {
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+} from "expo-audio";
 
 type CodeClothProps = {
   // code?: string;
@@ -171,6 +176,9 @@ fungus
 parasite
 `;
 
+const FIXED_STEP = 1000 / 60;
+const MAX_SUB_STEPS = 3;
+
 const clamp = (value: number, minimum: number, maximum: number) =>
   Math.min(maximum, Math.max(minimum, value));
 
@@ -215,6 +223,8 @@ class Particle {
   pinned: boolean;
   originalPinnedState: boolean;
   downConstraint?: Constraint;
+  renderX: number;
+  renderY: number;
 
   constructor(
     public id: number,
@@ -227,9 +237,11 @@ class Particle {
     this.oldPos = new Vec2(x, y);
     this.pinned = pinned;
     this.originalPinnedState = pinned;
+    this.renderX = x;
+    this.renderY = y;
   }
 
-  update(deltaMs: number, config: SimulationConfig) {
+  update(_deltaMs: number, config: SimulationConfig) {
     if (this.pinned) {
       this.acceleration.zero();
       return;
@@ -242,14 +254,11 @@ class Particle {
 
     this.oldPos.reset(this.pos.x, this.pos.y);
 
-    const normalizedDelta = clamp(deltaMs / 16.667, 0.25, 2);
-    const deltaSquared = normalizedDelta * normalizedDelta;
-
     this.gravityVector.reset(0, config.gravity);
     this.acceleration.add(this.gravityVector);
 
-    this.pos.x += this.velocity.x + this.acceleration.x * deltaSquared;
-    this.pos.y += this.velocity.y + this.acceleration.y * deltaSquared;
+    this.pos.x += this.velocity.x + this.acceleration.x;
+    this.pos.y += this.velocity.y + this.acceleration.y;
     this.acceleration.zero();
   }
 
@@ -320,8 +329,8 @@ function createSimulation(
   gravity: number,
   damping: number,
 ): Simulation {
-  const gridWidth = clamp(Math.floor(width / 14), 18, 30);
-  const gridHeight = clamp(Math.floor(height / 12), 22, 34);
+  const gridWidth = clamp(Math.floor(width / 14), 18, 26);
+  const gridHeight = clamp(Math.floor(height / 18), 16, 26);
 
   const cellWidth = width / Math.max(gridWidth - 1, 1);
   const cellHeight = height / Math.max(gridHeight - 1, 1);
@@ -335,11 +344,11 @@ function createSimulation(
     cellHeight,
     gravity,
     damping,
-    iterationsPerFrame: 5,
+    iterationsPerFrame: 2,
     compressFactor: 0.15,
     stretchFactor: 1.08,
     touchRadiusSquared: 4_500,
-    touchStrength: 5,
+    touchStrength: 10,
   };
 
   // Newlines and tabs create very large blank areas in a character grid.
@@ -400,11 +409,40 @@ function CodeClothComponent({
   textColor = "#333333",
   fontSize,
   gravity = 0.18,
-  damping = 0.99,
+  damping = 0.96,
   maxClothWidth = 420,
   maxClothHeight = 420,
   padding = 20,
 }: CodeClothProps) {
+  const touchSound = useAudioPlayer(
+    // require("../../assets/sounds/freesound_community-bamboo-79047.mp3"),
+    require("../../assets/sounds/paper-audio.mp3"),
+  );
+
+  const touchSoundStatus = useAudioPlayerStatus(touchSound);
+
+  const lastSoundTimeRef = useRef(0);
+  const playTouchSound = () => {
+    console.log("Playing cloth sound", touchSoundStatus);
+
+    const now = Date.now();
+
+    if (now - lastSoundTimeRef.current < 150) return;
+    if (!touchSoundStatus.isLoaded) return;
+
+    lastSoundTimeRef.current = now;
+
+    touchSound.volume = 0.8;
+
+    if (touchSoundStatus.playing) {
+      touchSound.pause();
+    }
+
+    void touchSound.seekTo(0).then(() => {
+      touchSound.play();
+    });
+  };
+
   const [containerSize, setContainerSize] = useState<Size>({
     width: 0,
     height: 0,
@@ -431,36 +469,67 @@ function CodeClothComponent({
   const animationFrameRef = useRef<number | null>(null);
   const mountedRef = useRef(false);
   const [, renderFrame] = useState(0);
+  const accumulatorRef = useRef(0);
 
   useEffect(() => {
     simulationRef.current = simulation;
     grabbedParticleRef.current = null;
     lastFrameRef.current = null;
+    accumulatorRef.current = 0;
   }, [simulation]);
 
   useEffect(() => {
     mountedRef.current = true;
 
+    void setAudioModeAsync({
+      playsInSilentMode: true,
+    });
+
     const animate = (timestamp: number) => {
       const current = simulationRef.current;
+
       const previousTimestamp = lastFrameRef.current ?? timestamp;
-      const delta = timestamp - previousTimestamp;
+      const frameDelta = Math.min(timestamp - previousTimestamp, 100);
       lastFrameRef.current = timestamp;
 
-      current.particles.forEach((particle) =>
-        particle.update(delta, current.config),
-      );
+      accumulatorRef.current += frameDelta;
 
-      for (
-        let iteration = 0;
-        iteration < current.config.iterationsPerFrame;
-        iteration += 1
-      ) {
-        current.constraints.forEach((constraint) => constraint.solve());
+      let steps = 0;
+
+      while (accumulatorRef.current >= FIXED_STEP && steps < MAX_SUB_STEPS) {
+        current.particles.forEach((particle) =>
+          particle.update(FIXED_STEP, current.config),
+        );
+
+        for (
+          let iteration = 0;
+          iteration < current.config.iterationsPerFrame;
+          iteration += 1
+        ) {
+          current.constraints.forEach((constraint) => constraint.solve());
+        }
+
+        accumulatorRef.current -= FIXED_STEP;
+        steps += 1;
+      }
+
+      const alpha = accumulatorRef.current / FIXED_STEP;
+
+      current.particles.forEach((particle) => {
+        particle.renderX =
+          particle.oldPos.x + (particle.pos.x - particle.oldPos.x) * alpha;
+
+        particle.renderY =
+          particle.oldPos.y + (particle.pos.y - particle.oldPos.y) * alpha;
+      });
+
+      // Prevent a large backlog after the app freezes or resumes.
+      if (steps === MAX_SUB_STEPS) {
+        accumulatorRef.current = 0;
       }
 
       if (mountedRef.current) {
-        renderFrame((currentFrame) => (currentFrame + 1) % 1_000_000);
+        renderFrame((frame) => (frame + 1) % 1_000_000);
         animationFrameRef.current = requestAnimationFrame(animate);
       }
     };
@@ -573,8 +642,14 @@ function CodeClothComponent({
       PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponder: () => true,
-        onPanResponderGrant: (event) => updateTouch(event, true),
-        onPanResponderMove: (event) => updateTouch(event, false),
+        onPanResponderGrant: (event) => {
+          playTouchSound();
+          updateTouch(event, true);
+        },
+        onPanResponderMove: (event) => {
+          playTouchSound();
+          updateTouch(event, false);
+        },
         onPanResponderRelease: releaseGrabbedParticle,
         onPanResponderTerminate: releaseGrabbedParticle,
         onShouldBlockNativeResponder: () => true,
@@ -604,11 +679,12 @@ function CodeClothComponent({
 
             if (particle.downConstraint) {
               const dx =
-                particle.downConstraint.p2.pos.x -
-                particle.downConstraint.p1.pos.x;
+                particle.downConstraint.p2.renderX -
+                particle.downConstraint.p1.renderX;
+
               const dy =
-                particle.downConstraint.p2.pos.y -
-                particle.downConstraint.p1.pos.y;
+                particle.downConstraint.p2.renderY -
+                particle.downConstraint.p1.renderY;
 
               rotation = (Math.atan2(dy, dx) * 180) / Math.PI - 90;
             }
@@ -616,8 +692,8 @@ function CodeClothComponent({
             return (
               <G
                 key={particle.id}
-                transform={`translate(${particle.pos.x + offsetX} ${
-                  particle.pos.y + offsetY
+                transform={`translate(${particle.renderX + offsetX} ${
+                  particle.renderY + offsetY
                 }) rotate(${rotation})`}
               >
                 <SvgText

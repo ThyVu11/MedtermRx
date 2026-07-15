@@ -17,6 +17,7 @@
     "dotenv": "^17.4.2",
     "express": "^4.22.2",
     "fast-glob": "^3.3.3",
+    "fast-levenshtein": "^3.0.0",
     "multer": "^2.2.0",
     "openai": "^6.46.0"
   },
