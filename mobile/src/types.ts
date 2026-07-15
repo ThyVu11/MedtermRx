@@ -83,6 +83,7 @@ export type RootStackParamList = {
   QuizResult: {
     score: number;
     total: number;
+    category: Category;
   };
 
   TermDetail: {

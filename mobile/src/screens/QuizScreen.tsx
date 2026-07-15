@@ -23,7 +23,7 @@ export default function QuizScreen({ route, navigation }: Props) {
   useEffect(() => {
     getQuiz(category)
       .then(setQuestions)
-      .catch((e:any) => setError(e.message))
+      .catch((e: any) => setError(e.message))
       .finally(() => setLoading(false));
   }, [category]);
 
@@ -54,8 +54,12 @@ export default function QuizScreen({ route, navigation }: Props) {
   }
 
   function handleNext() {
-    if (index === questions.length - 1) {
-      navigation.replace("QuizResult", { score, total: questions.length });
+    if (index === questions.length - 1 && category) {
+      navigation.replace("QuizResult", {
+        score,
+        total: questions.length,
+        category,
+      });
     } else {
       setSelected(null);
       setIndex((i) => i + 1);
@@ -71,7 +75,7 @@ export default function QuizScreen({ route, navigation }: Props) {
         <Text style={styles.question}>What does "{current.term}" mean?</Text>
 
         <View style={styles.choices}>
-          {current.choices.map((choice:string) => {
+          {current.choices.map((choice: string) => {
             if (typeof choice !== "string") return null;
             const isSelected = selected === choice;
             const isCorrect = choice === current.correctAnswer;
@@ -107,10 +111,21 @@ export default function QuizScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F0FDFA" },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F0FDFA", padding: 24 },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F0FDFA",
+    padding: 24,
+  },
   container: { flex: 1, padding: 20, gap: 20 },
   progress: { textAlign: "center", color: "#6B7280", fontWeight: "600" },
-  question: { fontSize: 22, fontWeight: "700", color: "#111827", textAlign: "center" },
+  question: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#111827",
+    textAlign: "center",
+  },
   choices: { gap: 10 },
   choice: {
     backgroundColor: "#ffffff",
