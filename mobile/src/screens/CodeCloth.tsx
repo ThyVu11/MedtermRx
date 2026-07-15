@@ -593,6 +593,7 @@ function CodeClothComponent({
         nearestParticle.originalPinnedState = nearestParticle.pinned;
         nearestParticle.pinned = true;
         grabbedParticleRef.current = nearestParticle;
+        playTouchSound();
       }
     }
 
@@ -643,11 +644,9 @@ function CodeClothComponent({
         onStartShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponder: () => true,
         onPanResponderGrant: (event) => {
-          playTouchSound();
           updateTouch(event, true);
         },
         onPanResponderMove: (event) => {
-          playTouchSound();
           updateTouch(event, false);
         },
         onPanResponderRelease: releaseGrabbedParticle,
