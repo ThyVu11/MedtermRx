@@ -8,38 +8,39 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/types";
-import CodeCloth from "./CodeCloth";
 import { colors, radii, spacing } from "@/theme";
-import MedTermRxLogo from "../../assets/images/MedTermRx_logo.svg";
+import { Image } from "expo-image";
+import CodeClothHover from "@/components/CodeClothHover";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
+const LOGO_RATIO = 1662 / 758;
 
 export default function HomeScreen({ navigation }: Props) {
   const { width } = useWindowDimensions();
 
-  const logoWidth = Math.min(width - 32, 420);
-  const logoHeight = logoWidth * 0.48;
+  const logoWidth = width - 32;
+  const logoHeight = logoWidth / LOGO_RATIO;
   return (
     <View style={styles.safe}>
       <View style={styles.container}>
-        <Text style={styles.title}>MedTerm Study</Text>
-        <Text style={styles.subtitle}>
-          Learn medical terminology, one root at a time.
-        </Text>
+        <Image
+          source={require("../../assets/MedTermRx_logo.svg")}
+          contentFit="contain"
+          style={{
+            // width: logoWidth,
+            // height: logoHeight,
+            width: "100%",
+            height: 170,
+          }}
+        />
+        <CodeClothHover></CodeClothHover>
         <TouchableOpacity
           style={styles.primaryButton}
           onPress={() => navigation.navigate("Dashboard")}
         >
           <Text style={styles.primaryButtonText}>GET START</Text>
         </TouchableOpacity>
-
-        <View style={styles.logoContainer}>
-          <MedTermRxLogo width={logoWidth} height={logoHeight} />
-        </View>
-
-        <View style={styles.animationArea}>
-          <CodeCloth maxClothWidth={340} maxClothHeight={250} fontSize={9} />
-        </View>
       </View>
     </View>
   );
