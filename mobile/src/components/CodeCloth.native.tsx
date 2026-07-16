@@ -14,9 +14,10 @@ import {
   useAudioPlayer,
   useAudioPlayerStatus,
 } from "expo-audio";
+import { medicalTermCloth } from "../data/clothWords";
 
 type CodeClothProps = {
-  // code?: string;
+  code?: string;
   style?: StyleProp<ViewStyle>;
   backgroundColor?: string;
   textColor?: string;
@@ -48,133 +49,6 @@ type SimulationConfig = {
   touchRadiusSquared: number;
   touchStrength: number;
 };
-
-const DEFAULT_CODE = `
-cardiology
-neurology
-hematology
-oncology
-dermatology
-gastroenterology
-pulmonology
-nephrology
-endocrinology
-urology
-gynecology
-obstetrics
-orthopedics
-ophthalmology
-otolaryngology
-anatomy
-physiology
-pathology
-histology
-cytology
-etiology
-diagnosis
-prognosis
-symptom
-syndrome
-disease
-infection
-inflammation
-fracture
-hemorrhage
-edema
-necrosis
-atrophy
-hypertrophy
-hyperplasia
-hypoplasia
-dysplasia
-metastasis
-embolism
-thrombosis
-ischemia
-hypoxia
-cyanosis
-tachycardia
-bradycardia
-hypertension
-hypotension
-arrhythmia
-palpitation
-dyspnea
-apnea
-orthopnea
-tachypnea
-bradypnea
-hemoptysis
-cyanosis
-pneumonia
-bronchitis
-asthma
-emphysema
-arthritis
-osteoporosis
-osteoarthritis
-rheumatoid
-myalgia
-arthralgia
-scoliosis
-kyphosis
-lordosis
-diabetes
-hyperglycemia
-hypoglycemia
-insulin
-glucose
-thyroid
-pituitary
-adrenal
-pancreas
-liver
-kidney
-stomach
-esophagus
-intestine
-appendix
-colon
-rectum
-bladder
-ureter
-urethra
-brain
-cerebellum
-cerebrum
-neuron
-synapse
-spinal cord
-ventricle
-atrium
-artery
-vein
-capillary
-aorta
-atrioventricular
-electrocardiogram
-electroencephalogram
-radiography
-ultrasound
-computed tomography
-magnetic resonance imaging
-biopsy
-catheter
-intravenous
-intramuscular
-subcutaneous
-antibiotic
-analgesic
-anesthetic
-anticoagulant
-vaccination
-immunity
-pathogen
-bacteria
-virus
-fungus
-parasite
-`;
 
 const FIXED_STEP = 1000 / 60;
 const MAX_SUB_STEPS = 3;
@@ -329,8 +203,8 @@ function createSimulation(
   gravity: number,
   damping: number,
 ): Simulation {
-  const gridWidth = clamp(Math.floor(width / 14), 18, 26);
-  const gridHeight = clamp(Math.floor(height / 18), 16, 26);
+  const gridWidth = clamp(Math.floor(width / 10), 18, 106);
+  const gridHeight = clamp(Math.floor(height / 10), 16, 106);
 
   const cellWidth = width / Math.max(gridWidth - 1, 1);
   const cellHeight = height / Math.max(gridHeight - 1, 1);
@@ -403,11 +277,11 @@ function createSimulation(
 }
 
 function CodeClothComponent({
-  // code = DEFAULT_CODE,
+  code = medicalTermCloth,
   style,
   backgroundColor = "transparent",
   textColor = "#333333",
-  fontSize,
+  fontSize = 8,
   gravity = 0.18,
   damping = 0.96,
   maxClothWidth = 420,
@@ -415,7 +289,6 @@ function CodeClothComponent({
   padding = 20,
 }: CodeClothProps) {
   const touchSound = useAudioPlayer(
-    // require("../../assets/sounds/freesound_community-bamboo-79047.mp3"),
     require("../../assets/sounds/paper-audio.mp3"),
   );
 
@@ -455,12 +328,11 @@ function CodeClothComponent({
   const clothHeight = Math.min(availableHeight, maxClothHeight);
 
   const offsetX = Math.max(0, (containerSize.width - clothWidth) / 2);
-  const offsetY = 50;
+  const offsetY = 8;
 
   const simulation = useMemo(
-    () =>
-      createSimulation(DEFAULT_CODE, clothWidth, clothHeight, gravity, damping),
-    [DEFAULT_CODE, clothWidth, clothHeight, gravity, damping],
+    () => createSimulation(code, clothWidth, clothHeight, gravity, damping),
+    [code, clothWidth, clothHeight, gravity, damping],
   );
 
   const simulationRef = useRef(simulation);
@@ -481,9 +353,9 @@ function CodeClothComponent({
   useEffect(() => {
     mountedRef.current = true;
 
-    void setAudioModeAsync({
-      playsInSilentMode: true,
-    });
+    // void setAudioModeAsync({
+    //   playsInSilentMode: true,
+    // });
 
     const animate = (timestamp: number) => {
       const current = simulationRef.current;
@@ -657,7 +529,7 @@ function CodeClothComponent({
   );
 
   const resolvedFontSize =
-    fontSize ?? Math.max(9, simulation.config.cellHeight * 0.75);
+    fontSize ?? Math.max(8, simulation.config.cellHeight * 0.65);
 
   return (
     <View
@@ -665,12 +537,8 @@ function CodeClothComponent({
       onLayout={handleLayout}
       style={[styles.container, { backgroundColor }, style]}
     >
-      {containerSize.width > 0 && containerSize.height > 0 ? (
-        <Svg
-          width={containerSize.width}
-          height={containerSize.height}
-          pointerEvents="none"
-        >
+      {containerSize.width > 0 ? (
+        <Svg width={containerSize.width} height={containerSize.height}>
           {simulation.particles.map((particle) => {
             if (!particle.char || particle.char === " ") return null;
 
@@ -701,7 +569,7 @@ function CodeClothComponent({
                   fill={textColor}
                   fontFamily="monospace"
                   fontSize={resolvedFontSize}
-                  fontWeight="700"
+                  fontWeight="400"
                   textAnchor="middle"
                   alignmentBaseline="middle"
                 >
@@ -718,9 +586,9 @@ function CodeClothComponent({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    minHeight: 260,
-    overflow: "hidden",
+    width: "100%",
+    height: 320,
+    // marginBottom: 50,
   },
 });
 

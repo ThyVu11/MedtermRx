@@ -10,7 +10,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/types";
 import { colors, radii, spacing } from "@/theme";
 import { Image } from "expo-image";
-import CodeClothHover from "@/components/CodeClothHover";
+import CodeCloth from "@/components/CodeCloth";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -34,7 +34,7 @@ export default function HomeScreen({ navigation }: Props) {
             height: 170,
           }}
         />
-        <CodeClothHover></CodeClothHover>
+        <CodeCloth></CodeCloth>
         <TouchableOpacity
           style={styles.primaryButton}
           onPress={() => navigation.navigate("Dashboard")}

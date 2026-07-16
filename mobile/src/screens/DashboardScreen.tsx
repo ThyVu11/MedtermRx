@@ -55,7 +55,7 @@ export default function DashboardScreen({ navigation }: Props) {
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.eyebrow}>MedTermRx</Text>
       <Text style={styles.title}>
-        Dissect the language.{"\n"}Skip the burnout.
+        Dissect the language{"\n"}Skip the burnout
       </Text>
 
       <View style={styles.statRow}>
@@ -110,7 +110,7 @@ export default function DashboardScreen({ navigation }: Props) {
 
         <ToolCard
           label="Memory Map (anatomy)"
-          desc="Search any term and see its prefix, root, and suffix"
+          desc="Build lasting memory with visual anatomy maps"
           onPress={() => navigation.navigate("MemoryMap")}
         />
       </View>

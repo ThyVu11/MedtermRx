@@ -77,15 +77,18 @@ export default function TermDetailScreen({ route, navigation }: Props) {
         }}
       />
 
-      <View style={styles.mnemonicCard}>
-        <Text style={styles.mnemonicEyebrow}>
-          {mnemonic.generated
-            ? "Auto-generated memory anchor"
-            : "Memory anchor"}
-        </Text>
-        <Text style={styles.emojiStrip}>{mnemonic.emojiStrip}</Text>
-        <Text style={styles.mnemonicScene}>{mnemonic.scene}</Text>
-      </View>
+      {mnemonic.emojiStrip !== "" && (
+        <View style={styles.mnemonicCard}>
+          <Text style={styles.mnemonicEyebrow}>
+            {mnemonic.generated
+              ? "Auto-generated memory anchor"
+              : "Memory anchor"}
+          </Text>
+          <Text style={styles.emojiStrip}>{mnemonic.emojiStrip}</Text>
+          <Text style={styles.mnemonicScene}>{mnemonic.scene}</Text>
+        </View>
+      )}
+
       {relatedConfusables.length > 0 && (
         <View style={styles.confusableAlert}>
           <Text>Related Terms: {term.relatedTerms.join(", ")}</Text>
