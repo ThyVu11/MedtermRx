@@ -31,6 +31,7 @@ export default function WordDissector({ term, onAddToDeck, inDeck }: Props) {
 
       <Text style={styles.defLabel}>Definition</Text>
       <Text style={styles.definition}>{term.definition}</Text>
+      <Text style={styles.plainDefinition}>{term.plainDefinition}</Text>
 
       {term.relatedTerms?.length > 0 && (
         <>
@@ -106,6 +107,15 @@ const styles = StyleSheet.create({
   },
   definition: {
     fontSize: 15,
+    lineHeight: 21,
+    color: colors.textPrimary,
+    backgroundColor: colors.paper,
+    borderRadius: radii.sm,
+    padding: spacing.sm,
+  },
+  plainDefinition: {
+    fontSize: 12,
+    padding: spacing.sm,
     lineHeight: 21,
     color: colors.textPrimary,
   },

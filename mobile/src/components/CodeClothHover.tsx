@@ -212,7 +212,7 @@ export default function CodeCloth() {
   });
 
   const touchSound = useAudioPlayer(
-    require("../../assets/sounds/bamboo-wind-chime.mp3"),
+    require("../../assets/sounds/paper-audio.mp3"),
   );
   const touchSoundStatus = useAudioPlayerStatus(touchSound);
   const lastSoundTimeRef = useRef(0);
@@ -363,9 +363,9 @@ export default function CodeCloth() {
         textElement.setAttribute("y", "0");
         textElement.setAttribute("fill", "#0e1a1bc0");
 
-        textElement.setAttribute("font-family", typography.label.fontFamily);
+        textElement.setAttribute("font-family", "monospace");
         textElement.setAttribute("font-size", String(FONT_SIZE));
-        textElement.setAttribute("font-weight", "600");
+        textElement.setAttribute("font-weight", "500");
         textElement.setAttribute("text-anchor", "middle");
         textElement.setAttribute("dominant-baseline", "central");
         textElement.setAttribute("pointer-events", "none");

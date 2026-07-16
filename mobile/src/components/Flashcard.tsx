@@ -16,7 +16,7 @@ export default function Flashcard({ term }: Props) {
       accessibilityRole="button"
       accessibilityLabel={revealed ? "Show term" : "Reveal definition"}
     >
-      <Text style={styles.category}>{term.category}</Text>
+      <Text style={styles.category}>{term.category.join(" • ")}</Text>
       {!revealed ? (
         <>
           <Text style={styles.term}>{term.word}</Text>
