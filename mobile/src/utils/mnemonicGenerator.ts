@@ -1,4 +1,4 @@
-import type { Term, WordPart } from "@/types";
+import type { Term, WordPart } from "@/types/types";
 
 const ANCHOR_IMAGES: Record<string, { image: string; emoji: string }> = {
   slow: { image: "a sloth", emoji: "🦥" },
@@ -20,7 +20,10 @@ const ANCHOR_IMAGES: Record<string, { image: string; emoji: string }> = {
   "away from": { image: "something moving away", emoji: "➡️" },
   toward: { image: "something moving closer", emoji: "⬅️" },
   inflammation: { image: "a small flame", emoji: "🔥" },
-  "surgical removal": { image: "surgical tongs lifting something out", emoji: "🛠️" },
+  "surgical removal": {
+    image: "surgical tongs lifting something out",
+    emoji: "🛠️",
+  },
   "excessive, above normal": { image: "something overflowing", emoji: "⬆️" },
   "deficient, below normal": { image: "something running empty", emoji: "⬇️" },
   "without, not": { image: "an empty space", emoji: "🚫" },
@@ -29,12 +32,16 @@ const ANCHOR_IMAGES: Record<string, { image: string; emoji: string }> = {
   "below, under": { image: "a submarine diving under", emoji: "🚤" },
   between: { image: "something squeezed in the middle", emoji: "🤏" },
   around: { image: "a ring wrapped around something", emoji: "⭕" },
-  "around, surrounding": { image: "a ring wrapped around something", emoji: "⭕" },
+  "around, surrounding": {
+    image: "a ring wrapped around something",
+    emoji: "⭕",
+  },
 };
 
 function findAnchor(meaning: string) {
   const key = Object.keys(ANCHOR_IMAGES).find(
-    (k) => meaning.toLowerCase().includes(k) || k.includes(meaning.toLowerCase())
+    (k) =>
+      meaning.toLowerCase().includes(k) || k.includes(meaning.toLowerCase()),
   );
   return key ? ANCHOR_IMAGES[key] : null;
 }
@@ -69,7 +76,9 @@ export function generateMnemonic(term: Term): Mnemonic {
 
   const scene = `Picture ${partBreakdown
     .map((p) => p.anchor)
-    .join(", combined with ")} — together they spell out ${term.word}, which means: ${term.definition}`;
+    .join(
+      ", combined with ",
+    )} — together they spell out ${term.word}, which means: ${term.definition}`;
 
   return { scene, emojiStrip, partBreakdown, generated: true };
 }

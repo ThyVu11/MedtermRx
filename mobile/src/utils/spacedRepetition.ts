@@ -1,6 +1,9 @@
-import type { DeckCard, ReviewQuality } from "@/types";
+import type { DeckCard, ReviewQuality } from "@/types/types";
 
-export function scheduleNextReview(card: DeckCard, quality: ReviewQuality): DeckCard {
+export function scheduleNextReview(
+  card: DeckCard,
+  quality: ReviewQuality,
+): DeckCard {
   let { repetitions, easeFactor, interval } = card;
 
   if (quality < 3) {
@@ -15,7 +18,7 @@ export function scheduleNextReview(card: DeckCard, quality: ReviewQuality): Deck
 
   easeFactor = Math.max(
     1.3,
-    easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
+    easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)),
   );
 
   const dueDate = new Date();
@@ -31,7 +34,10 @@ export function scheduleNextReview(card: DeckCard, quality: ReviewQuality): Deck
   };
 }
 
-export function newCard(termId: string, addedFrom: DeckCard["addedFrom"]): DeckCard {
+export function newCard(
+  termId: string,
+  addedFrom: DeckCard["addedFrom"],
+): DeckCard {
   return {
     termId,
     interval: 0,
@@ -46,8 +52,13 @@ export function isDue(card: DeckCard, asOf: Date = new Date()): boolean {
   return new Date(card.dueDate).getTime() <= asOf.getTime();
 }
 
-export function dueCards(deck: DeckCard[], asOf: Date = new Date()): DeckCard[] {
+export function dueCards(
+  deck: DeckCard[],
+  asOf: Date = new Date(),
+): DeckCard[] {
   return deck
     .filter((c) => isDue(c, asOf))
-    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+    .sort(
+      (a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime(),
+    );
 }

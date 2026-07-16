@@ -15,7 +15,7 @@ import { fetchConfusables } from "@/features/confusablesSlice";
 import WordDissector from "@/components/WordDissector";
 import { generateMnemonic } from "@/utils/mnemonicGenerator";
 import { loadDeck, addTermToDeck } from "@/utils/deckStorage";
-import { RootStackParamList } from "@/types";
+import { RootStackParamList } from "@/types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "TermDetail">;
 

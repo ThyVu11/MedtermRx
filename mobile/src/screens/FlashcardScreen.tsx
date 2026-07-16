@@ -1,8 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -14,32 +10,18 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import Flashcard from "@/components/Flashcard";
 import { getRandomTerms } from "@/api/terms";
-import {
-  colors,
-  radii,
-  spacing,
-  typography,
-} from "@/theme";
-import type {
-  RootStackParamList,
-  Term,
-} from "@/types";
+import { colors, radii, spacing, typography } from "@/theme";
+import type { RootStackParamList, Term } from "@/types/types";
 
-type Props = NativeStackScreenProps<
-  RootStackParamList,
-  "Flashcard"
->;
+type Props = NativeStackScreenProps<RootStackParamList, "Flashcard">;
 
-export default function FlashcardScreen({
-  route,
-}: Props) {
+export default function FlashcardScreen({ route }: Props) {
   const category = route.params?.category;
 
   const [cards, setCards] = useState<Term[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] =
-    useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const loadCards = useCallback(async () => {
     setLoading(true);
@@ -47,16 +29,11 @@ export default function FlashcardScreen({
     setIndex(0);
 
     try {
-      const results = await getRandomTerms(
-        category,
-      );
+      const results = await getRandomTerms(category);
 
       setCards(results);
     } catch (loadError) {
-      console.error(
-        "Failed to load flashcards:",
-        loadError,
-      );
+      console.error("Failed to load flashcards:", loadError);
 
       const message =
         loadError instanceof Error
@@ -75,32 +52,20 @@ export default function FlashcardScreen({
   }, [loadCards]);
 
   const goPrevious = (): void => {
-    setIndex((currentIndex) =>
-      Math.max(0, currentIndex - 1),
-    );
+    setIndex((currentIndex) => Math.max(0, currentIndex - 1));
   };
 
   const goNext = (): void => {
-    setIndex((currentIndex) =>
-      Math.min(
-        cards.length - 1,
-        currentIndex + 1,
-      ),
-    );
+    setIndex((currentIndex) => Math.min(cards.length - 1, currentIndex + 1));
   };
 
   if (loading) {
     return (
       <View style={styles.safe}>
         <View style={styles.center}>
-          <ActivityIndicator
-            size="large"
-            color={colors.teal}
-          />
+          <ActivityIndicator size="large" color={colors.teal} />
 
-          <Text style={styles.statusText}>
-            Preparing your review deck...
-          </Text>
+          <Text style={styles.statusText}>Preparing your review deck...</Text>
         </View>
       </View>
     );
@@ -111,21 +76,15 @@ export default function FlashcardScreen({
       <View style={styles.safe}>
         <View style={styles.center}>
           <View style={styles.messageCard}>
-            <Text style={styles.messageTitle}>
-              Unable to load flashcards
-            </Text>
+            <Text style={styles.messageTitle}>Unable to load flashcards</Text>
 
-            <Text style={styles.messageText}>
-              {error}
-            </Text>
+            <Text style={styles.messageText}>{error}</Text>
 
             <Pressable
               style={styles.primaryButton}
               onPress={() => void loadCards()}
             >
-              <Text style={styles.primaryButtonText}>
-                Try again
-              </Text>
+              <Text style={styles.primaryButtonText}>Try again</Text>
             </Pressable>
           </View>
         </View>
@@ -138,9 +97,7 @@ export default function FlashcardScreen({
       <View style={styles.safe}>
         <View style={styles.center}>
           <View style={styles.messageCard}>
-            <Text style={styles.messageTitle}>
-              No cards available
-            </Text>
+            <Text style={styles.messageTitle}>No cards available</Text>
 
             <Text style={styles.messageText}>
               {category
@@ -152,9 +109,7 @@ export default function FlashcardScreen({
               style={styles.primaryButton}
               onPress={() => void loadCards()}
             >
-              <Text style={styles.primaryButtonText}>
-                Refresh deck
-              </Text>
+              <Text style={styles.primaryButtonText}>Refresh deck</Text>
             </Pressable>
           </View>
         </View>
@@ -171,14 +126,10 @@ export default function FlashcardScreen({
     <View style={styles.safe}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>
-            Review Deck
-          </Text>
+          <Text style={styles.title}>Review Deck</Text>
 
           <Text style={styles.subtitle}>
-            {category
-              ? `${category} flashcards`
-              : "Mixed medical terminology"}
+            {category ? `${category} flashcards` : "Mixed medical terminology"}
           </Text>
         </View>
 
@@ -206,21 +157,15 @@ export default function FlashcardScreen({
         </View>
 
         <View style={styles.cardContainer}>
-          <Flashcard
-            key={currentCard.id}
-            term={currentCard}
-          />
+          <Flashcard key={currentCard.id} term={currentCard} />
         </View>
 
         <View style={styles.navigation}>
           <Pressable
             style={({ pressed }) => [
               styles.secondaryButton,
-              atStart &&
-                styles.buttonDisabled,
-              pressed &&
-                !atStart &&
-                styles.buttonPressed,
+              atStart && styles.buttonDisabled,
+              pressed && !atStart && styles.buttonPressed,
             ]}
             disabled={atStart}
             onPress={goPrevious}
@@ -228,8 +173,7 @@ export default function FlashcardScreen({
             <Text
               style={[
                 styles.secondaryButtonText,
-                atStart &&
-                  styles.buttonTextDisabled,
+                atStart && styles.buttonTextDisabled,
               ]}
             >
               Previous
@@ -241,28 +185,22 @@ export default function FlashcardScreen({
               style={({ pressed }) => [
                 styles.primaryButton,
                 styles.navigationButton,
-                pressed &&
-                  styles.buttonPressed,
+                pressed && styles.buttonPressed,
               ]}
               onPress={() => void loadCards()}
             >
-              <Text style={styles.primaryButtonText}>
-                New deck
-              </Text>
+              <Text style={styles.primaryButtonText}>New deck</Text>
             </Pressable>
           ) : (
             <Pressable
               style={({ pressed }) => [
                 styles.primaryButton,
                 styles.navigationButton,
-                pressed &&
-                  styles.buttonPressed,
+                pressed && styles.buttonPressed,
               ]}
               onPress={goNext}
             >
-              <Text style={styles.primaryButtonText}>
-                Next
-              </Text>
+              <Text style={styles.primaryButtonText}>Next</Text>
             </Pressable>
           )}
         </View>

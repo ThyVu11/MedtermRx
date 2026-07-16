@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import type { WordPart } from "@/types";
+import type { WordPart } from "@/types/types";
 import { colors, partColor, radii, spacing, typography } from "@/theme";
 
 interface Props {
@@ -18,7 +18,13 @@ const LABELS: Record<string, string> = {
 export default function PartTag({ part, compact }: Props) {
   const tint = partColor(part.type);
   return (
-    <View style={[styles.wrap, { borderColor: tint }, compact && styles.wrapCompact]}>
+    <View
+      style={[
+        styles.wrap,
+        { borderColor: tint },
+        compact && styles.wrapCompact,
+      ]}
+    >
       <View style={[styles.pin, { backgroundColor: tint }]} />
       <View style={styles.textCol}>
         <Text style={[styles.partText, { color: tint }]}>{part.text}</Text>

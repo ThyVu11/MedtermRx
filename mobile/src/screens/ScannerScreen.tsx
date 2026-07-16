@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -17,23 +12,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  CameraView,
-  useCameraPermissions,
-} from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { colors, radii, spacing, typography } from "@/theme";
 import { matchTermsInText } from "@/utils/matchTerms";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { fetchTerms } from "@/features/termsSlice";
-import type { Term } from "@/types";
-import type { RootStackParamList } from "@/types";
+import type { Term } from "@/types/types";
+import type { RootStackParamList } from "@/types/types";
 
-type Props = NativeStackScreenProps<
-  RootStackParamList,
-  "Scanner"
->;
+type Props = NativeStackScreenProps<RootStackParamList, "Scanner">;
 
 type OcrResponse = {
   text: string;
@@ -49,41 +38,28 @@ type ScanStatus =
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-export default function ScannerScreen({
-  navigation,
-}: Props) {
+export default function ScannerScreen({ navigation }: Props) {
   const dispatch = useAppDispatch();
 
-  const terms = useAppSelector(
-    (state) => state.terms.items,
-  );
+  const terms = useAppSelector((state) => state.terms.items);
 
-  const termsStatus = useAppSelector(
-    (state) => state.terms.status,
-  );
+  const termsStatus = useAppSelector((state) => state.terms.status);
 
-  const [permission, requestPermission] =
-    useCameraPermissions();
+  const [permission, requestPermission] = useCameraPermissions();
 
   const cameraRef = useRef<CameraView>(null);
 
-  const [cameraReady, setCameraReady] =
-    useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
 
-  const [manualText, setManualText] =
-    useState("");
+  const [manualText, setManualText] = useState("");
 
-  const [matches, setMatches] =
-    useState<Term[] | null>(null);
+  const [matches, setMatches] = useState<Term[] | null>(null);
 
-  const [photoUri, setPhotoUri] =
-    useState<string | null>(null);
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
 
-  const [status, setStatus] =
-    useState<ScanStatus>("idle");
+  const [status, setStatus] = useState<ScanStatus>("idle");
 
-  const [errorMessage, setErrorMessage] =
-    useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (termsStatus === "idle") {
@@ -92,9 +68,7 @@ export default function ScannerScreen({
   }, [dispatch, termsStatus]);
 
   const isBusy =
-    status === "capturing" ||
-    status === "recognizing" ||
-    status === "matching";
+    status === "capturing" || status === "recognizing" || status === "matching";
 
   const runTermMatching = useCallback(
     (text: string) => {
@@ -107,10 +81,7 @@ export default function ScannerScreen({
 
       setStatus("matching");
 
-      const foundTerms = matchTermsInText(
-        terms,
-        cleanText,
-      );
+      const foundTerms = matchTermsInText(terms, cleanText);
 
       setMatches(foundTerms);
       setStatus("success");
@@ -118,36 +89,26 @@ export default function ScannerScreen({
     [terms],
   );
 
-  const uploadPhotoForOcr = async (
-    uri: string,
-  ): Promise<string> => {
+  const uploadPhotoForOcr = async (uri: string): Promise<string> => {
     if (!API_URL) {
-      throw new Error(
-        "EXPO_PUBLIC_API_URL is not configured.",
-      );
+      throw new Error("EXPO_PUBLIC_API_URL is not configured.");
     }
 
     const formData = new FormData();
 
-    formData.append(
-      "image",
-      {
-        uri,
-        name: `medical-scan-${Date.now()}.jpg`,
-        type: "image/jpeg",
-      } as unknown as Blob,
-    );
+    formData.append("image", {
+      uri,
+      name: `medical-scan-${Date.now()}.jpg`,
+      type: "image/jpeg",
+    } as unknown as Blob);
 
-    const response = await fetch(
-      `${API_URL}/api/ocr`,
-      {
-        method: "POST",
-        body: formData,
-        headers: {
-          Accept: "application/json",
-        },
+    const response = await fetch(`${API_URL}/api/ocr`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Accept: "application/json",
       },
-    );
+    });
 
     const responseBody = (await response.json()) as
       | OcrResponse
@@ -155,20 +116,14 @@ export default function ScannerScreen({
 
     if (!response.ok) {
       throw new Error(
-        "error" in responseBody &&
-          responseBody.error
+        "error" in responseBody && responseBody.error
           ? responseBody.error
           : `OCR request failed with status ${response.status}.`,
       );
     }
 
-    if (
-      !("text" in responseBody) ||
-      typeof responseBody.text !== "string"
-    ) {
-      throw new Error(
-        "The OCR server returned an invalid response.",
-      );
+    if (!("text" in responseBody) || typeof responseBody.text !== "string") {
+      throw new Error("The OCR server returned an invalid response.");
     }
 
     return responseBody.text;
@@ -180,18 +135,12 @@ export default function ScannerScreen({
     }
 
     if (!cameraReady) {
-      Alert.alert(
-        "Camera not ready",
-        "Wait a moment and try again.",
-      );
+      Alert.alert("Camera not ready", "Wait a moment and try again.");
       return;
     }
 
     if (!cameraRef.current) {
-      Alert.alert(
-        "Camera unavailable",
-        "The camera could not be accessed.",
-      );
+      Alert.alert("Camera unavailable", "The camera could not be accessed.");
       return;
     }
 
@@ -200,31 +149,25 @@ export default function ScannerScreen({
       setMatches(null);
       setStatus("capturing");
 
-      const photo =
-        await cameraRef.current.takePictureAsync({
-          quality: 0.85,
-          skipProcessing: false,
-        });
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.85,
+        skipProcessing: false,
+      });
 
       if (!photo?.uri) {
-        throw new Error(
-          "The camera did not return a photo.",
-        );
+        throw new Error("The camera did not return a photo.");
       }
 
       setPhotoUri(photo.uri);
       setStatus("recognizing");
 
-      const recognizedText =
-        await uploadPhotoForOcr(photo.uri);
+      const recognizedText = await uploadPhotoForOcr(photo.uri);
 
       setManualText(recognizedText);
       runTermMatching(recognizedText);
     } catch (error) {
       const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to scan the image.";
+        error instanceof Error ? error.message : "Unable to scan the image.";
 
       setStatus("error");
       setErrorMessage(message);
@@ -247,10 +190,7 @@ export default function ScannerScreen({
   if (!permission) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator
-          size="large"
-          color={colors.teal}
-        />
+        <ActivityIndicator size="large" color={colors.teal} />
       </View>
     );
   }
@@ -259,22 +199,18 @@ export default function ScannerScreen({
     return (
       <View style={styles.screen}>
         <View style={styles.permissionCard}>
-          <Text style={styles.title}>
-            Camera access needed
-          </Text>
+          <Text style={styles.title}>Camera access needed</Text>
 
           <Text style={styles.subtitle}>
-            RootRx scans textbooks and notes to
-            identify and dissect medical terms.
+            RootRx scans textbooks and notes to identify and dissect medical
+            terms.
           </Text>
 
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={requestPermission}
           >
-            <Text style={styles.primaryButtonText}>
-              Enable camera
-            </Text>
+            <Text style={styles.primaryButtonText}>Enable camera</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -284,17 +220,11 @@ export default function ScannerScreen({
   return (
     <KeyboardAvoidingView
       style={styles.screen}
-      behavior={
-        Platform.OS === "ios"
-          ? "padding"
-          : undefined
-      }
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
         style={styles.screen}
-        contentContainerStyle={
-          styles.scrollContent
-        }
+        contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.cameraWrap}>
@@ -302,29 +232,20 @@ export default function ScannerScreen({
             ref={cameraRef}
             style={styles.camera}
             facing="back"
-            onCameraReady={() =>
-              setCameraReady(true)
-            }
+            onCameraReady={() => setCameraReady(true)}
           />
 
-          <View
-            style={styles.scanOverlay}
-            pointerEvents="none"
-          >
+          <View style={styles.scanOverlay} pointerEvents="none">
             <View style={styles.scanFrame}>
               <Text style={styles.frameLabel}>
-                Position medical text inside
-                this frame
+                Position medical text inside this frame
               </Text>
             </View>
           </View>
 
           {isBusy && (
             <View style={styles.loadingOverlay}>
-              <ActivityIndicator
-                size="large"
-                color={colors.textOnBrand}
-              />
+              <ActivityIndicator size="large" color={colors.textOnBrand} />
 
               <Text style={styles.loadingText}>
                 {status === "capturing"
@@ -338,53 +259,35 @@ export default function ScannerScreen({
         </View>
 
         <View style={styles.body}>
-          <Text style={styles.title}>
-            Scan &amp; Dissect
-          </Text>
+          <Text style={styles.title}>Scan &amp; Dissect</Text>
 
           <Text style={styles.subtitle}>
-            Hold the camera steady over a page
-            and tap Scan. You can review and edit
-            the recognized text before matching it.
+            Hold the camera steady over a page and tap Scan. You can review and
+            edit the recognized text before matching it.
           </Text>
 
           <TouchableOpacity
             style={[
               styles.captureButton,
-              (!cameraReady || isBusy) &&
-                styles.disabledButton,
+              (!cameraReady || isBusy) && styles.disabledButton,
             ]}
             disabled={!cameraReady || isBusy}
             onPress={captureAndScan}
           >
             {isBusy ? (
-              <ActivityIndicator
-                color={colors.textOnBrand}
-              />
+              <ActivityIndicator color={colors.textOnBrand} />
             ) : (
-              <Text
-                style={
-                  styles.primaryButtonText
-                }
-              >
-                Scan medical text
-              </Text>
+              <Text style={styles.primaryButtonText}>Scan medical text</Text>
             )}
           </TouchableOpacity>
 
           {photoUri && (
             <View style={styles.previewSection}>
               <View style={styles.sectionHeader}>
-                <Text style={styles.sectionLabel}>
-                  CAPTURED IMAGE
-                </Text>
+                <Text style={styles.sectionLabel}>CAPTURED IMAGE</Text>
 
-                <TouchableOpacity
-                  onPress={resetScan}
-                >
-                  <Text style={styles.resetText}>
-                    Clear
-                  </Text>
+                <TouchableOpacity onPress={resetScan}>
+                  <Text style={styles.resetText}>Clear</Text>
                 </TouchableOpacity>
               </View>
 
@@ -397,18 +300,14 @@ export default function ScannerScreen({
           )}
 
           <View style={styles.editorSection}>
-            <Text style={styles.sectionLabel}>
-              RECOGNIZED TEXT
-            </Text>
+            <Text style={styles.sectionLabel}>RECOGNIZED TEXT</Text>
 
             <TextInput
               style={styles.textArea}
               placeholder={
                 "Recognized text will appear here. You can also type or paste text manually."
               }
-              placeholderTextColor={
-                colors.textSecondary
-              }
+              placeholderTextColor={colors.textSecondary}
               value={manualText}
               onChangeText={setManualText}
               multiline
@@ -421,24 +320,15 @@ export default function ScannerScreen({
             <TouchableOpacity
               style={[
                 styles.secondaryButton,
-                (!manualText.trim() ||
-                  isBusy ||
-                  termsStatus !==
-                    "succeeded") &&
+                (!manualText.trim() || isBusy || termsStatus !== "succeeded") &&
                   styles.disabledSecondary,
               ]}
               disabled={
-                !manualText.trim() ||
-                isBusy ||
-                termsStatus !== "succeeded"
+                !manualText.trim() || isBusy || termsStatus !== "succeeded"
               }
               onPress={scanEditedText}
             >
-              <Text
-                style={
-                  styles.secondaryButtonText
-                }
-              >
+              <Text style={styles.secondaryButtonText}>
                 Dissect edited text
               </Text>
             </TouchableOpacity>
@@ -446,31 +336,19 @@ export default function ScannerScreen({
 
           {termsStatus === "loading" && (
             <View style={styles.infoCard}>
-              <ActivityIndicator
-                size="small"
-                color={colors.teal}
-              />
-              <Text style={styles.infoText}>
-                Loading medical terminology…
-              </Text>
+              <ActivityIndicator size="small" color={colors.teal} />
+              <Text style={styles.infoText}>Loading medical terminology…</Text>
             </View>
           )}
 
           {errorMessage && (
             <View style={styles.errorCard}>
-              <Text style={styles.errorTitle}>
-                Scan unsuccessful
-              </Text>
+              <Text style={styles.errorTitle}>Scan unsuccessful</Text>
 
-              <Text style={styles.errorText}>
-                {errorMessage}
-              </Text>
+              <Text style={styles.errorText}>{errorMessage}</Text>
 
-              <Text
-                style={styles.errorSuggestion}
-              >
-                Try better lighting, hold the
-                camera parallel to the page, or
+              <Text style={styles.errorSuggestion}>
+                Try better lighting, hold the camera parallel to the page, or
                 enter the text manually.
               </Text>
             </View>
@@ -481,9 +359,7 @@ export default function ScannerScreen({
               <Text style={styles.resultsLabel}>
                 {matches.length > 0
                   ? `Found ${matches.length} medical term${
-                      matches.length === 1
-                        ? ""
-                        : "s"
+                      matches.length === 1 ? "" : "s"
                     }`
                   : "No known medical terms found"}
               </Text>
@@ -494,80 +370,35 @@ export default function ScannerScreen({
                   style={styles.matchCard}
                   activeOpacity={0.75}
                   onPress={() =>
-                    navigation.navigate(
-                      "TermDetail",
-                      {
-                        termId: term.id,
-                      },
-                    )
+                    navigation.navigate("TermDetail", {
+                      termId: term.id,
+                    })
                   }
                 >
-                  <View
-                    style={
-                      styles.matchCardHeader
-                    }
-                  >
-                    <Text
-                      style={styles.matchWord}
-                    >
-                      {term.word}
-                    </Text>
+                  <View style={styles.matchCardHeader}>
+                    <Text style={styles.matchWord}>{term.word}</Text>
 
-                    <Text
-                      style={
-                        styles.viewDetailsText
-                      }
-                    >
-                      View
-                    </Text>
+                    <Text style={styles.viewDetailsText}>View</Text>
                   </View>
 
                   {term.parts.length > 0 && (
-                    <View
-                      style={styles.partsRow}
-                    >
-                      {term.parts.map(
-                        (part, index) => (
-                          <React.Fragment
-                            key={`${term.id}-${part.text}-${index}`}
-                          >
-                            {index > 0 && (
-                              <Text
-                                style={
-                                  styles.plusSign
-                                }
-                              >
-                                +
-                              </Text>
-                            )}
+                    <View style={styles.partsRow}>
+                      {term.parts.map((part, index) => (
+                        <React.Fragment
+                          key={`${term.id}-${part.text}-${index}`}
+                        >
+                          {index > 0 && <Text style={styles.plusSign}>+</Text>}
 
-                            <View
-                              style={
-                                styles.partChip
-                              }
-                            >
-                              <Text
-                                style={
-                                  styles.partText
-                                }
-                              >
-                                {part.text}
-                              </Text>
-                            </View>
-                          </React.Fragment>
-                        ),
-                      )}
+                          <View style={styles.partChip}>
+                            <Text style={styles.partText}>{part.text}</Text>
+                          </View>
+                        </React.Fragment>
+                      ))}
                     </View>
                   )}
 
-                  <Text
-                    style={
-                      styles.matchDefinition
-                    }
-                    numberOfLines={2}
-                  >
-                    {term.plainDefinition ??
-                      term.definition}
+                  <Text style={styles.matchDefinition} numberOfLines={2}>
+                    {term.plainDefinition ?? term.definition}
                   </Text>
                 </TouchableOpacity>
               ))}

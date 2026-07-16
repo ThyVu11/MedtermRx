@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Category, RootStackParamList, Term } from "../types";
+import { Category, RootStackParamList, Term } from "../types/types";
 import { searchTerms } from "../api/terms";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
 import MnemonicCard from "@/components/MnemonicCard";

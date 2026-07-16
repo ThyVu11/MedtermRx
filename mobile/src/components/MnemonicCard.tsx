@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet, Keyboard } from "react-native";
 import { getMnemonicNote, saveMnemonicNote } from "../storage/mnemonics";
-import { Term } from "@/types";
+import { Term } from "@/types/types";
 
 interface Props {
   term: Term;
@@ -9,7 +9,11 @@ interface Props {
   hintLabel?: string;
 }
 
-export default function MnemonicCard({ term, hint, hintLabel = "Mnemonic seed" }: Props) {
+export default function MnemonicCard({
+  term,
+  hint,
+  hintLabel = "Mnemonic seed",
+}: Props) {
   const [note, setNote] = useState("");
   const [loaded, setLoaded] = useState(false);
 
@@ -37,7 +41,9 @@ export default function MnemonicCard({ term, hint, hintLabel = "Mnemonic seed" }
         </View>
       ) : null}
 
-      <Text style={styles.inputLabel}>Your image (describe it vividly — your own words stick best)</Text>
+      <Text style={styles.inputLabel}>
+        Your image (describe it vividly — your own words stick best)
+      </Text>
       <TextInput
         style={styles.input}
         multiline
@@ -65,7 +71,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   term: { fontSize: 26, fontWeight: "800", color: "#111827" },
-  definition: { fontSize: 15, color: "#374151", marginTop: 4, marginBottom: 14 },
+  definition: {
+    fontSize: 15,
+    color: "#374151",
+    marginTop: 4,
+    marginBottom: 14,
+  },
   hintBox: {
     backgroundColor: "#F0FDFA",
     borderRadius: 12,

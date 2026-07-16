@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { DeckCard } from "@/types";
+import type { DeckCard } from "@/types/types";
 import { newCard } from "./spacedRepetition";
 
 const DECK_KEY = "rootrx:deck:v1";
@@ -24,7 +24,7 @@ export async function saveDeck(deck: DeckCard[]): Promise<void> {
 
 export async function addTermToDeck(
   termId: string,
-  addedFrom: DeckCard["addedFrom"]
+  addedFrom: DeckCard["addedFrom"],
 ): Promise<DeckCard[]> {
   const deck = await loadDeck();
   if (deck.some((c) => c.termId === termId)) return deck;
@@ -35,7 +35,9 @@ export async function addTermToDeck(
 
 export async function updateCard(updatedCard: DeckCard): Promise<DeckCard[]> {
   const deck = await loadDeck();
-  const updated = deck.map((c) => (c.termId === updatedCard.termId ? updatedCard : c));
+  const updated = deck.map((c) =>
+    c.termId === updatedCard.termId ? updatedCard : c,
+  );
   await saveDeck(updated);
   return updated;
 }

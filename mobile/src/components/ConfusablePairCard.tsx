@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import type { ConfusablePair, Term } from "@/types";
+import type { ConfusablePair, Term } from "@/types/types";
 import { colors, radii, spacing, typography } from "@/theme";
 
 interface Props {
@@ -25,7 +25,12 @@ function HighlightedWord({ word, diff }: { word: string; diff: string }) {
   );
 }
 
-export default function ConfusablePairCard({ pair, termA, termB, onPressTerm }: Props) {
+export default function ConfusablePairCard({
+  pair,
+  termA,
+  termB,
+  onPressTerm,
+}: Props) {
   return (
     <View style={styles.card}>
       <View style={styles.badgeRow}>

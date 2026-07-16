@@ -9,8 +9,8 @@ import {
   Platform,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList, Term, WordPartCategory } from "../types";
-import {  searchTerms } from "../api/terms";
+import { RootStackParamList, Term, WordPartCategory } from "../types/types";
+import { searchTerms } from "../api/terms";
 import MnemonicCard from "../components/MnemonicCard";
 
 type Props = NativeStackScreenProps<RootStackParamList, "KeywordMnemonics">;
@@ -29,7 +29,8 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
       .finally(() => setLoading(false));
   }, []);
 
-  const visible = filter === "All" ? terms : terms.filter((t) => t.category === filter);
+  const visible =
+    filter === "All" ? terms : terms.filter((t) => t.category === filter);
 
   useEffect(() => {
     setIndex(0);
@@ -65,10 +66,20 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
           {(["All", ...WORD_PART_CATEGORIES] as const).map((f) => (
             <Pressable
               key={f}
-              style={[styles.filterChip, filter === f && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                filter === f && styles.filterChipActive,
+              ]}
               onPress={() => setFilter(f)}
             >
-              <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f}</Text>
+              <Text
+                style={[
+                  styles.filterText,
+                  filter === f && styles.filterTextActive,
+                ]}
+              >
+                {f}
+              </Text>
             </Pressable>
           ))}
         </View>
@@ -96,7 +107,9 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
             <Pressable
               style={[styles.navButton, atEnd && styles.navButtonDisabled]}
               disabled={atEnd}
-              onPress={() => setIndex((i) => Math.min(visible.length - 1, i + 1))}
+              onPress={() =>
+                setIndex((i) => Math.min(visible.length - 1, i + 1))
+              }
             >
               <Text style={styles.navText}>Next</Text>
             </Pressable>
@@ -110,7 +123,12 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#F0FDFA" },
   flex: { flex: 1 },
-  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#F0FDFA" },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F0FDFA",
+  },
   filters: { flexDirection: "row", gap: 8, padding: 16, paddingBottom: 0 },
   filterChip: {
     paddingVertical: 8,

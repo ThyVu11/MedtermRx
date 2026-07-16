@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Term } from "../types";
+import { Term } from "../types/types";
 
 interface Props {
   term: Term;
@@ -25,7 +25,9 @@ export default function Flashcard({ term }: Props) {
       ) : (
         <>
           <Text style={styles.definition}>{term.definition}</Text>
-          {term.examples ? <Text style={styles.example}>{term.examples}</Text> : null}
+          {term.examples ? (
+            <Text style={styles.example}>{term.examples}</Text>
+          ) : null}
           <Text style={styles.hint}>Tap to go back</Text>
         </>
       )}

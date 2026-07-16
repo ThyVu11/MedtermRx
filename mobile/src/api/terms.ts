@@ -1,5 +1,10 @@
 import { apiGet } from "./client";
-import type { Category, ConfusablePair, QuizQuestion, Term } from "@/types";
+import type {
+  Category,
+  ConfusablePair,
+  QuizQuestion,
+  Term,
+} from "@/types/types";
 
 const ALLOWED_CATEGORIES = new Set([
   "anatomy",
@@ -38,19 +43,15 @@ export async function searchTerms(
 ): Promise<Term[]> {
   const q = query.trim().toLowerCase();
 
-  const terms = await apiGet<Term[]>(
-    `/terms?query=${encodeURIComponent(q)}`,
-  );
+  const terms = await apiGet<Term[]>(`/terms?query=${encodeURIComponent(q)}`);
 
   return terms.filter((term) => {
-    const hasAllowedCategory = term.category.some(
-      (category) =>
-        ALLOWED_CATEGORIES.has(category),
+    const hasAllowedCategory = term.category.some((category) =>
+      ALLOWED_CATEGORIES.has(category),
     );
 
     const matchesSelectedCategory =
-      !selectedCategory ||
-      term.category.includes(selectedCategory);
+      !selectedCategory || term.category.includes(selectedCategory);
 
     const matchesQuery =
       !q ||
@@ -59,11 +60,7 @@ export async function searchTerms(
         searchTerm.toLowerCase().includes(q),
       );
 
-    return (
-      hasAllowedCategory &&
-      matchesSelectedCategory &&
-      matchesQuery
-    );
+    return hasAllowedCategory && matchesSelectedCategory && matchesQuery;
   });
 }
 

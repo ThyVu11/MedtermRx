@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAllConfusables } from "@/api/confusables";
-import type { ConfusablePair } from "@/types";
+import type { ConfusablePair } from "@/types/types";
 
 interface ConfusablesState {
   items: ConfusablePair[];
@@ -14,9 +14,12 @@ const initialState: ConfusablesState = {
   error: null,
 };
 
-export const fetchConfusables = createAsyncThunk("confusables/fetchConfusables", async () => {
-  return await getAllConfusables();
-});
+export const fetchConfusables = createAsyncThunk(
+  "confusables/fetchConfusables",
+  async () => {
+    return await getAllConfusables();
+  },
+);
 
 const confusablesSlice = createSlice({
   name: "confusables",

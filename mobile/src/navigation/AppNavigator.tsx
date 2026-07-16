@@ -10,13 +10,14 @@ import RootLibraryScreen from "../screens/RootLibraryScreen";
 import ConfusablesScreen from "../screens/ConfusablesScreen";
 import ReviewScreen from "../screens/ReviewScreen";
 import TermDetailScreen from "../screens/TermDetailScreen";
-import { RootStackParamList } from "@/types";
+import { RootStackParamList } from "@/types/types";
 import FlashcardScreen from "@/screens/FlashcardScreen";
 import MemoryMapScreen from "@/screens/MemoryMapScreen";
 import KeywordMnemonicScreen from "@/screens/KeywordMnemonicScreen";
 import OrganDetailScreen from "@/screens/OrganDetailScreen";
 import QuizScreen from "@/screens/QuizScreen";
 import HomeScreen from "@/screens/HomeScreen";
+import QuizResultScreen from "@/screens/QuizResultScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -90,6 +91,11 @@ export default function AppNavigator() {
           name="Quiz"
           component={QuizScreen}
           options={{ title: "Quiz" }}
+        />
+        <Stack.Screen
+          name="QuizResult"
+          component={QuizResultScreen}
+          options={{ title: "Results", headerBackVisible: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

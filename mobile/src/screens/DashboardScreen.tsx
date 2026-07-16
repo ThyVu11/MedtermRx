@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, radii, spacing, typography } from "@/theme";
@@ -8,7 +14,7 @@ import { dueCards } from "@/utils/spacedRepetition";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { fetchTerms } from "@/features/termsSlice";
 import { fetchConfusables } from "@/features/confusablesSlice";
-import type { RootStackParamList } from "@/types";
+import type { RootStackParamList } from "@/types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dashboard">;
 
@@ -42,13 +48,15 @@ export default function DashboardScreen({ navigation }: Props) {
       return () => {
         active = false;
       };
-    }, [])
+    }, []),
   );
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={styles.eyebrow}>MedTermRx</Text>
-      <Text style={styles.title}>Dissect the language.{"\n"}Skip the burnout.</Text>
+      <Text style={styles.title}>
+        Dissect the language.{"\n"}Skip the burnout.
+      </Text>
 
       <View style={styles.statRow}>
         <View style={styles.statCard}>
@@ -70,7 +78,9 @@ export default function DashboardScreen({ navigation }: Props) {
         onPress={() => navigation.navigate("Review")}
       >
         <Text style={styles.primaryActionText}>
-          {dueCount > 0 ? `Review ${dueCount} due card${dueCount === 1 ? "" : "s"}` : "Start a review session"}
+          {dueCount > 0
+            ? `Review ${dueCount} due card${dueCount === 1 ? "" : "s"}`
+            : "Start a review session"}
         </Text>
       </TouchableOpacity>
 
@@ -97,25 +107,36 @@ export default function DashboardScreen({ navigation }: Props) {
           desc="Browse every prefix, root, and suffix by body system"
           onPress={() => navigation.navigate("RootLibrary")}
         />
-       
+
         <ToolCard
           label="Memory Map (anatomy)"
           desc="Search any term and see its prefix, root, and suffix"
           onPress={() => navigation.navigate("MemoryMap")}
         />
-       
       </View>
       <Text style={styles.footerNote}>
-        {terms.length} terms dissected and growing — every scan or search adds new ones to your
-        library.
+        {terms.length} terms dissected and growing — every scan or search adds
+        new ones to your library.
       </Text>
     </ScrollView>
   );
 }
 
-function ToolCard({ label, desc, onPress }: { label: string; desc: string; onPress: () => void }) {
+function ToolCard({
+  label,
+  desc,
+  onPress,
+}: {
+  label: string;
+  desc: string;
+  onPress: () => void;
+}) {
   return (
-    <TouchableOpacity style={styles.toolCard} onPress={onPress} activeOpacity={0.75}>
+    <TouchableOpacity
+      style={styles.toolCard}
+      onPress={onPress}
+      activeOpacity={0.75}
+    >
       <Text style={styles.toolLabel}>{label}</Text>
       <Text style={styles.toolDesc}>{desc}</Text>
     </TouchableOpacity>
@@ -124,7 +145,11 @@ function ToolCard({ label, desc, onPress }: { label: string; desc: string; onPre
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
-  content: { padding: spacing.lg, paddingTop: spacing.xxl, paddingBottom: spacing.xxl },
+  content: {
+    padding: spacing.lg,
+    paddingTop: spacing.xxl,
+    paddingBottom: spacing.xxl,
+  },
   eyebrow: {
     ...typography.label,
     color: colors.teal,
@@ -178,7 +203,11 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
-  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
   toolCard: {
     width: "48%",
     backgroundColor: colors.paperDim,

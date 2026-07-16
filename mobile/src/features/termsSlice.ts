@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getAllTerms } from "@/api/terms";
-import type { Term } from "@/types";
+import type { Term } from "@/types/types";
 
 interface TermsState {
   items: Term[];

@@ -1,6 +1,6 @@
 import React from "react";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
-import type { Term } from "@/types";
+import type { Term } from "@/types/types";
 import { colors, partColor, radii, spacing, typography } from "@/theme";
 
 interface Props {
@@ -13,7 +13,10 @@ export default function TermCard({ term, onPress }: Props) {
     <TouchableOpacity style={styles.row} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.dotStack}>
         {term.parts.map((p, i) => (
-          <View key={i} style={[styles.dot, { backgroundColor: partColor(p.type) }]} />
+          <View
+            key={i}
+            style={[styles.dot, { backgroundColor: partColor(p.type) }]}
+          />
         ))}
       </View>
       <View style={styles.textCol}>

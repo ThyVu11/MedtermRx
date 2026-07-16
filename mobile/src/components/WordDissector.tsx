@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import type { Term } from "@/types";
+import type { Term } from "@/types/types";
 import { colors, radii, spacing, typography } from "@/theme";
 import PartTag from "./PartTag";
 
@@ -16,7 +16,9 @@ export default function WordDissector({ term, onAddToDeck, inDeck }: Props) {
       <View style={styles.header}>
         <Text style={styles.eyebrow}>Specimen</Text>
         <Text style={styles.word}>{term.word}</Text>
-        <Text style={styles.pronunciation}>{term.pronunciation !== "" ? `/${term.pronunciation}/` : ""}</Text>
+        <Text style={styles.pronunciation}>
+          {term.pronunciation !== "" ? `/${term.pronunciation}/` : ""}
+        </Text>
       </View>
 
       <View style={styles.partsRow}>
@@ -50,7 +52,9 @@ export default function WordDissector({ term, onAddToDeck, inDeck }: Props) {
           onPress={onAddToDeck}
           disabled={inDeck}
         >
-          <Text style={[styles.addButtonText, inDeck && styles.addButtonTextDone]}>
+          <Text
+            style={[styles.addButtonText, inDeck && styles.addButtonTextDone]}
+          >
             {inDeck ? "✓ In your review deck" : "+ Add to review deck"}
           </Text>
         </TouchableOpacity>

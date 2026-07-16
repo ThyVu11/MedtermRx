@@ -16,7 +16,7 @@ import {
   RootStackParamList,
   Term,
   TermSection,
-} from "@/types";
+} from "@/types/types";
 import { searchTerms } from "@/api/terms";
 import { useDebounce } from "@/hooks/useDebounce";
 

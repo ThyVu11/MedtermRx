@@ -1,5 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
 import { colors, radii, spacing, typography } from "@/theme";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { fetchTerms } from "@/features/termsSlice";
@@ -7,7 +14,7 @@ import { fetchConfusables } from "@/features/confusablesSlice";
 import { fetchRoots } from "@/features/rootsSlice";
 import { loadDeck, updateCard } from "@/utils/deckStorage";
 import { dueCards, scheduleNextReview } from "@/utils/spacedRepetition";
-import type { DeckCard, ReviewQuality, Term } from "@/types";
+import type { DeckCard, ReviewQuality, Term } from "@/types/types";
 
 type Mode = "spelling" | "root_recall" | "confusable";
 
@@ -17,9 +24,13 @@ interface Question {
   mode: Mode;
 }
 
-function pickMode(term: Term, index: number, confusables: readonly { termAId: string; termBId: string }[]): Mode {
+function pickMode(
+  term: Term,
+  index: number,
+  confusables: readonly { termAId: string; termBId: string }[],
+): Mode {
   const hasConfusable = confusables.some(
-    (c) => c.termAId === term.id || c.termBId === term.id
+    (c) => c.termAId === term.id || c.termBId === term.id,
   );
   if (hasConfusable && index % 3 === 0) return "confusable";
   return index % 2 === 0 ? "spelling" : "root_recall";
@@ -73,7 +84,9 @@ export default function ReviewScreen() {
   const rootChoices = useMemo(() => {
     if (!question || question.mode !== "root_recall") return [];
     const targetPart = question.term.parts[0];
-    const distractors = shuffle(roots.filter((r) => r.meaning !== targetPart.meaning))
+    const distractors = shuffle(
+      roots.filter((r) => r.meaning !== targetPart.meaning),
+    )
       .slice(0, 3)
       .map((r) => r.meaning);
     return shuffle([targetPart.meaning, ...distractors]);
@@ -83,7 +96,7 @@ export default function ReviewScreen() {
     if (!question || question.mode !== "confusable") return null;
     return (
       confusables.find(
-        (c) => c.termAId === question.term.id || c.termBId === question.term.id
+        (c) => c.termAId === question.term.id || c.termBId === question.term.id,
       ) ?? null
     );
   }, [question, confusables]);
@@ -102,8 +115,8 @@ export default function ReviewScreen() {
         <View style={styles.doneCard}>
           <Text style={styles.doneTitle}>Nothing due right now 🎉</Text>
           <Text style={styles.doneBody}>
-            Add more terms from the Dissector, Scanner, or Root Library, and they'll show up here
-            when they're ready to review.
+            Add more terms from the Dissector, Scanner, or Root Library, and
+            they'll show up here when they're ready to review.
           </Text>
         </View>
       </View>
@@ -115,7 +128,9 @@ export default function ReviewScreen() {
       <View style={styles.screen}>
         <View style={styles.doneCard}>
           <Text style={styles.doneTitle}>Session complete ✅</Text>
-          <Text style={styles.doneBody}>You reviewed every due card. Nice work.</Text>
+          <Text style={styles.doneBody}>
+            You reviewed every due card. Nice work.
+          </Text>
         </View>
       </View>
     );
@@ -131,13 +146,17 @@ export default function ReviewScreen() {
   };
 
   const checkSpelling = () => {
-    const correct = spellingInput.trim().toLowerCase() === question.term.word.toLowerCase();
+    const correct =
+      spellingInput.trim().toLowerCase() === question.term.word.toLowerCase();
     setWasCorrect(correct);
     setRevealed(true);
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={{ padding: spacing.lg }}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={{ padding: spacing.lg }}
+    >
       <Text style={styles.progress}>
         Card {current + 1} of {queue.length}
       </Text>
@@ -146,7 +165,9 @@ export default function ReviewScreen() {
         <View style={styles.card}>
           <Text style={styles.eyebrow}>Spelling drill</Text>
           <Text style={styles.prompt}>{question.term.definition}</Text>
-          <Text style={styles.pronunciationHint}>/{question.term.pronunciation}/</Text>
+          <Text style={styles.pronunciationHint}>
+            /{question.term.pronunciation}/
+          </Text>
           <TextInput
             style={styles.input}
             placeholder="Type the term"
@@ -158,7 +179,10 @@ export default function ReviewScreen() {
             editable={!revealed}
           />
           {!revealed ? (
-            <TouchableOpacity style={styles.checkButton} onPress={checkSpelling}>
+            <TouchableOpacity
+              style={styles.checkButton}
+              onPress={checkSpelling}
+            >
               <Text style={styles.checkButtonText}>Check</Text>
             </TouchableOpacity>
           ) : (
@@ -169,7 +193,9 @@ export default function ReviewScreen() {
               ]}
             >
               <Text style={styles.resultText}>
-                {wasCorrect ? "Correct!" : `Correct spelling: ${question.term.word}`}
+                {wasCorrect
+                  ? "Correct!"
+                  : `Correct spelling: ${question.term.word}`}
               </Text>
             </View>
           )}
@@ -180,7 +206,8 @@ export default function ReviewScreen() {
         <View style={styles.card}>
           <Text style={styles.eyebrow}>Root recall</Text>
           <Text style={styles.prompt}>
-            What does “{question.term.parts[0].text}” mean in {question.term.word}?
+            What does “{question.term.parts[0].text}” mean in{" "}
+            {question.term.word}?
           </Text>
           <View style={styles.choices}>
             {rootChoices.map((choice) => {
@@ -211,7 +238,9 @@ export default function ReviewScreen() {
       {question.mode === "confusable" && confusablePair && (
         <View style={styles.card}>
           <Text style={styles.eyebrow}>Confusable check</Text>
-          <Text style={styles.prompt}>Which term means: “{question.term.definition}”?</Text>
+          <Text style={styles.prompt}>
+            Which term means: “{question.term.definition}”?
+          </Text>
           <View style={styles.choices}>
             {[confusablePair.termAId, confusablePair.termBId].map((id) => {
               const t = terms.find((termItem) => termItem.id === id);
@@ -271,7 +300,10 @@ function RateButton({
     success: colors.success,
   }[tone];
   return (
-    <TouchableOpacity style={[styles.rateButton, { backgroundColor: bg }]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.rateButton, { backgroundColor: bg }]}
+      onPress={onPress}
+    >
       <Text style={styles.rateButtonText}>{label}</Text>
     </TouchableOpacity>
   );
@@ -348,11 +380,18 @@ const styles = StyleSheet.create({
     padding: spacing.sm + 2,
     marginBottom: spacing.sm,
   },
-  choiceCorrect: { backgroundColor: colors.successBg, borderColor: colors.success },
+  choiceCorrect: {
+    backgroundColor: colors.successBg,
+    borderColor: colors.success,
+  },
   choiceMuted: { opacity: 0.5 },
   choiceText: { fontSize: 14, color: colors.textPrimary },
   rateRow: { marginTop: spacing.lg },
-  rateLabel: { fontSize: 12, color: colors.textSecondary, marginBottom: spacing.sm },
+  rateLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
+  },
   rateButtons: { flexDirection: "row", justifyContent: "space-between" },
   rateButton: {
     flex: 1,
@@ -361,7 +400,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     alignItems: "center",
   },
-  rateButtonText: { color: colors.textOnBrand, fontWeight: "700", fontSize: 12 },
+  rateButtonText: {
+    color: colors.textOnBrand,
+    fontWeight: "700",
+    fontSize: 12,
+  },
   doneCard: {
     backgroundColor: colors.paperDim,
     borderRadius: radii.lg,
@@ -369,6 +412,16 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     alignItems: "center",
   },
-  doneTitle: { ...typography.display, fontSize: 20, color: colors.ink, marginBottom: spacing.sm },
-  doneBody: { fontSize: 13, color: colors.textSecondary, textAlign: "center", lineHeight: 18 },
+  doneTitle: {
+    ...typography.display,
+    fontSize: 20,
+    color: colors.ink,
+    marginBottom: spacing.sm,
+  },
+  doneBody: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: "center",
+    lineHeight: 18,
+  },
 });

@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList, QuizQuestion } from "../types";
+import { RootStackParamList, QuizQuestion } from "../types/types";
 import { getQuiz } from "../api/terms";
 type Props = NativeStackScreenProps<RootStackParamList, "Quiz">;
 

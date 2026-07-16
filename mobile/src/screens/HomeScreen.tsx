@@ -1,13 +1,24 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types";
+import { RootStackParamList } from "../types/types";
 import CodeCloth from "./CodeCloth";
 import { colors, radii, spacing } from "@/theme";
+import MedTermRxLogo from "../../assets/images/MedTermRx_logo.svg";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 export default function HomeScreen({ navigation }: Props) {
+  const { width } = useWindowDimensions();
+
+  const logoWidth = Math.min(width - 32, 420);
+  const logoHeight = logoWidth * 0.48;
   return (
     <View style={styles.safe}>
       <View style={styles.container}>
@@ -21,6 +32,11 @@ export default function HomeScreen({ navigation }: Props) {
         >
           <Text style={styles.primaryButtonText}>GET START</Text>
         </TouchableOpacity>
+
+        <View style={styles.logoContainer}>
+          <MedTermRxLogo width={logoWidth} height={logoHeight} />
+        </View>
+
         <View style={styles.animationArea}>
           <CodeCloth maxClothWidth={340} maxClothHeight={250} fontSize={9} />
         </View>
@@ -36,6 +52,10 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: "center",
     alignItems: "center",
+  },
+  logoContainer: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
     fontSize: 34,

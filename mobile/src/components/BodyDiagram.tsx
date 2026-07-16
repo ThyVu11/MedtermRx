@@ -2,14 +2,17 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle, Rect, Ellipse, Text as SvgText } from "react-native-svg";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
-import { AnatomicalCategory } from "../types";
+import { AnatomicalCategory } from "../types/types";
 
 interface Props {
   onSelectOrgan: (category: AnatomicalCategory) => void;
   progressByCategory?: Record<string, number>; // 0-1 fraction of terms with a saved note
 }
 
-export default function BodyDiagram({ onSelectOrgan, progressByCategory }: Props) {
+export default function BodyDiagram({
+  onSelectOrgan,
+  progressByCategory,
+}: Props) {
   return (
     <View style={styles.wrapper}>
       <Svg viewBox="0 0 300 600" width="100%" height={420}>
@@ -73,7 +76,12 @@ export default function BodyDiagram({ onSelectOrgan, progressByCategory }: Props
 
 const styles = StyleSheet.create({
   wrapper: { alignItems: "center" },
-  legend: { marginTop: 12, gap: 6, alignSelf: "stretch", paddingHorizontal: 20 },
+  legend: {
+    marginTop: 12,
+    gap: 6,
+    alignSelf: "stretch",
+    paddingHorizontal: 20,
+  },
   legendRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   legendText: { fontSize: 13, color: "#4B5563" },

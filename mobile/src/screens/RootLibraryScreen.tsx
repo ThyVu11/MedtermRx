@@ -1,9 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
 import { colors, partColor, radii, spacing, typography } from "@/theme";
 import { useAppDispatch, useAppSelector } from "@/hooks";
 import { fetchRoots } from "@/features/rootsSlice";
-import type { PartType, RootEntry } from "@/types";
+import type { PartType, RootEntry } from "@/types/types";
 
 const FILTERS: { key: PartType | "all"; label: string }[] = [
   { key: "all", label: "All" },
@@ -31,7 +38,9 @@ export default function RootLibraryScreen() {
     if (query.trim()) {
       const q = query.toLowerCase();
       data = data.filter(
-        (r) => r.text.toLowerCase().includes(q) || r.meaning.toLowerCase().includes(q)
+        (r) =>
+          r.text.toLowerCase().includes(q) ||
+          r.meaning.toLowerCase().includes(q),
       );
     }
     return data;
@@ -42,8 +51,8 @@ export default function RootLibraryScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Root Library</Text>
         <Text style={styles.subtitle}>
-          Learn the ~30 building blocks that unlock hundreds of terms — instead of memorizing
-          words one at a time.
+          Learn the ~30 building blocks that unlock hundreds of terms — instead
+          of memorizing words one at a time.
         </Text>
         <TextInput
           style={styles.input}
@@ -57,10 +66,18 @@ export default function RootLibraryScreen() {
           {FILTERS.map((f) => (
             <TouchableOpacity
               key={f.key}
-              style={[styles.filterChip, filter === f.key && styles.filterChipActive]}
+              style={[
+                styles.filterChip,
+                filter === f.key && styles.filterChipActive,
+              ]}
               onPress={() => setFilter(f.key)}
             >
-              <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
+              <Text
+                style={[
+                  styles.filterText,
+                  filter === f.key && styles.filterTextActive,
+                ]}
+              >
                 {f.label}
               </Text>
             </TouchableOpacity>
@@ -88,10 +105,11 @@ function RootRow({ entry }: { entry: RootEntry }) {
         <Text style={styles.metaTag}> {entry.mnemonicSeed}</Text>
       </View>
       <View style={styles.metaRow}>
-        <Text style={styles.metaTag}>{entry.bodySystem}</Text>  
+        <Text style={styles.metaTag}>{entry.bodySystem}</Text>
       </View>
-      <Text style={styles.metaTag}>{entry.examples.map((e) => `"${e.term}"`).join(", ")}</Text>
-      
+      <Text style={styles.metaTag}>
+        {entry.examples.map((e) => `"${e.term}"`).join(", ")}
+      </Text>
     </View>
   );
 }
@@ -154,11 +172,14 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginTop: 2,
   },
-  metaRow: { flexDirection: "row", display: "flex",
+  metaRow: {
+    flexDirection: "row",
+    display: "flex",
     alignContent: "center",
     flexWrap: "nowrap",
-    alignItems:"flex-end",
-    justifyContent: "space-between"},
+    alignItems: "flex-end",
+    justifyContent: "space-between",
+  },
   metaTag: {
     fontSize: 11,
     color: colors.textSecondary,
