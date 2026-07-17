@@ -1,4 +1,4 @@
-import { apiGet } from "./client";
+import { API_BASE_URL, apiGet } from "./client";
 import type {
   Category,
   ConfusablePair,
@@ -33,6 +33,13 @@ const ALLOWED_CATEGORIES = new Set([
   // "general",
 ]);
 
+export async function getTermsDownloadUrl(): Promise<string> {
+  const response = await apiGet<{ url: string }>("/terms/data/download-url");
+  console.log("response", response.url);
+
+  return response.url;
+}
+
 export function getAllTerms(): Promise<Term[]> {
   return apiGet<Term[]>("/terms");
 }
@@ -42,8 +49,19 @@ export async function searchTerms(
   selectedCategory?: Category,
 ): Promise<Term[]> {
   const q = query.trim().toLowerCase();
+  // const terms = await apiGet<Term[]>(`/terms?query=${encodeURIComponent(q)}`);
 
-  const terms = await apiGet<Term[]>(`/terms?query=${encodeURIComponent(q)}`);
+  const url = await getTermsDownloadUrl();
+
+  const response = await fetch(url);
+  console.log("responseresponse", response);
+
+  if (!response.ok) {
+    throw new Error("Unable to download terms.");
+  }
+
+  // console.log("response", response.json);
+  const terms = (await response.json()) as Term[];
 
   return terms.filter((term) => {
     const hasAllowedCategory = term.category.some((category) =>
@@ -59,6 +77,13 @@ export async function searchTerms(
       term.searchTerms.some((searchTerm) =>
         searchTerm.toLowerCase().includes(q),
       );
+
+    console.log({
+      query,
+      q,
+      selectedCategory,
+      downloadedTerms: terms.length,
+    });
 
     return hasAllowedCategory && matchesSelectedCategory && matchesQuery;
   });

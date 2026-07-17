@@ -1,7 +1,10 @@
 import { Router, Request, Response } from "express";
+import "dotenv/config";
 import terms from "../../data/terms/terms.json";
 import confusables from "../../data/confusables/confusables.json";
 import type { Category, Term, ConfusablePair, QuizQuestion } from "../types";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const router = Router();
 const termData = terms as Term[];
@@ -18,6 +21,41 @@ function shuffle<T>(items: T[]): T[] {
 
   return result;
 }
+
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
+router.get("/data/download-url", async (_request, response, next) => {
+  try {
+    const bucket = process.env.AWS_S3_BUCKET?.trim();
+
+    if (!bucket) {
+      return response.status(500).json({
+        error: "AWS_S3_BUCKET_NOT_CONFIGURED",
+      });
+    }
+
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: "terms.json",
+    });
+
+    const url = await getSignedUrl(s3, command, {
+      expiresIn: 300,
+    });
+    // console.log("here", response.json({ url }));
+
+    return response.json({ url });
+  } catch (error) {
+    console.error("Failed to generate download URL:", error);
+    return next(error);
+  }
+});
 
 router.get("/", (req, res) => {
   const { q, category } = req.query;
