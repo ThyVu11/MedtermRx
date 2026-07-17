@@ -1,5 +1,4 @@
-export const medicalTermCloth = `
-cardiology
+export const medicalTermCloth = `cardiology
 neurology
 hematology
 oncology

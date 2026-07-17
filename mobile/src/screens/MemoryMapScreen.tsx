@@ -9,11 +9,16 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { AnatomicalCategory, RootStackParamList, Term } from "../types/types";
+import {
+  AnatomicalCategory,
+  Category,
+  RootStackParamList,
+  Term,
+} from "../types/types";
 import { searchTerms } from "../api/terms";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
-import BodyDiagram from "@/components/BodyDiagram";
-import { getMnemonicNotesFor } from "@/storage/mnemonics";
+import { getMnemonicNotesFor } from "../storage/mnemonics";
+import BodyDiagram from "../components/BodyDiagram";
 
 type Props = NativeStackScreenProps<RootStackParamList, "MemoryMap">;
 
@@ -39,9 +44,9 @@ export default function MemoryMapScreen({ navigation }: Props) {
 
     const nextTerms: Record<string, Term[]> = {};
     const nextProgress: Record<string, number> = {};
-    entries.forEach(([category, terms, fraction]) => {
-      nextTerms[category] = terms;
-      nextProgress[category] = fraction;
+    entries.forEach(([categoryKey, terms, fraction]) => {
+      nextTerms[categoryKey] = terms;
+      nextProgress[categoryKey] = fraction;
     });
     setTermsByCategory(nextTerms);
     setProgress(nextProgress);
@@ -81,9 +86,9 @@ export default function MemoryMapScreen({ navigation }: Props) {
 
         <BodyDiagram
           progressByCategory={progress}
-          onSelectOrgan={(category: AnatomicalCategory) =>
-            navigation.navigate("OrganDetail" as any, { category })
-          }
+          onSelectOrgan={(category: Category) => {
+            navigation.navigate("OrganDetail", { category });
+          }}
         />
       </ScrollView>
     </View>

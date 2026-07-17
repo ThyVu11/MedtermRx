@@ -9,13 +9,14 @@ import {
   Platform,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList, Term, WordPartCategory } from "../types/types";
+import { Category, RootStackParamList, Term } from "../types/types";
 import { searchTerms } from "../api/terms";
 import MnemonicCard from "../components/MnemonicCard";
 
 type Props = NativeStackScreenProps<RootStackParamList, "KeywordMnemonics">;
 
-const WORD_PART_CATEGORIES: WordPartCategory[] = ["Prefix", "Suffix", "Root"];
+const WORD_PART_CATEGORIES = ["Prefix", "Suffix", "Root"] as const;
+type WordPartCategory = (typeof WORD_PART_CATEGORIES)[number];
 
 export default function KeywordMnemonicScreen({ navigation }: Props) {
   const [terms, setTerms] = useState<Term[]>([]);
@@ -30,7 +31,9 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
   }, []);
 
   const visible =
-    filter === "All" ? terms : terms.filter((t) => t.category === filter);
+    filter === "All"
+      ? terms
+      : terms.filter((t) => t.category === (filter as any));
 
   useEffect(() => {
     setIndex(0);

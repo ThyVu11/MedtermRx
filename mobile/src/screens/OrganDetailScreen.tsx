@@ -12,13 +12,14 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Category, RootStackParamList, Term } from "../types/types";
 import { searchTerms } from "../api/terms";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
-import MnemonicCard from "@/components/MnemonicCard";
+import MnemonicCard from "../components/MnemonicCard";
 
 type Props = NativeStackScreenProps<RootStackParamList, "OrganDetail">;
 
-export default function OrganDetailScreen({ route, navigation }: Props) {
+export default function ({ route, navigation }: Props) {
   const { category } = route.params;
-  const organ = ORGAN_LOCATIONS.find((o) => o.category === category);
+  const categoryValue = category.toLowerCase() as Category;
+  const organ = ORGAN_LOCATIONS.find((o) => o.category === categoryValue);
   const [terms, setTerms] = useState<Term[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -26,10 +27,9 @@ export default function OrganDetailScreen({ route, navigation }: Props) {
   const loadTerms = async (): Promise<void> => {
     setLoading(true);
     setIndex(0);
-    let choosedCategory: Category = category.toLowerCase() as Category;
 
     try {
-      const results = await searchTerms("", choosedCategory);
+      const results = await searchTerms("", categoryValue);
 
       if (loading) {
         setTerms(results);
@@ -72,7 +72,8 @@ export default function OrganDetailScreen({ route, navigation }: Props) {
 
   const atStart = index === 0;
   const atEnd = index === terms.length - 1;
-
+  {
+  }
   return (
     <View style={styles.safe}>
       <KeyboardAvoidingView
@@ -81,8 +82,7 @@ export default function OrganDetailScreen({ route, navigation }: Props) {
       >
         <View style={styles.container}>
           <Text style={styles.progress}>
-            {index + 1} / {terms.length} at the {organ?.label ?? category} —{" "}
-            {organ?.category}
+            {index + 1} / {terms.length} at the {organ?.category ?? category}
           </Text>
 
           <MnemonicCard

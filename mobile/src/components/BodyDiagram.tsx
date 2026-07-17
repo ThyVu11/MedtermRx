@@ -2,10 +2,10 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Svg, { Circle, Rect, Ellipse, Text as SvgText } from "react-native-svg";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
-import { AnatomicalCategory } from "../types/types";
+import { AnatomicalCategory, Category } from "../types/types";
 
 interface Props {
-  onSelectOrgan: (category: AnatomicalCategory) => void;
+  onSelectOrgan: (category: Category) => void;
   progressByCategory?: Record<string, number>; // 0-1 fraction of terms with a saved note
 }
 
@@ -41,7 +41,10 @@ export default function BodyDiagram({
                 fillOpacity={hasProgress ? 1 : 0.55}
                 stroke="#ffffff"
                 strokeWidth={2}
-                onPress={() => onSelectOrgan(organ.category)}
+                onPress={(event) => {
+                  onSelectOrgan(organ.category as Category);
+                  return event;
+                }}
               />
               {hasProgress && progress >= 1 && (
                 <SvgText
@@ -50,7 +53,10 @@ export default function BodyDiagram({
                   fontSize={14}
                   fill="#ffffff"
                   textAnchor="middle"
-                  onPress={() => onSelectOrgan(organ.category)}
+                  onPress={(event) => {
+                    onSelectOrgan(organ.category as Category);
+                    return event;
+                  }}
                 >
                   ✓
                 </SvgText>

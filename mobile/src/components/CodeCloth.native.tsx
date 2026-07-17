@@ -296,7 +296,6 @@ function CodeClothComponent({
 
   const lastSoundTimeRef = useRef(0);
   const playTouchSound = () => {
-    console.log("Playing cloth sound", touchSoundStatus);
 
     const now = Date.now();
 

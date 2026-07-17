@@ -93,7 +93,7 @@ export type RootStackParamList = {
   MemoryMap: undefined;
 
   OrganDetail: {
-    category: AnatomicalCategory;
+    category: Category;
   };
 
   KeywordMnemonics: undefined;
@@ -235,16 +235,43 @@ export interface DeckCard {
  * Memory map
  * ======================================================= */
 
-export const ANATOMICAL_CATEGORIES = [
-  "Neurological",
-  "Respiratory",
-  "Cardiovascular",
-  "Gastrointestinal",
-  "Musculoskeletal",
-  "Sensory",
-  "Endocrine",
-  "Urinary",
-  "Reproductive",
+const ANATOMICAL_CATEGORIES = [
+  {
+    value: "neurology",
+    label: "Neurology",
+  },
+  {
+    value: "respiratory",
+    label: "Respiratory",
+  },
+  {
+    value: "cardiovascular",
+    label: "Cardiovascular",
+  },
+  {
+    value: "gastrointestinal",
+    label: "Gastrointestinal",
+  },
+  {
+    value: "musculoskeletal",
+    label: "Musculoskeletal",
+  },
+  {
+    value: "sensory",
+    label: "Sensory",
+  },
+  {
+    value: "endocrine",
+    label: "Endocrine",
+  },
+  {
+    value: "urinary",
+    label: "Urinary",
+  },
+  {
+    value: "reproductive",
+    label: "Reproductive",
+  },
 ] as const;
 
 export type AnatomicalCategory = (typeof ANATOMICAL_CATEGORIES)[number];

@@ -4,7 +4,9 @@ import { AnatomicalCategory } from "../types/types";
 // The point of a memory palace is a STABLE layout you walk the same way
 // every time — so these coordinates are hand-placed, not computed.
 export interface OrganLocation {
-  category: AnatomicalCategory;
+  // AnatomicalCategory is a union of specific readonly objects in types; allow
+  // either that or a simple string here for ease of use in this data file.
+  category: string;
   label: string;
   x: number;
   y: number;
@@ -12,7 +14,7 @@ export interface OrganLocation {
 }
 
 export const ORGAN_LOCATIONS: OrganLocation[] = [
-  { category: "Neurological", label: "Brain", x: 150, y: 40, color: "#7C3AED" },
+  { category: "Neurology", label: "Brain", x: 150, y: 40, color: "#7C3AED" },
   {
     category: "Sensory",
     label: "Eyes & Ears",
@@ -55,7 +57,7 @@ export const ORGAN_LOCATIONS: OrganLocation[] = [
 
 // The order a "tour" walks the body — top to bottom, the same route every
 // time, which is what makes a memory palace stick.
-export const TOUR_ORDER: AnatomicalCategory[] = [
+export const TOUR_ORDER: (AnatomicalCategory | string)[] = [
   "Neurological",
   "Respiratory",
   "Cardiovascular",
