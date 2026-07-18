@@ -8,9 +8,23 @@ import "dotenv/config";
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:8081",
+  "https://medterm.expo.app/", //prod
+  "https://medterm--uykawtfnlj.expo.app/", //dev
+];
+
 app.use(
   cors({
-    origin: true,
+    origin(origin, callback) {
+      // Native apps and tools may not send an Origin header.
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS blocked origin: ${origin}`));
+    },
   }),
 );
 

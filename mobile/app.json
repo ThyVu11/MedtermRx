@@ -8,9 +8,8 @@
     "splash": {
       "backgroundColor": "#0F766E"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "icon": "./assces/icon.png",
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teacy.medtermstudy",
@@ -31,11 +30,7 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": [
-      "expo-audio",
-      "expo-asset",
-      "expo-sqlite"
-    ],
+    "plugins": ["expo-audio", "expo-asset", "expo-sqlite"],
     "extra": {
       "eas": {
         "projectId": "f901881f-d5f3-4371-b773-5eb570f8dc2a"

@@ -101,5 +101,5 @@ export interface QuizQuestion {
   term: string;
   choices: string[];
   correctAnswer: string;
-  category: Category;
+  category: Category[];
 }

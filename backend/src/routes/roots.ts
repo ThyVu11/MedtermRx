@@ -1,41 +1,162 @@
-import { Router } from "express";
-import roots from "../../data/roots/roots.json";
+import { Router, Request, Response, NextFunction } from "express";
 import type { RootEntry } from "../types";
+import {
+  createDownloadUrl,
+  handleRouteError,
+  loadCachedData,
+  rootsCache,
+} from "./terms";
 
 const router = Router();
-const data = roots as RootEntry[];
 
-router.get("/", (req, res) => {
-  const { category, type, q } = req.query;
-  let results = data;
+const S3_ROOTS_KEY = process.env.S3_ROOTS_KEY?.trim() || "data/roots.json";
 
-  if (category && typeof category === "string") {
-    results = results.filter((r) => r.category === category);
-  }
-  if (type && typeof type === "string") {
-    results = results.filter((r) => r.type === type);
-  }
-  if (q && typeof q === "string") {
-    const needle = q.toLowerCase();
-    results = results.filter(
-      (r) =>
-        r.text.toLowerCase().includes(needle) ||
-        r.meaning.toLowerCase().includes(needle)
-    );
-  }
+function getRoots(): Promise<RootEntry[]> {
+  return loadCachedData<RootEntry[]>(rootsCache, S3_ROOTS_KEY);
+}
 
-  res.json(results);
-});
+/**
+ * GET /api/roots/data/download-url
+ *
+ * Returns a temporary S3 URL for roots.json.
+ *
+ * If this router is mounted at:
+ * app.use("/api/roots", rootsRouter)
+ *
+ * then the route should be "/data/download-url".
+ */
+router.get(
+  "/data/download-url",
+  async (_request: Request, response: Response, next: NextFunction) => {
+    try {
+      const url = await createDownloadUrl(S3_ROOTS_KEY);
 
-router.get("/categories", (_req, res) => {
-  const categories = Array.from(new Set(data.map((r) => r.category)));
-  res.json(categories);
-});
+      return response.json({ url });
+    } catch (error) {
+      handleRouteError(error, next);
+    }
+  },
+);
 
-router.get("/:id", (req, res) => {
-  const entry = data.find((r) => r.id === req.params.id);
-  if (!entry) return res.status(404).json({ error: "Root not found" });
-  res.json(entry);
-});
+/**
+ * GET /api/roots
+ * GET /api/roots?category=cardiovascular
+ * GET /api/roots?type=root
+ * GET /api/roots?q=heart
+ */
+router.get(
+  "/",
+  async (request: Request, response: Response, next: NextFunction) => {
+    try {
+      const roots = await getRoots();
+
+      const category =
+        typeof request.query.category === "string"
+          ? request.query.category.trim().toLowerCase()
+          : undefined;
+
+      const type =
+        typeof request.query.type === "string"
+          ? request.query.type.trim().toLowerCase()
+          : undefined;
+
+      const query =
+        typeof request.query.q === "string"
+          ? request.query.q.trim().toLowerCase()
+          : undefined;
+
+      let results = roots;
+
+      if (category) {
+        results = results.filter((root) => {
+          if (Array.isArray(root.category)) {
+            return root.category.some(
+              (value) => value.trim().toLowerCase() === category,
+            );
+          }
+
+          return String(root.category).trim().toLowerCase() === category;
+        });
+      }
+
+      if (type) {
+        results = results.filter(
+          (root) => root.type.trim().toLowerCase() === type,
+        );
+      }
+
+      if (query) {
+        results = results.filter((root) => {
+          const textMatches = root.text.toLowerCase().includes(query);
+
+          const meaningMatches = root.meaning.toLowerCase().includes(query);
+
+          return textMatches || meaningMatches;
+        });
+      }
+
+      return response.json(results);
+    } catch (error) {
+      handleRouteError(error, next);
+    }
+  },
+);
+
+/**
+ * GET /api/roots/categories
+ */
+router.get(
+  "/categories",
+  async (_request: Request, response: Response, next: NextFunction) => {
+    try {
+      const roots = await getRoots();
+
+      const categories = Array.from(
+        new Set(
+          roots.flatMap((root) =>
+            Array.isArray(root.category) ? root.category : [root.category],
+          ),
+        ),
+      )
+        .filter(
+          (category): category is string =>
+            typeof category === "string" && category.trim().length > 0,
+        )
+        .map((category) => category.trim())
+        .sort((a, b) => a.localeCompare(b));
+
+      return response.json(categories);
+    } catch (error) {
+      handleRouteError(error, next);
+    }
+  },
+);
+
+/**
+ * GET /api/roots/:id
+ *
+ * Keep this route last because "/:id" can match routes such
+ * as "/categories" if it is declared first.
+ */
+router.get(
+  "/:id",
+  async (request: Request, response: Response, next: NextFunction) => {
+    try {
+      const roots = await getRoots();
+
+      const entry = roots.find((root) => String(root.id) === request.params.id);
+
+      if (!entry) {
+        return response.status(404).json({
+          error: "Root not found.",
+        });
+      }
+
+      return response.json(entry);
+    } catch (error) {
+      handleRouteError(error, next);
+    }
+  },
+);
 
 export default router;
