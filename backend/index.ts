@@ -10,8 +10,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:8081",
-  "https://medterm.expo.app/", //prod
-  "https://medterm--uykawtfnlj.expo.app/", //dev
+  "https://medterm.expo.app", //prod
 ];
 
 app.use(
@@ -25,6 +24,8 @@ app.use(
 
       callback(new Error(`CORS blocked origin: ${origin}`));
     },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
