@@ -35,7 +35,7 @@ const ALLOWED_CATEGORIES = new Set([
 
 export async function getTermsDownloadUrl(): Promise<string> {
   const response = await apiGet<{ url: string }>("/terms/data/download-url");
-  console.log("response", response.url);
+  // console.log("response", response.url);
 
   return response.url;
 }
@@ -54,7 +54,6 @@ export async function searchTerms(
   const url = await getTermsDownloadUrl();
 
   const response = await fetch(url);
-  console.log("responseresponse", response);
 
   if (!response.ok) {
     throw new Error("Unable to download terms.");
@@ -77,13 +76,6 @@ export async function searchTerms(
       term.searchTerms.some((searchTerm) =>
         searchTerm.toLowerCase().includes(q),
       );
-
-    console.log({
-      query,
-      q,
-      selectedCategory,
-      downloadedTerms: terms.length,
-    });
 
     return hasAllowedCategory && matchesSelectedCategory && matchesQuery;
   });

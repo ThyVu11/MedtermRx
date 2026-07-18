@@ -9,7 +9,9 @@
       "backgroundColor": "#0F766E"
     },
     "icon": "./assces/icon.png",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teacy.medtermstudy",
@@ -23,6 +25,8 @@
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ],
       "package": "com.teacy.medtermstudy"
@@ -30,12 +34,22 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": ["expo-audio", "expo-asset", "expo-sqlite"],
+    "plugins": [
+      "expo-audio",
+      "expo-asset",
+      "expo-sqlite"
+    ],
     "extra": {
       "eas": {
         "projectId": "f901881f-d5f3-4371-b773-5eb570f8dc2a"
       }
     },
-    "owner": "teacy"
+    "owner": "teacy",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f901881f-d5f3-4371-b773-5eb570f8dc2a"
+    }
   }
 }

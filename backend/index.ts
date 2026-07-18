@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
-import rootsRouter from "./routes/roots";
-import termsRouter from "./routes/terms";
-import progressRouter from "./routes/progress";
-import ocrRouter from "./routes/ocr";
+import rootsRouter from "./src/routes/roots";
+import termsRouter from "./src/routes/terms";
+import progressRouter from "./src/routes/progress";
+// import ocrRouter from "./routes/ocr";
 import "dotenv/config";
 
 const app = express();
@@ -40,7 +40,7 @@ app.get("/", (_req, res) => {
   res.json({ name: "RootRx API", status: "ok" });
 });
 
-app.use("/api/ocr", ocrRouter);
+// app.use("/api/ocr", ocrRouter);
 app.use(
   (
     error: unknown,
