@@ -13,9 +13,6 @@ export async function apiGet<T>(path: string): Promise<T> {
   const normalizedPath = `/${path.replace(/^\/+/, "")}`;
   const url = `${API_BASE_URL}${normalizedPath}`;
 
-  console.log("API_BASE_URL =", API_BASE_URL);
-  console.log("path =", path);
-  console.log("url =", url);
 
   const res = await fetch(url);
 
