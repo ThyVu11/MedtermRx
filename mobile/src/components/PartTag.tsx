@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import type { WordPart } from "@/types/types";
-import { colors, partColor, radii, spacing, typography } from "@/theme";
+import type { WordPart } from "../types/types";
+import { colors, partColor, radii, spacing, typography } from "../theme";
 
 interface Props {
   part: WordPart;
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   textCol: { flexShrink: 1 },
   partText: {
     fontSize: 16,
-    fontWeight: "700",
+    // fontWeight: "700",
     ...typography.display,
   },
   label: {

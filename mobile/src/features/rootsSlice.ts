@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAllRoots } from "@/api/roots";
-import type { RootEntry } from "@/types/types";
+import { getAllRoots } from "../api/roots";
+import type { RootEntry } from "../types/types";
 
 interface RootsState {
   items: RootEntry[];

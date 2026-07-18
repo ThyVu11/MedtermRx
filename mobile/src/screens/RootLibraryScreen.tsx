@@ -7,10 +7,10 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { colors, partColor, radii, spacing, typography } from "@/theme";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { fetchRoots } from "@/features/rootsSlice";
-import type { PartType, RootEntry } from "@/types/types";
+import { colors, partColor, radii, spacing, typography } from "../theme";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { fetchRoots } from "../features/rootsSlice";
+import type { PartType, RootEntry } from "../types/types";
 
 const FILTERS: { key: PartType | "all"; label: string }[] = [
   { key: "all", label: "All" },

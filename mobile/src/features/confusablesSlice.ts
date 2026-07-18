@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAllConfusables } from "@/api/confusables";
-import type { ConfusablePair } from "@/types/types";
+import { getAllConfusables } from "../api/confusables";
+import type { ConfusablePair } from "../types/types";
 
 interface ConfusablesState {
   items: ConfusablePair[];

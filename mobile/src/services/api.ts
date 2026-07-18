@@ -1,4 +1,4 @@
-import type { DeckCard, Term } from "@/types/types";
+import type { DeckCard, Term } from "../types/types";
 
 export const BASE_URL = "http://localhost:3000/api";
 

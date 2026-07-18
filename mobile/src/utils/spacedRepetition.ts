@@ -1,4 +1,4 @@
-import type { DeckCard, ReviewQuality } from "@/types/types";
+import type { DeckCard, ReviewQuality } from "../types/types";
 
 export function scheduleNextReview(
   card: DeckCard,

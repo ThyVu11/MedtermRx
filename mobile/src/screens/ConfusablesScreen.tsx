@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { colors, spacing, typography } from "@/theme";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { fetchTerms } from "@/features/termsSlice";
-import { fetchConfusables } from "@/features/confusablesSlice";
-import ConfusablePairCard from "@/components/ConfusablePairCard";
-import type { RootStackParamList } from "@/navigation/AppNavigator";
+import { colors, spacing, typography } from "../theme";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { fetchTerms } from "../features/termsSlice";
+import { fetchConfusables } from "../features/confusablesSlice";
+import ConfusablePairCard from "../components/ConfusablePairCard";
+import { RootStackParamList } from "../types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Confusables">;
 

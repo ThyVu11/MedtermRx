@@ -1,5 +1,5 @@
 import { apiGet } from "./client";
-import type { ConfusablePair } from "@/types/types";
+import type { ConfusablePair } from "../types/types";
 
 export function getConfusablesForTerm(
   termId: string,

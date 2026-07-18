@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
-import termsReducer from "@/features/termsSlice";
-import rootsReducer from "@/features/rootsSlice";
-import confusablesReducer from "@/features/confusablesSlice";
+import termsReducer from "./features/termsSlice";
+import rootsReducer from "./features/rootsSlice";
+import confusablesReducer from "./features/confusablesSlice";
 
 export const store = configureStore({
   reducer: {

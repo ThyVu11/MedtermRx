@@ -8,14 +8,14 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { colors, radii, spacing, typography } from "@/theme";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { fetchTerms } from "@/features/termsSlice";
-import { fetchConfusables } from "@/features/confusablesSlice";
-import WordDissector from "@/components/WordDissector";
-import { generateMnemonic } from "@/utils/mnemonicGenerator";
-import { loadDeck, addTermToDeck } from "@/utils/deckStorage";
-import { RootStackParamList } from "@/types/types";
+import { colors, radii, spacing, typography } from "../theme";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { fetchTerms } from "../features/termsSlice";
+import { fetchConfusables } from "../features/confusablesSlice";
+import WordDissector from "../components/WordDissector";
+import { generateMnemonic } from "../utils/mnemonicGenerator";
+import { loadDeck, addTermToDeck } from "../utils/deckStorage";
+import { RootStackParamList } from "../types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "TermDetail">;
 

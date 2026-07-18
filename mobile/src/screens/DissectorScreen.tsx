@@ -8,17 +8,17 @@ import {
   SectionList,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { colors, radii, spacing, typography } from "@/theme";
-import TermCard from "@/components/TermCard";
+import { colors, radii, spacing, typography } from "../theme";
+import TermCard from "../components/TermCard";
 import {
   CATEGORIES,
   Category,
   RootStackParamList,
   Term,
   TermSection,
-} from "@/types/types";
-import { searchTerms } from "@/api/terms";
-import { useDebounce } from "@/hooks/useDebounce";
+} from "../types/types";
+import { searchTerms } from "../api/terms";
+import { useDebounce } from "../hooks/useDebounce";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dissector">;
 

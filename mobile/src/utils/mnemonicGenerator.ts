@@ -1,4 +1,4 @@
-import type { Term, WordPart } from "@/types/types";
+import type { Term, WordPart } from "../types/types";
 
 const ANCHOR_IMAGES: Record<string, { image: string; emoji: string }> = {
   slow: { image: "a sloth", emoji: "🦥" },

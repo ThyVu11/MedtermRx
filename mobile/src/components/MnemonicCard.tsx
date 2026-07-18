@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, Text, TextInput, StyleSheet, Keyboard } from "react-native";
 import { getMnemonicNote, saveMnemonicNote } from "../storage/mnemonics";
-import { Term } from "@/types/types";
+import { Term } from "../types/types";
 
 interface Props {
   term: Term;

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
-import { medicalTermCloth } from "@/data/clothWords";
+import { medicalTermCloth } from "../data/clothWords";
 import {
   ClothConfig,
   Constraint,
@@ -9,8 +9,8 @@ import {
   ParticleOptions,
   PointerState,
   Vec2,
-} from "@/types/cloth/clothType";
-import { colors, radii, spacing, typography } from "@/theme";
+} from "../types/cloth/clothType";
+import { colors, radii, spacing, typography } from "../theme";
 
 const HEIGHT_SCALE = 2.5;
 const WIDTH_SCALE = 0.8;

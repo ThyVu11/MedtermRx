@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import type { ConfusablePair, Term } from "@/types/types";
-import { colors, radii, spacing, typography } from "@/theme";
+import type { ConfusablePair, Term } from "../types/types";
+import { colors, radii, spacing, typography } from "../theme";
 
 interface Props {
   pair: ConfusablePair;

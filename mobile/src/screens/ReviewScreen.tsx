@@ -7,14 +7,14 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { colors, radii, spacing, typography } from "@/theme";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { fetchTerms } from "@/features/termsSlice";
-import { fetchConfusables } from "@/features/confusablesSlice";
-import { fetchRoots } from "@/features/rootsSlice";
-import { loadDeck, updateCard } from "@/utils/deckStorage";
-import { dueCards, scheduleNextReview } from "@/utils/spacedRepetition";
-import type { DeckCard, ReviewQuality, Term } from "@/types/types";
+import { colors, radii, spacing, typography } from "../theme";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { fetchTerms } from "../features/termsSlice";
+import { fetchConfusables } from "../features/confusablesSlice";
+import { fetchRoots } from "../features/rootsSlice";
+import { loadDeck, updateCard } from "../utils/deckStorage";
+import { dueCards, scheduleNextReview } from "../utils/spacedRepetition";
+import type { DeckCard, ReviewQuality, Term } from "../types/types";
 
 type Mode = "spelling" | "root_recall" | "confusable";
 

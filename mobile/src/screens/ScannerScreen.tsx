@@ -15,12 +15,12 @@ import {
 import { CameraView, useCameraPermissions } from "expo-camera";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { colors, radii, spacing, typography } from "@/theme";
-import { matchTermsInText } from "@/utils/matchTerms";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { fetchTerms } from "@/features/termsSlice";
-import type { Term } from "@/types/types";
-import type { RootStackParamList } from "@/types/types";
+import { colors, radii, spacing, typography } from "../theme";
+import { matchTermsInText } from "../utils/matchTerms";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { fetchTerms } from "../features/termsSlice";
+import type { Term } from "../types/types";
+import type { RootStackParamList } from "../types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Scanner">;
 

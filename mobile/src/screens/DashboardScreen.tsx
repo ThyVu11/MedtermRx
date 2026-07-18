@@ -8,13 +8,13 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { colors, radii, spacing, typography } from "@/theme";
-import { loadDeck } from "@/utils/deckStorage";
-import { dueCards } from "@/utils/spacedRepetition";
-import { useAppDispatch, useAppSelector } from "@/hooks";
-import { fetchTerms } from "@/features/termsSlice";
-import { fetchConfusables } from "@/features/confusablesSlice";
-import type { RootStackParamList } from "@/types/types";
+import { colors, radii, spacing, typography } from "../theme";
+import { loadDeck } from "../utils/deckStorage";
+import { dueCards } from "../utils/spacedRepetition";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { fetchTerms } from "../features/termsSlice";
+import { fetchConfusables } from "../features/confusablesSlice";
+import type { RootStackParamList } from "../types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dashboard">;
 

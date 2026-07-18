@@ -8,10 +8,10 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import Flashcard from "@/components/Flashcard";
-import { getRandomTerms } from "@/api/terms";
-import { colors, radii, spacing, typography } from "@/theme";
-import type { RootStackParamList, Term } from "@/types/types";
+import Flashcard from "../components/Flashcard";
+import { getRandomTerms } from "../api/terms";
+import { colors, radii, spacing, typography } from "../theme";
+import type { RootStackParamList, Term } from "../types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Flashcard">;
 

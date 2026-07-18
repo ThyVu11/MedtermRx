@@ -4,7 +4,7 @@ import type {
   ConfusablePair,
   QuizQuestion,
   Term,
-} from "@/types/types";
+} from "../types/types";
 
 const ALLOWED_CATEGORIES = new Set([
   "anatomy",

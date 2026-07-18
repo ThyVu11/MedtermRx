@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import type { Term } from "@/types/types";
-import { colors, radii, spacing, typography } from "@/theme";
+import type { Term } from "../types/types";
+import { colors, radii, spacing, typography } from "../theme";
 import PartTag from "./PartTag";
 
 interface Props {

@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { DeckCard } from "@/types/types";
+import type { DeckCard } from "../types/types";
 import { newCard } from "./spacedRepetition";
 
 const DECK_KEY = "rootrx:deck:v1";
