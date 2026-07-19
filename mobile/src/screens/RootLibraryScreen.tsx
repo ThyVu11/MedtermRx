@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
 import { colors, partColor, radii, spacing, typography } from "../theme";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -25,7 +26,7 @@ export default function RootLibraryScreen() {
   const rootsStatus = useAppSelector((state) => state.roots.status);
   const [filter, setFilter] = useState<PartType | "all">("all");
   const [query, setQuery] = useState("");
-
+  const loading = rootsStatus === "loading";
   useEffect(() => {
     if (rootsStatus === "idle") {
       dispatch(fetchRoots());
@@ -84,6 +85,11 @@ export default function RootLibraryScreen() {
           ))}
         </View>
       </View>
+      {loading && (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#0F766E" />
+        </View>
+      )}
 
       <FlatList
         data={results}
@@ -184,5 +190,10 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     marginRight: spacing.xs,
+  },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

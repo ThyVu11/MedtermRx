@@ -348,8 +348,9 @@ export default function ScannerScreen({ navigation }: Props) {
               <Text style={styles.errorText}>{errorMessage}</Text>
 
               <Text style={styles.errorSuggestion}>
-                Try better lighting, hold the camera parallel to the page, or
-                enter the text manually.
+                {/* Try better lighting, hold the camera parallel to the page, or
+                enter the text manually. */}
+                This feature is on progress
               </Text>
             </View>
           )}

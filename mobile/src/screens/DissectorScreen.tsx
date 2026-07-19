@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   SectionList,
+  ActivityIndicator,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, radii, spacing, typography } from "../theme";
@@ -47,26 +48,19 @@ export default function DissectorScreen({ navigation, route }: Props) {
   const pendingSectionIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
-    let active = true;
     setLoading(true);
 
     searchTerms(debouncedQuery)
       .then((results) => {
-        if (!active) return;
         setTerms(results);
       })
       .catch(() => {
-        if (!active) return;
         setTerms([]);
+        setLoading(false);
       })
       .finally(() => {
-        if (!active) return;
         setLoading(false);
       });
-
-    return () => {
-      active = false;
-    };
   }, [debouncedQuery]);
 
   const filteredTerms = useMemo(() => {
@@ -249,7 +243,9 @@ export default function DissectorScreen({ navigation, route }: Props) {
           }}
           ListEmptyComponent={
             loading ? (
-              <Text style={styles.empty}>Loading medical terms...</Text>
+              <View style={styles.center}>
+                <ActivityIndicator size="large" color="#0F766E" />
+              </View>
             ) : (
               <Text style={styles.empty}>
                 {query.trim()
@@ -440,5 +436,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingRight: 36,
     paddingBottom: spacing.xl,
+  },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    // backgroundColor: "#F0FDFA",
   },
 });

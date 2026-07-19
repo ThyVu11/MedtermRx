@@ -10,7 +10,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/types";
 import { colors, radii, spacing } from "../theme";
 import { Image } from "expo-image";
-import CodeCloth from "../components/CodeCloth";
+import CodeCloth from "../components/CodeCloth.native";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -31,7 +31,7 @@ export default function HomeScreen({ navigation }: Props) {
             // width: logoWidth,
             // height: logoHeight,
             width: "100%",
-            height: 170,
+            height: 200,
           }}
         />
         <CodeCloth></CodeCloth>
