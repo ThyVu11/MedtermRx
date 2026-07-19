@@ -296,7 +296,6 @@ function CodeClothComponent({
 
   const lastSoundTimeRef = useRef(0);
   const playTouchSound = () => {
-
     const now = Date.now();
 
     if (now - lastSoundTimeRef.current < 150) return;
@@ -324,10 +323,9 @@ function CodeClothComponent({
   const availableHeight = Math.max(1, containerSize.height - padding * 2);
 
   const clothWidth = Math.min(availableWidth, maxClothWidth);
-  const clothHeight = Math.min(availableHeight, maxClothHeight);
-
+  const clothHeight = clothWidth * 0.65;
   const offsetX = Math.max(0, (containerSize.width - clothWidth) / 2);
-  const offsetY = 8;
+  const offsetY = 20;
 
   const simulation = useMemo(
     () => createSimulation(code, clothWidth, clothHeight, gravity, damping),
@@ -587,7 +585,7 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     height: 320,
-    // marginBottom: 50,
+    marginBottom: 20,
   },
 });
 
