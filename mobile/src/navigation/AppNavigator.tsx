@@ -21,9 +21,25 @@ import QuizResultScreen from "../screens/QuizResultScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const linking = {
+  prefixes: ["https://medterm.expo.app/"],
+  config: {
+    screens: {
+      Home: "", // Maps to '/'
+      Dashboard: "/dashboard", // Maps to '/dashboard'
+      Scanner: "dashboard/scanner",
+      Dissector: "dashboard/dissector",
+      RootLibrary: "dashboard/root-library",
+      Confusables: "dashboard/confusables",
+      TermDetail: "dashboard/dissector/term-detail",
+      MemoryMap: "dashboard/MemoryMap",
+    },
+  },
+};
+
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         screenOptions={{
           headerStyle: { backgroundColor: colors.paper },
