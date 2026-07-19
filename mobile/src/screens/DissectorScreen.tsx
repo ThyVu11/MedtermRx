@@ -8,6 +8,7 @@ import {
   SectionList,
   ActivityIndicator,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, radii, spacing, typography } from "../theme";
 import TermCard from "../components/TermCard";
@@ -36,6 +37,7 @@ export const FILTERS = [
   })),
 ] as const;
 
+const INITIAL_CATEGORY_COUNT = 1;
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export default function DissectorScreen({ navigation, route }: Props) {
@@ -46,6 +48,11 @@ export default function DissectorScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(false);
   const sectionListRef = useRef<SectionList<Term, TermSection>>(null);
   const pendingSectionIndexRef = useRef<number | null>(null);
+  const [showAllCategories, setShowAllCategories] = useState(false);
+
+  const visibleCategories = showAllCategories
+    ? FILTERS
+    : FILTERS.slice(0, INITIAL_CATEGORY_COUNT);
 
   useEffect(() => {
     setLoading(true);
@@ -141,23 +148,43 @@ export default function DissectorScreen({ navigation, route }: Props) {
       </View>
 
       {/* CATEGORY FILTERS */}
-      <View style={styles.chipRow}>
-        {FILTERS.map((f) => (
+      <View style={styles.filterRow}>
+        {FILTERS.length > INITIAL_CATEGORY_COUNT && (
           <TouchableOpacity
-            key={f.key}
+            style={[
+              styles.categoryToggle,
+              showAllCategories && styles.categoryToggleActive,
+            ]}
+            onPress={() => setShowAllCategories((current) => !current)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              showAllCategories ? "Collapse categories" : "Expand categories"
+            }
+          >
+            <MaterialIcons
+              name="category"
+              size={18}
+              color={showAllCategories ? colors.textOnBrand : colors.teal}
+            />
+          </TouchableOpacity>
+        )}
+
+        {visibleCategories.map((item) => (
+          <TouchableOpacity
+            key={item.key}
             style={[
               styles.filterChip,
-              filter === f.key && styles.filterChipActive,
+              filter === item.key && styles.filterChipActive,
             ]}
-            onPress={() => setFilter(f.key)}
+            onPress={() => setFilter(item.key)}
           >
             <Text
               style={[
                 styles.filterText,
-                filter === f.key && styles.filterTextActive,
+                filter === item.key && styles.filterTextActive,
               ]}
             >
-              {f.label}
+              {item.label}
             </Text>
           </TouchableOpacity>
         ))}
@@ -327,14 +354,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   emptyContainer: { flexGrow: 1 },
-  chipRow: {
-    flexDirection: "row",
-    padding: spacing.lg,
-    paddingBottom: spacing.md,
-    display: "flex",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-  },
   filterChip: {
     paddingVertical: 6,
     paddingHorizontal: spacing.md,
@@ -343,6 +362,9 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
     borderWidth: 1,
     borderColor: colors.line,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
   filterChipActive: {
     backgroundColor: colors.teal,
@@ -442,5 +464,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     // backgroundColor: "#F0FDFA",
+  },
+
+  filterRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: spacing.sm,
+    padding: spacing.lg,
+  },
+  categoryToggle: {
+    width: 34,
+    height: 34,
+    borderRadius: radii.pill,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.paperDim,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+
+  categoryToggleActive: {
+    backgroundColor: colors.teal,
+    borderColor: colors.teal,
   },
 });

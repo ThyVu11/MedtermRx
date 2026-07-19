@@ -18,18 +18,18 @@ export const PARTS_OF_SPEECH = ["noun", "verb", "adjective", "adverb"] as const;
 
 export const CATEGORIES = [
   "anatomy",
-  "hematology",
   "cardiovascular",
-  "urinary",
-  "neurology",
-  "respiratory",
-  "gastrointestinal",
-  "musculoskeletal",
-  "sensory",
-  "endocrine",
-  "reproductive",
+  "hematology",
   "diagnostics_and_therapeutics",
   "disease",
+  "endocrine",
+  "gastrointestinal",
+  "musculoskeletal",
+  "neurology",
+  "respiratory",
+  "reproductive",
+  "urinary",
+  "sensory",
 ] as const;
 
 /* =========================================================
