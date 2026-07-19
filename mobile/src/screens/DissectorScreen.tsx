@@ -471,6 +471,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: spacing.sm,
     padding: spacing.lg,
+    paddingTop:0
   },
   categoryToggle: {
     width: 34,
