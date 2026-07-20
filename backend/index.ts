@@ -1,11 +1,16 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import rootsRouter, { getRoots } from "./src/routes/roots";
+
+import rootsRouter from "./src/routes/roots";
 import termsRouter from "./src/routes/terms";
 import progressRouter from "./src/routes/progress";
-// import ocrRouter from "./routes/ocr";
-import "dotenv/config";
-import { getTerms, logMemory } from "./src/services/term-data.service";
+
+import {
+  getTerms,
+  logMemory,
+} from "./src/services/term-data.service";
+
 import { buildTermSearchIndex } from "./src/services/term-search.service";
 
 async function startServer(): Promise<void> {
@@ -13,10 +18,43 @@ async function startServer(): Promise<void> {
 
   const allowedOrigins = [
     "http://localhost:8081",
-    "https://medterm.expo.app", //prod
+    "https://medterm.expo.app",
   ];
 
+  app.use(
+    cors({
+      origin(origin, callback) {
+        // Native apps, curl, Postman, and server-to-server
+        // requests may not include an Origin header.
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error(`CORS blocked origin: ${origin}`));
+      },
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+      ],
+    }),
+  );
+
   app.use(express.json());
+
+  app.get("/health", (_request, response) => {
+    response.json({
+      status: "ok",
+    });
+  });
+
+  app.get("/", (_request, response) => {
+    response.json({
+      name: "MedTermRx API",
+      status: "ok",
+    });
+  });
 
   logMemory("before S3");
 
@@ -29,33 +67,25 @@ async function startServer(): Promise<void> {
   buildTermSearchIndex(terms);
 
   logMemory("after FlexSearch");
-  app.use(
-    cors({
-      origin(origin, callback) {
-        // Native apps and tools may not send an Origin header.
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-          return;
-        }
 
-        callback(new Error(`CORS blocked origin: ${origin}`));
-      },
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"],
-    }),
+  app.use("/api/roots", rootsRouter);
+  app.use("/api/terms", termsRouter);
+  app.use("/api/progress", progressRouter);
+
+  // 404 handler
+  app.use(
+    (
+      request: express.Request,
+      response: express.Response,
+    ) => {
+      response.status(404).json({
+        error: "Route not found.",
+        path: request.originalUrl,
+      });
+    },
   );
 
-  app.get("/health", (_request, response) => {
-    response.json({
-      status: "ok",
-    });
-  });
-
-  app.get("/", (_req, res) => {
-    res.json({ name: "RootRx API", status: "ok" });
-  });
-
-  // app.use("/api/ocr", ocrRouter);
+  // Error handler must be after all routes.
   app.use(
     (
       error: unknown,
@@ -66,17 +96,19 @@ async function startServer(): Promise<void> {
       console.error(error);
 
       const message =
-        error instanceof Error ? error.message : "Unexpected server error.";
+        error instanceof Error
+          ? error.message
+          : "Unexpected server error.";
 
-      response.status(400).json({
+      const isCorsError =
+        error instanceof Error &&
+        error.message.startsWith("CORS blocked origin:");
+
+      response.status(isCorsError ? 403 : 500).json({
         error: message,
       });
     },
   );
-
-  app.use("/api/roots", rootsRouter);
-  app.use("/api/terms", termsRouter);
-  app.use("/api/progress", progressRouter);
 
   const port = Number(process.env.PORT ?? 3000);
 
