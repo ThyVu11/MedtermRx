@@ -53,7 +53,7 @@ export default function DissectorScreen({ navigation, route }: Props) {
   const visibleCategories = showAllCategories
     ? FILTERS
     : FILTERS.slice(0, INITIAL_CATEGORY_COUNT);
-  
+
   useEffect(() => {
     setLoading(true);
 
@@ -143,6 +143,8 @@ export default function DissectorScreen({ navigation, route }: Props) {
           onChangeText={setQuery}
           autoCapitalize="none"
           autoCorrect={false}
+          editable={!loading}
+          selectTextOnFocus={!loading}
         />
       </View>
 
@@ -469,8 +471,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.sm,
-    padding: spacing.lg,
-    paddingTop:0,
+    paddingHorizontal: spacing.lg,
   },
   categoryToggle: {
     width: 34,

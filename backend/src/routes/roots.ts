@@ -1,7 +1,11 @@
 import { Router, Request, Response, NextFunction } from "express";
 import type { RootEntry } from "../types";
-import { createDownloadUrl, handleRouteError, loadCachedData, rootsCache } from "../utils/utils";
-
+import {
+  createDownloadUrl,
+  handleRouteError,
+  loadCachedData,
+  rootsCache,
+} from "../utils/utils";
 
 const router = Router();
 
@@ -65,12 +69,6 @@ router.get(
 
       if (category) {
         results = results.filter((root) => {
-          if (Array.isArray(root.category)) {
-            return root.category.some(
-              (value) => value.trim().toLowerCase() === category,
-            );
-          }
-
           return String(root.category).trim().toLowerCase() === category;
         });
       }

@@ -6,20 +6,14 @@ import rootsRouter from "./src/routes/roots";
 import termsRouter from "./src/routes/terms";
 import progressRouter from "./src/routes/progress";
 
-import {
-  getTerms,
-  logMemory,
-} from "./src/services/term-data.service";
+import { getTerms, logMemory } from "./src/services/term-data.service";
 
 import { buildTermSearchIndex } from "./src/services/term-search.service";
 
 async function startServer(): Promise<void> {
   const app = express();
 
-  const allowedOrigins = [
-    "http://localhost:8081",
-    "https://medterm.expo.app",
-  ];
+  const allowedOrigins = ["http://localhost:8081", "https://medterm.expo.app"];
 
   app.use(
     cors({
@@ -34,10 +28,7 @@ async function startServer(): Promise<void> {
         callback(new Error(`CORS blocked origin: ${origin}`));
       },
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: [
-        "Content-Type",
-        "Authorization",
-      ],
+      allowedHeaders: ["Content-Type", "Authorization"],
     }),
   );
 
@@ -60,7 +51,7 @@ async function startServer(): Promise<void> {
 
   const terms = await getTerms();
 
-  app.locals.terms = terms;
+  // app.locals.terms = terms;
 
   logMemory("after S3 parsing");
 
@@ -73,17 +64,12 @@ async function startServer(): Promise<void> {
   app.use("/api/progress", progressRouter);
 
   // 404 handler
-  app.use(
-    (
-      request: express.Request,
-      response: express.Response,
-    ) => {
-      response.status(404).json({
-        error: "Route not found.",
-        path: request.originalUrl,
-      });
-    },
-  );
+  app.use((request: express.Request, response: express.Response) => {
+    response.status(404).json({
+      error: "Route not found.",
+      path: request.originalUrl,
+    });
+  });
 
   // Error handler must be after all routes.
   app.use(
@@ -96,9 +82,7 @@ async function startServer(): Promise<void> {
       console.error(error);
 
       const message =
-        error instanceof Error
-          ? error.message
-          : "Unexpected server error.";
+        error instanceof Error ? error.message : "Unexpected server error.";
 
       const isCorsError =
         error instanceof Error &&
@@ -109,6 +93,13 @@ async function startServer(): Promise<void> {
       });
     },
   );
+
+  if (global.gc) {
+    global.gc();
+    logMemory("after forced GC");
+  } else {
+    console.warn("Run node with --expose-gc to test forced-GC memory drop");
+  }
 
   const port = Number(process.env.PORT ?? 3000);
 

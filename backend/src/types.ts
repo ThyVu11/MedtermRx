@@ -11,13 +11,6 @@ export type Category =
   | "musculoskeletal"
   | "sensory";
 
-export interface WordPart {
-  text: string;
-  type: PartType;
-  meaning: string;
-  origin: "Greek" | "Latin" | "Greek/Latin" | "English";
-}
-
 export interface RootEntryExample {
   term: string;
   meaning: string;
@@ -54,7 +47,7 @@ export interface Term {
   id: string;
   word: string;
   searchTerms: string[];
-  parts: WordPart[];
+  parts: PartType[];
   relatedConfusables: string[];
   definition: string;
   plainDefinition: string;

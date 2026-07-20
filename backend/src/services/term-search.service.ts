@@ -40,20 +40,16 @@ const buildSearchText = (term: Term): string => {
 
 export const buildTermSearchIndex = (terms: Term[]): void => {
   searchIndexReady = false;
-
   termIndex.clear();
 
   indexedTerms = terms.filter(
-    (term) =>
-      Boolean(term?.id?.trim()) &&
-      Boolean(term?.word?.trim()),
+    (term) => Boolean(term?.id?.trim()) && Boolean(term?.word?.trim()),
   );
 
-  indexedTerms.forEach((term, index) => {
+  indexedTerms.forEach((term, position) => {
     const searchText = buildSearchText(term);
-
     if (searchText) {
-      termIndex.add(index, searchText);
+      termIndex.add(position, searchText);
     }
   });
 
@@ -64,14 +60,9 @@ export const buildTermSearchIndex = (terms: Term[]): void => {
   );
 };
 
-export const isTermSearchReady = (): boolean => {
-  return searchIndexReady;
-};
+export const isTermSearchReady = (): boolean => searchIndexReady;
 
-export const searchTerms = (
-  query: string,
-  limit = 20,
-): Term[] => {
+export const searchTerms = (query: string, limit = 20): Term[] => {
   const normalizedQuery = query.trim();
 
   if (!normalizedQuery || !searchIndexReady) {
@@ -80,13 +71,13 @@ export const searchTerms = (
 
   const safeLimit = Math.min(Math.max(limit, 1), 100);
 
-  const termIndexes = termIndex.search(normalizedQuery, {
+  const positions = termIndex.search(normalizedQuery, {
     limit: safeLimit,
     suggest: true,
   }) as Array<string | number>;
 
-  return termIndexes
-    .map((rawIndex) => indexedTerms[Number(rawIndex)])
+  return positions
+    .map((position) => indexedTerms[Number(position)])
     .filter((term): term is Term => Boolean(term));
 };
 
