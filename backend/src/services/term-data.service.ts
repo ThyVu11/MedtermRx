@@ -53,6 +53,20 @@ export function getConfusables(): Promise<ConfusablePair[]> {
   return loadCachedData(confusablesCache, S3_CONFUSABLES_KEY);
 }
 
+export function logMemory(label: string): void {
+  const memory = process.memoryUsage();
+  const toMB = (bytes: number) =>
+    Math.round((bytes / 1024 / 1024) * 10) / 10;
+
+  console.log(`[memory] ${label}`, {
+    rss: `${toMB(memory.rss)} MB`,
+    heapUsed: `${toMB(memory.heapUsed)} MB`,
+    heapTotal: `${toMB(memory.heapTotal)} MB`,
+    external: `${toMB(memory.external)} MB`,
+    arrayBuffers: `${toMB(memory.arrayBuffers)} MB`,
+  });
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                S3 JSON loader                              */
 /* -------------------------------------------------------------------------- */

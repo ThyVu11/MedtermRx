@@ -5,9 +5,7 @@ import termsRouter from "./src/routes/terms";
 import progressRouter from "./src/routes/progress";
 // import ocrRouter from "./routes/ocr";
 import "dotenv/config";
-import {
-  getTerms,
-} from "./src/services/term-data.service";
+import { getTerms, logMemory } from "./src/services/term-data.service";
 import { buildTermSearchIndex } from "./src/services/term-search.service";
 
 async function startServer(): Promise<void> {
@@ -20,11 +18,17 @@ async function startServer(): Promise<void> {
 
   app.use(express.json());
 
+  logMemory("before S3");
+
   const terms = await getTerms();
 
   app.locals.terms = terms;
 
+  logMemory("after S3 parsing");
+
   buildTermSearchIndex(terms);
+
+  logMemory("after FlexSearch");
   app.use(
     cors({
       origin(origin, callback) {
