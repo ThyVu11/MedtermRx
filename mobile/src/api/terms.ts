@@ -38,8 +38,15 @@ const ALLOWED_CATEGORIES = new Set([
   // "general",
 ]);
 
-export function getAllTerms(): Promise<Term[]> {
-  return apiGet<Term[]>("/terms");
+
+export async function getAllTerms(): Promise<Term[]> {
+  const terms = await apiGet<Term[]>("/terms");
+
+  return terms.filter((term) =>
+    term.category.some((category) =>
+      ALLOWED_CATEGORIES.has(category as Category),
+    ),
+  );
 }
 
 export async function searchTerms(
@@ -62,7 +69,6 @@ export async function searchTerms(
   const response = await apiGet<SearchTermsResponse>(
     `/terms/search?${params.toString()}`,
   );
-
 
   return response.results.filter((term) => {
     const hasAllowedCategory = term.category.some((category) =>
