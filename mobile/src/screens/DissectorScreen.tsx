@@ -107,25 +107,25 @@ export default function DissectorScreen({ navigation, route }: Props) {
       }));
   }, [filteredTerms]);
 
-  const scrollToLetter = (letter: string): void => {
-    const sectionIndex = sections.findIndex(
-      (section) => section.title === letter,
-    );
+  // const scrollToLetter = (letter: string): void => {
+  //   const sectionIndex = sections.findIndex(
+  //     (section) => section.title === letter,
+  //   );
 
-    if (sectionIndex === -1) {
-      return;
-    }
+  //   if (sectionIndex === -1) {
+  //     return;
+  //   }
 
-    pendingSectionIndexRef.current = sectionIndex;
+  //   pendingSectionIndexRef.current = sectionIndex;
 
-    sectionListRef.current?.scrollToLocation({
-      sectionIndex,
-      itemIndex: 0,
-      animated: true,
-      viewPosition: 0,
-      viewOffset: 8,
-    });
-  };
+  //   sectionListRef.current?.scrollToLocation({
+  //     sectionIndex,
+  //     itemIndex: 0,
+  //     animated: true,
+  //     viewPosition: 0,
+  //     viewOffset: 8,
+  //   });
+  // };
 
   return (
     <View style={styles.screen}>
@@ -143,7 +143,7 @@ export default function DissectorScreen({ navigation, route }: Props) {
           onChangeText={setQuery}
           autoCapitalize="none"
           autoCorrect={false}
-          editable={!loading}
+          // editable={!loading}
           selectTextOnFocus={!loading}
         />
       </View>
@@ -229,7 +229,7 @@ export default function DissectorScreen({ navigation, route }: Props) {
         <SectionList
           ref={sectionListRef}
           sections={sections}
-          keyExtractor={(item) => item.id}
+          // keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TermCard
               term={item}
@@ -252,22 +252,22 @@ export default function DissectorScreen({ navigation, route }: Props) {
               return;
             }
 
-            sectionListRef.current?.getScrollResponder()?.scrollTo({
-              y: info.averageItemLength * info.index,
-              animated: false,
-            });
+            // sectionListRef.current?.getScrollResponder()?.scrollTo({
+            //   y: info.averageItemLength * info.index,
+            //   animated: false,
+            // });
 
-            setTimeout(() => {
-              sectionListRef.current?.scrollToLocation({
-                sectionIndex: targetSectionIndex,
-                itemIndex: 0,
-                animated: true,
-                viewPosition: 0,
-                viewOffset: 8,
-              });
+            // setTimeout(() => {
+            //   sectionListRef.current?.scrollToLocation({
+            //     sectionIndex: targetSectionIndex,
+            //     itemIndex: 0,
+            //     animated: true,
+            //     viewPosition: 0,
+            //     viewOffset: 8,
+            //   });
 
-              pendingSectionIndexRef.current = null;
-            }, 150);
+            //   pendingSectionIndexRef.current = null;
+            // }, 150);
           }}
           ListEmptyComponent={
             loading ? (
@@ -294,7 +294,7 @@ export default function DissectorScreen({ navigation, route }: Props) {
           windowSize={15}
         />
 
-        <View style={styles.alphabetSidebar}>
+        {/* <View style={styles.alphabetSidebar}>
           {ALPHABET.map((letter) => {
             const available = sections.some(
               (section) => section.title === letter,
@@ -318,7 +318,7 @@ export default function DissectorScreen({ navigation, route }: Props) {
               </TouchableOpacity>
             );
           })}
-        </View>
+        </View> */}
       </View>
     </View>
   );

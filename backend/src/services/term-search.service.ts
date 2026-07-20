@@ -24,19 +24,19 @@ const stringArrayToSearchText = (values: unknown): string => {
     .join(" ");
 };
 
-const buildSearchText = (term: Term): string => {
-  return [
-    term.word,
-    term.commonAbbreviation,
-    stringArrayToSearchText(term.searchTerms),
-    stringArrayToSearchText(term.synonyms),
-  ]
-    .filter(
-      (value): value is string =>
-        typeof value === "string" && value.trim().length > 0,
-    )
-    .join(" ");
-};
+// const buildSearchText = (term: Term): string => {
+//   return [
+//     term.word,
+//     term.commonAbbreviation,
+//     stringArrayToSearchText(term.searchTerms),
+//     stringArrayToSearchText(term.synonyms),
+//   ]
+//     .filter(
+//       (value): value is string =>
+//         typeof value === "string" && value.trim().length > 0,
+//     )
+//     .join(" ");
+// };
 
 export const buildTermSearchIndex = (terms: Term[]): void => {
   searchIndexReady = false;
@@ -47,7 +47,8 @@ export const buildTermSearchIndex = (terms: Term[]): void => {
   );
 
   indexedTerms.forEach((term, position) => {
-    const searchText = buildSearchText(term);
+    const searchText = stringArrayToSearchText(term.searchTerms);
+
     if (searchText) {
       termIndex.add(position, searchText);
     }
@@ -63,26 +64,31 @@ export const buildTermSearchIndex = (terms: Term[]): void => {
 export const isTermSearchReady = (): boolean => searchIndexReady;
 
 export const searchTerms = (query: string, limit = 20): Term[] => {
-  const normalizedQuery = query.trim();
+  const normalizedQuery = query.trim().toLowerCase();
 
   if (!normalizedQuery || !searchIndexReady) {
     return [];
   }
 
-  const safeLimit = Math.min(Math.max(limit, 1), 100);
+  const safeLimit = Math.min(Math.max(Math.floor(limit), 1), 100);
 
   const positions = termIndex.search(normalizedQuery, {
-    limit: safeLimit,
-    suggest: true,
+    limit: safeLimit * 2,
+    suggest: false,
   }) as Array<string | number>;
 
   return positions
     .map((position) => indexedTerms[Number(position)])
-    .filter((term): term is Term => Boolean(term));
-};
+    .filter((term): term is Term => {
+      if (!term || !Array.isArray(term.searchTerms)) {
+        return false;
+      }
 
-export const clearTermSearchIndex = (): void => {
-  termIndex.clear();
-  indexedTerms = [];
-  searchIndexReady = false;
+      return term.searchTerms.some(
+        (searchTerm) =>
+          typeof searchTerm === "string" &&
+          searchTerm.toLowerCase().includes(normalizedQuery),
+      );
+    })
+    .slice(0, safeLimit);
 };
