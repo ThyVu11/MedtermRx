@@ -21,6 +21,7 @@
     "express": "^4.22.2",
     "fast-glob": "^3.3.3",
     "fast-levenshtein": "^3.0.0",
+    "flexsearch": "^0.8.212",
     "multer": "^2.2.0",
     "openai": "^6.46.0"
   },

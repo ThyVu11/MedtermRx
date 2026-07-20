@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Category, RootStackParamList, Term } from "../types/types";
-import { searchTerms } from "../api/terms";
+import { getAllTerms, searchTerms } from "../api/terms";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
 import MnemonicCard from "../components/MnemonicCard";
 
@@ -25,15 +25,15 @@ export default function ({ route, navigation }: Props) {
   const [loading, setLoading] = useState(true);
 
   const loadTerms = async (): Promise<void> => {
-    setLoading(true);
-    setIndex(0);
-
     try {
-      const results = await searchTerms("", categoryValue);
+      setLoading(true);
+      setIndex(0);
+      const allTerms = await getAllTerms();
+      const categoryTerms = allTerms.filter((term) =>
+        term.category.some((value) => value.toLowerCase() === categoryValue),
+      );
 
-      if (loading) {
-        setTerms(results);
-      }
+      setTerms(categoryTerms);
     } catch (error) {
       console.error("Failed to load organ terms:", error);
       if (loading) {

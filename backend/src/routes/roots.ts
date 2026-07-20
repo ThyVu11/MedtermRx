@@ -1,17 +1,13 @@
 import { Router, Request, Response, NextFunction } from "express";
 import type { RootEntry } from "../types";
-import {
-  createDownloadUrl,
-  handleRouteError,
-  loadCachedData,
-  rootsCache,
-} from "./terms";
+import { createDownloadUrl, handleRouteError, loadCachedData, rootsCache } from "../utils/utils";
+
 
 const router = Router();
 
 const S3_ROOTS_KEY = process.env.S3_ROOTS_KEY?.trim() || "data/roots.json";
 
-function getRoots(): Promise<RootEntry[]> {
+export function getRoots(): Promise<RootEntry[]> {
   return loadCachedData<RootEntry[]>(rootsCache, S3_ROOTS_KEY);
 }
 

@@ -19,7 +19,7 @@ import {
   Term,
   TermSection,
 } from "../types/types";
-import { searchTerms } from "../api/terms";
+import { getAllTerms, searchTerms } from "../api/terms";
 import { useDebounce } from "../hooks/useDebounce";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dissector">;
@@ -53,17 +53,16 @@ export default function DissectorScreen({ navigation, route }: Props) {
   const visibleCategories = showAllCategories
     ? FILTERS
     : FILTERS.slice(0, INITIAL_CATEGORY_COUNT);
-
+  
   useEffect(() => {
     setLoading(true);
 
-    searchTerms(debouncedQuery)
-      .then((results) => {
-        setTerms(results);
-      })
+    const request = query.trim() ? searchTerms(debouncedQuery) : getAllTerms();
+
+    request
+      .then(setTerms)
       .catch(() => {
         setTerms([]);
-        setLoading(false);
       })
       .finally(() => {
         setLoading(false);
@@ -471,7 +470,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: spacing.sm,
     padding: spacing.lg,
-    paddingTop:0
+    paddingTop:0,
   },
   categoryToggle: {
     width: 34,

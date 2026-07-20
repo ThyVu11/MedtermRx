@@ -6,6 +6,11 @@ import type {
   Term,
 } from "../types/types";
 
+type SearchTermsResponse = {
+  query: string;
+  total: number;
+  results: Term[];
+};
 const ALLOWED_CATEGORIES = new Set([
   "anatomy",
   "hematology",
@@ -33,13 +38,6 @@ const ALLOWED_CATEGORIES = new Set([
   // "general",
 ]);
 
-export async function getTermsDownloadUrl(): Promise<string> {
-  const response = await apiGet<{ url: string }>("/terms/data/download-url");
-  // console.log("response", response.url);
-
-  return response.url;
-}
-
 export function getAllTerms(): Promise<Term[]> {
   return apiGet<Term[]>("/terms");
 }
@@ -47,37 +45,35 @@ export function getAllTerms(): Promise<Term[]> {
 export async function searchTerms(
   query: string,
   selectedCategory?: Category,
+  limit = 100, // this can change
 ): Promise<Term[]> {
   const q = query.trim().toLowerCase();
   // const terms = await apiGet<Term[]>(`/terms?query=${encodeURIComponent(q)}`);
 
-  const url = await getTermsDownloadUrl();
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("Unable to download terms.");
+  if (!q) {
+    return [];
   }
 
-  // console.log("response", response.json);
-  const terms = (await response.json()) as Term[];
+  const params = new URLSearchParams({
+    q: q,
+    limit: String(limit),
+  });
 
-  return terms.filter((term) => {
+  const response = await apiGet<SearchTermsResponse>(
+    `/terms/search?${params.toString()}`,
+  );
+
+  console.log("Search response:", response);
+
+  return response.results.filter((term) => {
     const hasAllowedCategory = term.category.some((category) =>
-      ALLOWED_CATEGORIES.has(category),
+      ALLOWED_CATEGORIES.has(category as Category),
     );
 
     const matchesSelectedCategory =
       !selectedCategory || term.category.includes(selectedCategory);
 
-    const matchesQuery =
-      !q ||
-      term.word.toLowerCase().includes(q) ||
-      term.searchTerms.some((searchTerm) =>
-        searchTerm.toLowerCase().includes(q),
-      );
-
-    return hasAllowedCategory && matchesSelectedCategory && matchesQuery;
+    return hasAllowedCategory && matchesSelectedCategory;
   });
 }
 
@@ -87,18 +83,27 @@ export function getTermById(id: string): Promise<Term> {
 
 export function getRandomTerms(category?: Category): Promise<Term[]> {
   const params = new URLSearchParams();
+
   if (category) {
     params.set("category", category);
   }
-  console.log(`Fetching random terms with params: ${params.toString()}`);
-  return apiGet<Term[]>(`/terms/random?${params.toString()}`);
+
+  const queryString = params.toString();
+
+  return apiGet<Term[]>(
+    queryString ? `/terms/random?${queryString}` : "/terms/random",
+  );
 }
 
 export function getConfusablesForTerm(
   termId: string,
 ): Promise<ConfusablePair[]> {
+  const params = new URLSearchParams({
+    termId,
+  });
+
   return apiGet<ConfusablePair[]>(
-    `/terms/confusables/all?termId=${encodeURIComponent(termId)}`,
+    `/terms/confusables/all?${params.toString()}`,
   );
 }
 
@@ -108,6 +113,14 @@ export function getAllConfusables(): Promise<ConfusablePair[]> {
 
 export function getQuiz(category?: Category): Promise<QuizQuestion[]> {
   const params = new URLSearchParams();
-  if (category) params.set("category", category);
-  return apiGet<QuizQuestion[]>(`/terms/quiz?${params.toString()}`);
+
+  if (category) {
+    params.set("category", category);
+  }
+
+  const queryString = params.toString();
+
+  return apiGet<QuizQuestion[]>(
+    queryString ? `/terms/quiz?${queryString}` : "/terms/quiz",
+  );
 }

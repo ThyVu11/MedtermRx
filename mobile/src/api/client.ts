@@ -1,7 +1,6 @@
-export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL?.replace(
-  /\/+$/,
-  "",
-);
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL?.replace(/\/+$/, "") ||
+  "http://localhost:3000/api";
 
 if (!API_BASE_URL) {
   throw new Error(
@@ -12,7 +11,6 @@ if (!API_BASE_URL) {
 export async function apiGet<T>(path: string): Promise<T> {
   const normalizedPath = `/${path.replace(/^\/+/, "")}`;
   const url = `${API_BASE_URL}${normalizedPath}`;
-
 
   const res = await fetch(url);
 

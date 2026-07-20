@@ -1,20 +1,16 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   ActivityIndicator,
+  InteractionManager,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {
-  AnatomicalCategory,
-  Category,
-  RootStackParamList,
-  Term,
-} from "../types/types";
+
+import type { Category, RootStackParamList, Term } from "../types/types";
 import { searchTerms } from "../api/terms";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
 import { getMnemonicNotesFor } from "../storage/mnemonics";
@@ -23,57 +19,78 @@ import BodyDiagram from "../components/BodyDiagram";
 type Props = NativeStackScreenProps<RootStackParamList, "MemoryMap">;
 
 export default function MemoryMapScreen({ navigation }: Props) {
-  const [termsByCategory, setTermsByCategory] = useState<
-    Record<string, Term[]>
-  >({});
   const [progress, setProgress] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(false);
 
-  const loadProgress = useCallback(async () => {
-    const entries = await Promise.all(
-      ORGAN_LOCATIONS.map(async (organ) => {
-        const terms =
-          termsByCategory[organ.category] ??
-          (await searchTerms(organ.category));
-        const notes = await getMnemonicNotesFor(terms.map((t) => t.id));
+  // Cache terms without causing loadProgress to be recreated.
+  const termsCacheRef = useRef<Record<string, Term[]>>({});
+
+  const loadCategoryProgress = useCallback(
+    async (category: string): Promise<void> => {
+      try {
+        let terms = termsCacheRef.current[category];
+
+        if (!terms) {
+          terms = await searchTerms(category);
+          termsCacheRef.current[category] = terms;
+        }
+
+        const notes = await getMnemonicNotesFor(terms.map((term) => term.id));
+
         const fraction =
           terms.length === 0 ? 0 : Object.keys(notes).length / terms.length;
-        return [organ.category, terms, fraction] as const;
-      }),
-    );
 
-    const nextTerms: Record<string, Term[]> = {};
-    const nextProgress: Record<string, number> = {};
-    entries.forEach(([categoryKey, terms, fraction]) => {
-      nextTerms[categoryKey] = terms;
-      nextProgress[categoryKey] = fraction;
-    });
-    setTermsByCategory(nextTerms);
-    setProgress(nextProgress);
-    setLoading(false);
-  }, [termsByCategory]);
+        // Update one category as soon as it is ready.
+        setProgress((current) => ({
+          ...current,
+          [category]: fraction,
+        }));
+      } catch (error) {
+        console.error(`Failed to load progress for ${category}:`, error);
 
-  useEffect(() => {
-    loadProgress();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Refresh completion state whenever the screen regains focus (e.g. after
-  // adding a note on an organ's detail screen and coming back).
-  useFocusEffect(
-    useCallback(() => {
-      loadProgress();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []),
+        setProgress((current) => ({
+          ...current,
+          [category]: 0,
+        }));
+      }
+    },
+    [],
   );
 
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0F766E" />
-      </View>
-    );
-  }
+  const loadProgress = useCallback(async (): Promise<void> => {
+    setLoadingProgress(true);
+
+    try {
+      const uniqueCategories = Array.from(
+        new Set(ORGAN_LOCATIONS.map((organ) => organ.category)),
+      );
+
+      // Load categories progressively instead of blocking on Promise.all.
+      for (const category of uniqueCategories) {
+        await loadCategoryProgress(category);
+      }
+    } finally {
+      setLoadingProgress(false);
+    }
+  }, [loadCategoryProgress]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+
+      // Let the screen and navigation animation render first.
+      const task = InteractionManager.runAfterInteractions(() => {
+        if (!cancelled) {
+          void loadProgress();
+        }
+      });
+
+      return () => {
+        cancelled = true;
+        task.cancel();
+      };
+    }, [loadProgress]),
+  );
 
   return (
     <View style={styles.safe}>
@@ -83,6 +100,13 @@ export default function MemoryMapScreen({ navigation }: Props) {
           image for each one — the weirder and more visual, the better it
           sticks.
         </Text>
+
+        {loadingProgress && (
+          <View style={styles.loadingRow}>
+            <ActivityIndicator size="small" color="#0F766E" />
+            <Text style={styles.loadingText}>Updating your progress...</Text>
+          </View>
+        )}
 
         <BodyDiagram
           progressByCategory={progress}
@@ -96,19 +120,31 @@ export default function MemoryMapScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F0FDFA" },
-  center: {
+  safe: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#F0FDFA",
   },
-  container: { padding: 20, paddingBottom: 40 },
+  container: {
+    padding: 20,
+    paddingBottom: 40,
+  },
   intro: {
     fontSize: 14,
     color: "#4B5563",
     textAlign: "center",
     marginBottom: 16,
     lineHeight: 20,
+  },
+  loadingRow: {
+    minHeight: 28,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  loadingText: {
+    marginLeft: 8,
+    fontSize: 12,
+    color: "#4B5563",
   },
 });
