@@ -63,7 +63,6 @@ export async function searchTerms(
     `/terms/search?${params.toString()}`,
   );
 
-  console.log("Search response:", response);
 
   return response.results.filter((term) => {
     const hasAllowedCategory = term.category.some((category) =>

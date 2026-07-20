@@ -12,7 +12,6 @@ import { ConfusablePair, Term } from "../types";
 export const AWS_REGION = process.env.AWS_REGION?.trim() || "us-east-1";
 
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME?.trim();
-console.log(S3_BUCKET_NAME);
 
 export const S3_TERMS_KEY =
   process.env.S3_TERMS_KEY?.trim() || "data/terms.json";
