@@ -32,7 +32,7 @@ export default function QuizResultScreen({ route, navigation }: Props) {
           </Pressable>
           <Pressable
             style={[styles.button, styles.secondary]}
-            onPress={() => navigation.popToTop()}
+            onPress={() => navigation.navigate("Dashboard")}
           >
             <Text style={styles.buttonTextSecondary}>Back to home</Text>
           </Pressable>

@@ -26,6 +26,7 @@ const ALLOWED_CATEGORIES = new Set([
   "diagnostics_and_therapeutics",
   "disease",
   "biological_sciences",
+  "integumentary,"
   // "technology",
   // "information_science",
   // "organisms",
@@ -34,7 +35,6 @@ const ALLOWED_CATEGORIES = new Set([
   // "healthcare",
   // "specialties",
   // "humanities",
-  // "integumentary",
   // "general",
 ]);
 

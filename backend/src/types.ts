@@ -9,7 +9,8 @@ export type Category =
   | "respiratory"
   | "gastrointestinal"
   | "musculoskeletal"
-  | "sensory";
+  | "sensory"
+  | "integumentary";
 
 export interface RootEntryExample {
   term: string;

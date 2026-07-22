@@ -4,7 +4,6 @@ import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { confusablesCache, loadCachedData, termsCache } from "../utils/utils";
 import { ConfusablePair, Term } from "../types";
 
-
 /* -------------------------------------------------------------------------- */
 /*                                Configuration                               */
 /* -------------------------------------------------------------------------- */
@@ -14,7 +13,7 @@ export const AWS_REGION = process.env.AWS_REGION?.trim() || "us-east-1";
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME?.trim();
 
 export const S3_TERMS_KEY =
-  process.env.S3_TERMS_KEY?.trim() || "data/terms.json";
+  process.env.S3_TERMS_KEY?.trim() || "data/terms-lite.json";
 
 // const S3_ROOTS_KEY = process.env.S3_ROOTS_KEY?.trim() || "data/roots.json";
 
@@ -55,8 +54,7 @@ export function getConfusables(): Promise<ConfusablePair[]> {
 
 export function logMemory(label: string): void {
   const memory = process.memoryUsage();
-  const toMB = (bytes: number) =>
-    Math.round((bytes / 1024 / 1024) * 10) / 10;
+  const toMB = (bytes: number) => Math.round((bytes / 1024 / 1024) * 10) / 10;
 
   console.log(`[memory] ${label}`, {
     rss: `${toMB(memory.rss)} MB`,
@@ -95,4 +93,3 @@ export async function loadJsonFromS3<T>(key: string): Promise<T> {
     );
   }
 }
-

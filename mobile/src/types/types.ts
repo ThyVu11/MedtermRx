@@ -30,6 +30,7 @@ export const CATEGORIES = [
   "reproductive",
   "urinary",
   "sensory",
+  "integumentary",
 ] as const;
 
 /* =========================================================
@@ -271,6 +272,10 @@ const ANATOMICAL_CATEGORIES = [
   {
     value: "reproductive",
     label: "Reproductive",
+  },
+  {
+    value: "integumentary",
+    label: "Integumentary",
   },
 ] as const;
 
