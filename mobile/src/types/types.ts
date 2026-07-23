@@ -17,12 +17,12 @@ export const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
 export const PARTS_OF_SPEECH = ["noun", "verb", "adjective", "adverb"] as const;
 
 export const CATEGORIES = [
-  "anatomy",
+  // "anatomy",
   "cardiovascular",
   "hematology",
-  "diagnostics_and_therapeutics",
+  // "diagnostics_and_therapeutics",
   "digestive",
-  "disease",
+  // "disease",
   "endocrine",
   "integumentary",
   "lymphatic_and_immune",
