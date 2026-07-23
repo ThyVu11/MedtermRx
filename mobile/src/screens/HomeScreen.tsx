@@ -10,7 +10,7 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/types";
 import { colors, radii, spacing } from "../theme";
 import { Image } from "expo-image";
-import CodeCloth from "../components/CodeCloth.native";
+import CodeCloth from "../components/CodeCloth.web";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
