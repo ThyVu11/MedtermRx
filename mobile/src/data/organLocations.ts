@@ -32,7 +32,7 @@ export const ORGAN_LOCATIONS: OrganLocation[] = [
     color: "#DC2626",
   },
   {
-    category: "Gastrointestinal",
+    category: "Digestive",
     label: "Stomach",
     x: 150,
     y: 245,
@@ -61,6 +61,6 @@ export const TOUR_ORDER: (AnatomicalCategory | string)[] = [
   "Neurological",
   "Respiratory",
   "Cardiovascular",
-  "Gastrointestinal",
+  "Digestive",
   "Musculoskeletal",
 ];

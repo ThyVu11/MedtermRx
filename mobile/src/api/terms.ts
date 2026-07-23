@@ -28,6 +28,7 @@ const ALLOWED_CATEGORIES = new Set([
   "biological_sciences",
   "integumentary",
   "lymphatic_and_immune",
+  "digestive",
   // "technology",
   // "information_science",
   // "organisms",
@@ -38,7 +39,6 @@ const ALLOWED_CATEGORIES = new Set([
   // "humanities",
   // "general",
 ]);
-
 
 export async function getAllTerms(): Promise<Term[]> {
   const terms = await apiGet<Term[]>("/terms");
