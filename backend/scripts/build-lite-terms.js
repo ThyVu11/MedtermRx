@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const termsPath = path.resolve(__dirname, "../data/terms/termss.json");
+const termsPath = path.resolve(__dirname, "../data/terms/terms.json");
 
 console.log("Reading file from:", termsPath);
 console.log("File exists:", fs.existsSync(termsPath));

@@ -18,7 +18,7 @@ const ALLOWED_CATEGORIES = new Set([
   "urinary",
   "neurology",
   "respiratory",
-  "gastrointestinal",
+  "digestive",
   "musculoskeletal",
   "endocrine",
   "reproductive",
@@ -26,7 +26,8 @@ const ALLOWED_CATEGORIES = new Set([
   "diagnostics_and_therapeutics",
   "disease",
   "biological_sciences",
-  "integumentary,"
+  "integumentary",
+  "lymphatic_and_immune",
   // "technology",
   // "information_science",
   // "organisms",

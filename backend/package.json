@@ -10,7 +10,8 @@
     "validate:data": "tsx scripts/validate-medical-data.ts",
     "build:data": "tsx scripts/build-lite-terms.js",
     "prepare:data": "npm run validate:data && npm run build:data",
-    "migrate:categories": "tsx scripts/migrate-term-categories.ts"
+    "migrate:categories": "tsx scripts/migrate-term-categories.ts",
+    "build:term": "npx tsx scripts/update-musculoskeletal-terms-from-pdf.ts data/terms/terms.json"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1089.0",

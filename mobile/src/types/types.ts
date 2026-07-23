@@ -24,13 +24,14 @@ export const CATEGORIES = [
   "disease",
   "endocrine",
   "gastrointestinal",
+  "integumentary",
+  "lymphatic_and_immune",
   "musculoskeletal",
   "neurology",
   "respiratory",
   "reproductive",
   "urinary",
   "sensory",
-  "integumentary",
 ] as const;
 
 /* =========================================================
@@ -250,8 +251,8 @@ const ANATOMICAL_CATEGORIES = [
     label: "Cardiovascular",
   },
   {
-    value: "gastrointestinal",
-    label: "Gastrointestinal",
+    value: "digestive",
+    label: "Digestive",
   },
   {
     value: "musculoskeletal",
@@ -276,6 +277,10 @@ const ANATOMICAL_CATEGORIES = [
   {
     value: "integumentary",
     label: "Integumentary",
+  },
+  {
+    value: "lymphatic_and_immune",
+    label: "Lymphatic & Immune",
   },
 ] as const;
 

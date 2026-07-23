@@ -7,10 +7,11 @@ export type Category =
   | "urinary"
   | "neurology"
   | "respiratory"
-  | "gastrointestinal"
+  | "digestive"
   | "musculoskeletal"
   | "sensory"
-  | "integumentary";
+  | "integumentary"
+  | "lymphatic_and_immune";
 
 export interface RootEntryExample {
   term: string;
