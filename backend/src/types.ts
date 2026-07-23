@@ -1,4 +1,9 @@
-export type PartType = "prefix" | "root" | "suffix" | "combining_vowel";
+export type PartType =
+  | "prefix"
+  | "root"
+  | "suffix"
+  | "combining_vowel"
+  | "abbreviations_acronyms";
 export type Category =
   | "anatomy"
   | "organisms"

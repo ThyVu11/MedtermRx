@@ -13,6 +13,7 @@ const LABELS: Record<string, string> = {
   root: "Root",
   suffix: "Suffix",
   combining_vowel: "Vowel",
+  abbreviations_acronyms: "Abbreviations & Acronyms"
 };
 
 export default function PartTag({ part, compact }: Props) {

@@ -8,6 +8,7 @@ export const PART_TYPES = [
   "combining_form",
   "combining_vowel",
   "suffix",
+  "abbreviations_acronyms",
 ] as const;
 
 export const ORIGINS = ["Greek", "Latin", "Greek/Latin", "English"] as const;

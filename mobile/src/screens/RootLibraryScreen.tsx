@@ -18,6 +18,7 @@ const FILTERS: { key: PartType | "all"; label: string }[] = [
   { key: "prefix", label: "Prefixes" },
   { key: "root", label: "Roots" },
   { key: "suffix", label: "Suffixes" },
+  { key: "abbreviations_acronyms", label: "Abbreviations & Acronyms" },
 ];
 
 export default function RootLibraryScreen() {
