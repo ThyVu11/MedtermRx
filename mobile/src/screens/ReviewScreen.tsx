@@ -166,7 +166,8 @@ export default function ReviewScreen() {
           <Text style={styles.eyebrow}>Spelling drill</Text>
           <Text style={styles.prompt}>{question.term.definition}</Text>
           <Text style={styles.pronunciationHint}>
-            /{question.term.pronunciation}/
+            {question.term.pronunciation &&
+              `Pronunciation Hint: /${question.term.pronunciation}/ `}
           </Text>
           <TextInput
             style={styles.input}

@@ -11,30 +11,18 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, radii, spacing, typography } from "../theme";
 import { loadDeck } from "../utils/deckStorage";
 import { dueCards } from "../utils/spacedRepetition";
-import { useAppDispatch, useAppSelector } from "../hooks";
-import { fetchTerms } from "../features/termsSlice";
-import { fetchConfusables } from "../features/confusablesSlice";
+import { useAppSelector } from "../hooks";
 import type { RootStackParamList } from "../types/types";
+import ToolCard from "../components/ToolCard";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dashboard">;
 
 export default function DashboardScreen({ navigation }: Props) {
-  const dispatch = useAppDispatch();
   const terms = useAppSelector((state) => state.terms.items);
-  const termsStatus = useAppSelector((state) => state.terms.status);
   const confusables = useAppSelector((state) => state.confusables.items);
   const [deckSize, setDeckSize] = useState(0);
   const [dueCount, setDueCount] = useState(0);
   const [mastered, setMastered] = useState(0);
-
-  useEffect(() => {
-    if (termsStatus === "idle") {
-      dispatch(fetchTerms());
-    }
-    if (confusables.length === 0) {
-      dispatch(fetchConfusables());
-    }
-  }, [confusables.length, dispatch, termsStatus]);
 
   useFocusEffect(
     useCallback(() => {
@@ -122,27 +110,6 @@ export default function DashboardScreen({ navigation }: Props) {
   );
 }
 
-function ToolCard({
-  label,
-  desc,
-  onPress,
-}: {
-  label: string;
-  desc: string;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      style={styles.toolCard}
-      onPress={onPress}
-      activeOpacity={0.75}
-    >
-      <Text style={styles.toolLabel}>{label}</Text>
-      <Text style={styles.toolDesc}>{desc}</Text>
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   content: {
@@ -208,27 +175,7 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  toolCard: {
-    width: "48%",
-    backgroundColor: colors.paperDim,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.line,
-    minHeight: 108,
-  },
-  toolLabel: {
-    ...typography.display,
-    fontSize: 16,
-    color: colors.ink,
-    marginBottom: spacing.xs,
-  },
-  toolDesc: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    lineHeight: 16,
-  },
+
   footerNote: {
     fontSize: 12,
     color: colors.textSecondary,

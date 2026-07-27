@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -11,12 +11,14 @@ import { RootStackParamList } from "../types/types";
 import { colors, radii, spacing } from "../theme";
 import { Image } from "expo-image";
 import CodeCloth from "../components/CodeCloth.web";
+import { useAppSelector } from "../hooks";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const LOGO_RATIO = 1662 / 758;
 
 export default function HomeScreen({ navigation }: Props) {
+  const termsStatus = useAppSelector((state) => state.terms.status);
   const { width } = useWindowDimensions();
 
   const logoWidth = width - 32;
@@ -36,10 +38,16 @@ export default function HomeScreen({ navigation }: Props) {
         />
         <CodeCloth></CodeCloth>
         <TouchableOpacity
-          style={styles.primaryButton}
+          style={[
+            styles.primaryButton,
+            termsStatus !== "succeeded" && styles.disabledButton,
+          ]}
+          disabled={termsStatus !== "succeeded"}
           onPress={() => navigation.navigate("Dashboard")}
         >
-          <Text style={styles.primaryButtonText}>GET START</Text>
+          <Text style={styles.primaryButtonText}>
+            {termsStatus === "loading" ? "LOADING TERMS..." : "GET START"}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -103,5 +111,8 @@ const styles = StyleSheet.create({
     color: colors.textOnBrand,
     fontWeight: "700",
     fontSize: 14,
+  },
+  disabledButton: {
+    opacity: 0.5,
   },
 });

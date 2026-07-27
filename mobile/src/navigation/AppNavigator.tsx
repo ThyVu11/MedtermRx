@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { colors } from "../theme";
@@ -13,16 +13,18 @@ import TermDetailScreen from "../screens/TermDetailScreen";
 import { RootStackParamList } from "../types/types";
 import FlashcardScreen from "../screens/FlashcardScreen";
 import MemoryMapScreen from "../screens/MemoryMapScreen";
-import KeywordMnemonicScreen from "../screens/KeywordMnemonicScreen";
 import OrganDetailScreen from "../screens/OrganDetailScreen";
 import QuizScreen from "../screens/QuizScreen";
 import HomeScreen from "../screens/HomeScreen";
 import QuizResultScreen from "../screens/QuizResultScreen";
+import { useAppDispatch, useAppSelector } from "../hooks";
+import { fetchTerms } from "../features/termsSlice";
+import { fetchConfusables } from "../features/confusablesSlice";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const linking = {
-  prefixes: ["https://medterm.expo.app/"],
+  prefixes: [process.env.EXPO_PREFIXED_URL],
   config: {
     screens: {
       Home: "", // Maps to '/'
@@ -38,6 +40,25 @@ const linking = {
 };
 
 export default function AppNavigator() {
+  const dispatch = useAppDispatch();
+  const terms = useAppSelector((state) => state.terms.items);
+
+  const termsStatus = useAppSelector((state) => state.terms.status);
+  const confusablesStatus = useAppSelector((state) => state.confusables.status);
+
+  useEffect(() => {
+    if (
+      termsStatus === "idle" ||
+      (termsStatus === "succeeded" && terms.length === 0)
+    ) {
+      dispatch(fetchTerms());
+    }
+
+    if (confusablesStatus === "idle") {
+      dispatch(fetchConfusables());
+    }
+  }, [dispatch, termsStatus, confusablesStatus, terms.length]);
+
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator

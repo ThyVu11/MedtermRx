@@ -20,23 +20,11 @@ import { RootStackParamList } from "../types/types";
 type Props = NativeStackScreenProps<RootStackParamList, "TermDetail">;
 
 export default function TermDetailScreen({ route, navigation }: Props) {
-  const dispatch = useAppDispatch();
   const { termId } = route.params;
   const terms = useAppSelector((state) => state.terms.items);
-  const termsStatus = useAppSelector((state) => state.terms.status);
   const confusables = useAppSelector((state) => state.confusables.items);
-  const confusablesStatus = useAppSelector((state) => state.confusables.status);
   const [inDeck, setInDeck] = useState(false);
   const term = terms.find((t) => t.id === termId);
-
-  useEffect(() => {
-    if (termsStatus === "idle") {
-      dispatch(fetchTerms());
-    }
-    if (confusablesStatus === "idle") {
-      dispatch(fetchConfusables());
-    }
-  }, [dispatch, termsStatus, confusablesStatus]);
 
   useFocusEffect(
     useCallback(() => {

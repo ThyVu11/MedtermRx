@@ -21,6 +21,7 @@ import {
 } from "../types/types";
 import { getAllTerms, searchTerms } from "../api/terms";
 import { useDebounce } from "../hooks/useDebounce";
+import { useAppSelector } from "../hooks";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Dissector">;
 
@@ -41,41 +42,46 @@ const INITIAL_CATEGORY_COUNT = 1;
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export default function DissectorScreen({ navigation, route }: Props) {
-  const [terms, setTerms] = useState<Term[]>([]);
+  const allTerms = useAppSelector((state) => state.terms.items);
+  const termsStatus = useAppSelector((state) => state.terms.status);
+  const [searchResults, setSearchResults] = useState<Term[]>([]);
   const [filter, setFilter] = useState<Category | "all">("all");
   const [query, setQuery] = useState(route.params?.initialQuery ?? "");
   const debouncedQuery = useDebounce(query, 300);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const sectionListRef = useRef<SectionList<Term, TermSection>>(null);
   const pendingSectionIndexRef = useRef<number | null>(null);
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const displayedTerms =
+    debouncedQuery.trim() === "" ? allTerms : searchResults;
 
   const visibleCategories = showAllCategories
     ? FILTERS
     : FILTERS.slice(0, INITIAL_CATEGORY_COUNT);
 
   useEffect(() => {
+    const trimmedQuery = debouncedQuery.trim();
+
+    if (!trimmedQuery) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
-    const request = query.trim() ? searchTerms(debouncedQuery) : getAllTerms();
-
-    request
-      .then(setTerms)
-      .catch(() => {
-        setTerms([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    searchTerms(trimmedQuery)
+      .then(setSearchResults)
+      .catch(() => setSearchResults([]))
+      .finally(() => setLoading(false));
   }, [debouncedQuery]);
 
   const filteredTerms = useMemo(() => {
     if (filter === "all") {
-      return terms;
+      return displayedTerms;
     }
 
-    return terms.filter((term) => term.category.includes(filter));
-  }, [filter, terms]);
+    return displayedTerms.filter((term) => term.category.includes(filter));
+  }, [filter, displayedTerms]);
 
   const sections = useMemo<TermSection[]>(() => {
     const groups = new Map<string, Term[]>();
@@ -270,14 +276,14 @@ export default function DissectorScreen({ navigation, route }: Props) {
             // }, 150);
           }}
           ListEmptyComponent={
-            loading ? (
+            loading || termsStatus === "loading" ? (
               <View style={styles.center}>
                 <ActivityIndicator size="large" color="#0F766E" />
               </View>
             ) : (
-              <Text style={styles.empty}>
+              <Text style={styles.emptyText}>
                 {query.trim()
-                  ? `No terms match “${query}” yet — try a different spelling.`
+                  ? `No terms match "${query}" yet — try a different spelling.`
                   : "No medical terms are available."}
               </Text>
             )
@@ -348,7 +354,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: colors.textPrimary,
   },
-  empty: {
+  emptyText: {
     textAlign: "center",
     color: colors.textSecondary,
     marginTop: spacing.xl,

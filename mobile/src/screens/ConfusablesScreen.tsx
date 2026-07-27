@@ -1,5 +1,11 @@
-import React, { useEffect } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, spacing, typography } from "../theme";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -16,13 +22,13 @@ export default function ConfusablesScreen({ navigation }: Props) {
   const confusables = useAppSelector((state) => state.confusables.items);
   const termsStatus = useAppSelector((state) => state.terms.status);
   const confusablesStatus = useAppSelector((state) => state.confusables.status);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (termsStatus === "idle") {
-      dispatch(fetchTerms());
-    }
     if (confusablesStatus === "idle") {
-      dispatch(fetchConfusables());
+      dispatch(fetchConfusables()).finally(() => {
+        setLoading(false);
+      });
     }
   }, [dispatch, termsStatus, confusablesStatus]);
 
@@ -31,10 +37,16 @@ export default function ConfusablesScreen({ navigation }: Props) {
       <View style={styles.header}>
         <Text style={styles.title}>High-Risk Confusables</Text>
         <Text style={styles.subtitle}>
-          These pairs look or sound almost identical but mean opposite — or completely
-          unrelated — things. The highlighted letters are the whole difference.
+          These pairs look or sound almost identical but mean opposite — or
+          completely unrelated — things. The highlighted letters are the whole
+          difference.
         </Text>
       </View>
+      {loading && (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#0F766E" />
+        </View>
+      )}
       <FlatList
         data={confusables}
         keyExtractor={(item) => item.id}
@@ -70,5 +82,16 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: spacing.xs,
     lineHeight: 18,
+  },
+  emptyText: {
+    textAlign: "center",
+    color: colors.textSecondary,
+    marginTop: spacing.xl,
+    paddingHorizontal: spacing.lg,
+  },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
