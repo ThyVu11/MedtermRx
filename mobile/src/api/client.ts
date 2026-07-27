@@ -8,18 +8,42 @@ if (!API_BASE_URL) {
   );
 }
 
-export async function apiGet<T>(path: string): Promise<T> {
+const buildUrl = (path: string): string => {
   const normalizedPath = `/${path.replace(/^\/+/, "")}`;
-  const url = `${API_BASE_URL}${normalizedPath}`;
+  return `${API_BASE_URL}${normalizedPath}`;
+};
 
-  const res = await fetch(url);
+async function getErrorMessage(res: Response): Promise<string> {
+  const body = (await res.json().catch(() => null)) as {
+    error?: string;
+  } | null;
+
+  return body?.error ?? `Request failed: ${res.status}`;
+}
+
+console.log("EXPO_PUBLIC_API_URL =", process.env.EXPO_PUBLIC_API_URL);
+console.log("API_BASE_URL =", API_BASE_URL);
+
+export async function apiGet<T>(path: string): Promise<T> {
+  const res = await fetch(buildUrl(path));
 
   if (!res.ok) {
-    const body = (await res.json().catch(() => null)) as {
-      error?: string;
-    } | null;
+    throw new Error(await getErrorMessage(res));
+  }
 
-    throw new Error(body?.error ?? `Request failed: ${res.status}`);
+  return (await res.json()) as T;
+}
+export async function apiPostFormData<T>(
+  path: string,
+  formData: FormData,
+): Promise<T> {
+  const res = await fetch(buildUrl(path), {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    throw new Error(await getErrorMessage(res));
   }
 
   return (await res.json()) as T;

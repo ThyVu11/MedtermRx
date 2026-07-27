@@ -17,16 +17,12 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { colors, radii, spacing, typography } from "../theme";
 import { matchTermsInText } from "../utils/matchTerms";
-import { useAppDispatch, useAppSelector } from "../hooks";
-import { fetchTerms } from "../features/termsSlice";
+import { useAppSelector } from "../hooks";
 import type { Term } from "../types/types";
 import type { RootStackParamList } from "../types/types";
+import { recognizeTextFromImage } from "../utils/recognizeText";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Scanner">;
-
-type OcrResponse = {
-  text: string;
-};
 
 type ScanStatus =
   | "idle"
@@ -36,11 +32,7 @@ type ScanStatus =
   | "success"
   | "error";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
-
 export default function ScannerScreen({ navigation }: Props) {
-  const dispatch = useAppDispatch();
-
   const terms = useAppSelector((state) => state.terms.items);
 
   const termsStatus = useAppSelector((state) => state.terms.status);
@@ -61,14 +53,10 @@ export default function ScannerScreen({ navigation }: Props) {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (termsStatus === "idle") {
-      dispatch(fetchTerms());
-    }
-  }, [dispatch, termsStatus]);
-
   const isBusy =
     status === "capturing" || status === "recognizing" || status === "matching";
+
+  const scanDisabled = !cameraReady || isBusy || termsStatus !== "succeeded";
 
   const runTermMatching = useCallback(
     (text: string) => {
@@ -76,6 +64,7 @@ export default function ScannerScreen({ navigation }: Props) {
 
       if (!cleanText) {
         setMatches([]);
+        setStatus("success");
         return;
       }
 
@@ -88,46 +77,6 @@ export default function ScannerScreen({ navigation }: Props) {
     },
     [terms],
   );
-
-  const uploadPhotoForOcr = async (uri: string): Promise<string> => {
-    if (!API_URL) {
-      throw new Error("EXPO_PUBLIC_API_URL is not configured.");
-    }
-
-    const formData = new FormData();
-
-    formData.append("image", {
-      uri,
-      name: `medical-scan-${Date.now()}.jpg`,
-      type: "image/jpeg",
-    } as unknown as Blob);
-
-    const response = await fetch(`${API_URL}/api/ocr`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Accept: "application/json",
-      },
-    });
-
-    const responseBody = (await response.json()) as
-      | OcrResponse
-      | { error?: string };
-
-    if (!response.ok) {
-      throw new Error(
-        "error" in responseBody && responseBody.error
-          ? responseBody.error
-          : `OCR request failed with status ${response.status}.`,
-      );
-    }
-
-    if (!("text" in responseBody) || typeof responseBody.text !== "string") {
-      throw new Error("The OCR server returned an invalid response.");
-    }
-
-    return responseBody.text;
-  };
 
   const captureAndScan = async () => {
     if (isBusy) {
@@ -161,10 +110,18 @@ export default function ScannerScreen({ navigation }: Props) {
       setPhotoUri(photo.uri);
       setStatus("recognizing");
 
-      const recognizedText = await uploadPhotoForOcr(photo.uri);
+      const result = await recognizeTextFromImage(photo.uri);
+      console.log("OCR result:", result);
+      console.log("OCR text:", result.text);
+      console.log("Terms status:", termsStatus);
+      console.log("Terms count:", terms.length);
+      console.log(
+        "First terms:",
+        terms.slice(0, 5).map((term) => term.word),
+      );
 
-      setManualText(recognizedText);
-      runTermMatching(recognizedText);
+      setManualText(result.text);
+      runTermMatching(result.text);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unable to scan the image.";
@@ -269,9 +226,9 @@ export default function ScannerScreen({ navigation }: Props) {
           <TouchableOpacity
             style={[
               styles.captureButton,
-              (!cameraReady || isBusy) && styles.disabledButton,
+              scanDisabled && styles.disabledButton,
             ]}
-            disabled={!cameraReady || isBusy}
+            disabled={scanDisabled}
             onPress={captureAndScan}
           >
             {isBusy ? (
@@ -338,6 +295,15 @@ export default function ScannerScreen({ navigation }: Props) {
             <View style={styles.infoCard}>
               <ActivityIndicator size="small" color={colors.teal} />
               <Text style={styles.infoText}>Loading medical terminology…</Text>
+            </View>
+          )}
+
+          {termsStatus === "failed" && (
+            <View style={styles.errorCard}>
+              <Text style={styles.errorTitle}>Terminology unavailable</Text>
+              <Text style={styles.errorText}>
+                Medical terms could not be loaded. Reload the app and try again.
+              </Text>
             </View>
           )}
 
