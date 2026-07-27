@@ -32,6 +32,32 @@ type ScanStatus =
   | "success"
   | "error";
 
+const getPartsPriority = (term: Term): number => {
+  const partTypes = new Set((term.parts ?? []).map((part) => part.type));
+
+  const hasPrefix = partTypes.has("prefix");
+  const hasRoot = partTypes.has("root") || partTypes.has("combining_form");
+  const hasSuffix = partTypes.has("suffix");
+
+  // 1. prefix + root + suffix
+  if (hasPrefix && hasRoot && hasSuffix) {
+    return 1;
+  }
+
+  // 2. root + suffix
+  if (hasRoot && hasSuffix) {
+    return 2;
+  }
+
+  // 3. root only
+  if (hasRoot) {
+    return 3;
+  }
+
+  // 4. no recognized parts
+  return 4;
+};
+
 export default function ScannerScreen({ navigation }: Props) {
   const terms = useAppSelector((state) => state.terms.items);
   const termsStatus = useAppSelector((state) => state.terms.status);
@@ -74,7 +100,19 @@ export default function ScannerScreen({ navigation }: Props) {
 
       const foundTerms = matchTermsInText(terms, cleanText);
 
-      setMatches(foundTerms);
+      const sortedTerms = [...foundTerms].sort((a, b) => {
+        const priorityDifference = getPartsPriority(a) - getPartsPriority(b);
+
+        if (priorityDifference !== 0) {
+          return priorityDifference;
+        }
+
+        // Alphabetical order within the same group
+        return a.word.localeCompare(b.word);
+      });
+
+      setMatches(sortedTerms);
+      // setMatches(foundTerms);
       setStatus("success");
 
       if (foundTerms.length > 0) {
