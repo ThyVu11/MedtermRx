@@ -5,6 +5,7 @@ import cors from "cors";
 import rootsRouter from "./src/routes/roots";
 import termsRouter from "./src/routes/terms";
 import progressRouter from "./src/routes/progress";
+import ocrRouter from "./src/routes/ocr";
 
 import { getTerms, logMemory } from "./src/services/term-data.service";
 
@@ -62,6 +63,7 @@ async function startServer(): Promise<void> {
   app.use("/api/roots", rootsRouter);
   app.use("/api/terms", termsRouter);
   app.use("/api/progress", progressRouter);
+  app.use("/api/ocr", ocrRouter);
 
   // 404 handler
   app.use((request: express.Request, response: express.Response) => {
