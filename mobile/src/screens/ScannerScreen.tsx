@@ -34,29 +34,31 @@ type ScanStatus =
 
 export default function ScannerScreen({ navigation }: Props) {
   const terms = useAppSelector((state) => state.terms.items);
-
   const termsStatus = useAppSelector((state) => state.terms.status);
-
   const [permission, requestPermission] = useCameraPermissions();
-
   const cameraRef = useRef<CameraView>(null);
-
+  const scrollViewRef = useRef<ScrollView>(null);
+  const resultsY = useRef(0);
   const [cameraReady, setCameraReady] = useState(false);
-
   const [manualText, setManualText] = useState("");
-
   const [matches, setMatches] = useState<Term[] | null>(null);
-
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-
   const [status, setStatus] = useState<ScanStatus>("idle");
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const isBusy =
     status === "capturing" || status === "recognizing" || status === "matching";
-
   const scanDisabled = !cameraReady || isBusy || termsStatus !== "succeeded";
+
+  useEffect(() => {
+    if (matches && matches.length > 0) {
+      requestAnimationFrame(() => {
+        scrollViewRef.current?.scrollTo({
+          y: resultsY.current - 20,
+          animated: true,
+        });
+      });
+    }
+  }, [matches]);
 
   const runTermMatching = useCallback(
     (text: string) => {
@@ -74,6 +76,15 @@ export default function ScannerScreen({ navigation }: Props) {
 
       setMatches(foundTerms);
       setStatus("success");
+
+      if (foundTerms.length > 0) {
+        requestAnimationFrame(() => {
+          scrollViewRef.current?.scrollTo({
+            y: resultsY.current - 20,
+            animated: true,
+          });
+        });
+      }
     },
     [terms],
   );
@@ -111,14 +122,6 @@ export default function ScannerScreen({ navigation }: Props) {
       setStatus("recognizing");
 
       const result = await recognizeTextFromImage(photo.uri);
-      console.log("OCR result:", result);
-      console.log("OCR text:", result.text);
-      console.log("Terms status:", termsStatus);
-      console.log("Terms count:", terms.length);
-      console.log(
-        "First terms:",
-        terms.slice(0, 5).map((term) => term.word),
-      );
 
       setManualText(result.text);
       runTermMatching(result.text);
@@ -180,6 +183,7 @@ export default function ScannerScreen({ navigation }: Props) {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
+        ref={scrollViewRef}
         style={styles.screen}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -322,7 +326,12 @@ export default function ScannerScreen({ navigation }: Props) {
           )}
 
           {matches !== null && (
-            <View style={styles.resultsSection}>
+            <View
+              style={styles.resultsSection}
+              onLayout={(event) => {
+                resultsY.current = event.nativeEvent.layout.y;
+              }}
+            >
               <Text style={styles.resultsLabel}>
                 {matches.length > 0
                   ? `Found ${matches.length} medical term${

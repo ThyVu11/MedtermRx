@@ -21,9 +21,6 @@ async function getErrorMessage(res: Response): Promise<string> {
   return body?.error ?? `Request failed: ${res.status}`;
 }
 
-console.log("EXPO_PUBLIC_API_URL =", process.env.EXPO_PUBLIC_API_URL);
-console.log("API_BASE_URL =", API_BASE_URL);
-
 export async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(buildUrl(path));
 
