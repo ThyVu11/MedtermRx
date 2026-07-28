@@ -143,7 +143,7 @@ export default function DissectorScreen({ navigation, route }: Props) {
         </Text>
         <TextInput
           style={styles.input}
-          placeholder="Try “cholecystectomy”"
+          placeholder={`Try "cholecystitis" or inflammation of the gallbladder`}
           placeholderTextColor={colors.textSecondary}
           value={query}
           onChangeText={setQuery}
