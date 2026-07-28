@@ -8,47 +8,44 @@ const termIndex = new Index({
   cache: false,
 });
 
-let indexedTerms: Term[] = [];
+let indexedTerms: readonly Term[] = [];
 let searchIndexReady = false;
 
-const stringArrayToSearchText = (values: unknown): string => {
-  if (!Array.isArray(values)) {
-    return "";
-  }
+const buildSearchText = (term: Term): string => {
+  const values = [
+    term.id,
+    term.word,
+    term.definition,
+    term.commonAbbreviation,
+    ...(term.synonyms ?? []),
+    ...(term.searchTerms ?? []),
+  ];
 
-  return values
-    .filter(
-      (value): value is string =>
-        typeof value === "string" && value.trim().length > 0,
-    )
-    .join(" ");
+  return [
+    ...new Set(
+      values
+        .filter(
+          (value): value is string =>
+            typeof value === "string" && value.trim().length > 0,
+        )
+        .map((value) => value.trim().toLowerCase()),
+    ),
+  ].join(" ");
 };
 
-// const buildSearchText = (term: Term): string => {
-//   return [
-//     term.word,
-//     term.commonAbbreviation,
-//     stringArrayToSearchText(term.searchTerms),
-//     stringArrayToSearchText(term.synonyms),
-//   ]
-//     .filter(
-//       (value): value is string =>
-//         typeof value === "string" && value.trim().length > 0,
-//     )
-//     .join(" ");
-// };
-
-export const buildTermSearchIndex = (terms: Term[]): void => {
+export const buildTermSearchIndex = (terms: readonly Term[]): void => {
   searchIndexReady = false;
   termIndex.clear();
 
-  indexedTerms = terms.filter(
-    (term) => Boolean(term?.id?.trim()) && Boolean(term?.word?.trim()),
-  );
+  // Reuse the exact array stored in termsCache.
+  indexedTerms = terms;
 
-  indexedTerms.forEach((term, position) => {
-    const searchText = stringArrayToSearchText(term.searchTerms);
+  terms.forEach((term, position) => {
+    if (!term?.id?.trim() || !term?.word?.trim()) {
+      return;
+    }
 
+    const searchText = buildSearchText(term);
     if (searchText) {
       termIndex.add(position, searchText);
     }
@@ -57,7 +54,7 @@ export const buildTermSearchIndex = (terms: Term[]): void => {
   searchIndexReady = true;
 
   console.log(
-    `[FlexSearch] Indexed ${indexedTerms.length.toLocaleString()} medical terms`,
+    `[FlexSearch] Indexed ${terms.length.toLocaleString()} medical terms`,
   );
 };
 
@@ -79,16 +76,9 @@ export const searchTerms = (query: string, limit = 20): Term[] => {
 
   return positions
     .map((position) => indexedTerms[Number(position)])
-    .filter((term): term is Term => {
-      if (!term || !Array.isArray(term.searchTerms)) {
-        return false;
-      }
-
-      return term.searchTerms.some(
-        (searchTerm) =>
-          typeof searchTerm === "string" &&
-          searchTerm.toLowerCase().includes(normalizedQuery),
-      );
-    })
+    .filter(
+      (term): term is Term =>
+        Boolean(term) && buildSearchText(term).includes(normalizedQuery),
+    )
     .slice(0, safeLimit);
 };

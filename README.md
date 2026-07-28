@@ -102,29 +102,31 @@ To use a different environment for production or deployment, set `EXPO_PUBLIC_AP
 | GET | `/api/progress/:userId` | Load saved progress for a user |
 | PUT | `/api/progress/:userId` | Save review deck progress |
 
-### Data files
+### Medical data source
 
-- `backend/data/terms/` — medical term data
-- `backend/data/rootss/` — roots, prefixes, and suffixes
-- `backend/data/confusables/confusables.json` — confusable term pairs
+The backend loads medical terminology data from Amazon S3. Local JSON files
+under `backend/data/` are not used by the application at runtime.
+
+The S3 objects are configured with:
+
+- `S3_BUCKET_NAME` — required bucket name
+- `AWS_REGION` — optional; defaults to `us-east-1`
+- `S3_TERMS_KEY` — optional; defaults to `data/terms/terms-lite.json`
+- `S3_ROOTS_KEY` — optional; defaults to `data/roots.json`
+- `S3_CONFUSABLES_KEY` — optional; defaults to `data/confusables.json`
+
+AWS credentials are resolved through the standard AWS credential chain and
+must not be committed to the repository.
 
 ### Backend scripts
 
-- `backend/scripts/build-lite-terms.js`
-- `backend/scripts/build-medical-data.ts`
 - `backend/scripts/validate-medical-data.ts`
-- `backend/scripts/update-roots-from-appendices.ts`
-- `backend/scripts/migrate-root-examples.ts`
-- `backend/scripts/migrate-term-categories.ts.ts`
 
-Common commands:
+Validate the configured S3 datasets without writing local data:
 
 ```bash
+cd backend
 npm run validate:data
-npm run build:data
-npm run prepare:data
-npm run download:mesh
-npm run download:mesh:force
 ```
 
 ## Mobile app features
@@ -141,7 +143,8 @@ npm run download:mesh:force
 
 - The backend currently stores progress data in memory at `backend/src/routes/progress.ts`
 - The mobile app stores deck progress locally in `mobile/src/utils/deckStorage.ts`
-- To expand the app, update JSON data files in `backend/data/` and rebuild the backend as needed
+- Terms, roots, and confusables are loaded from S3 and cached in backend memory
+- Validate updated S3 datasets with `npm run validate:data` from `backend/`
 
 ## Useful commands
 
@@ -165,9 +168,11 @@ npm start
 
 ```bash
 cd mobile
-npm run build
 npm run expo:build
 ```
+
+`expo:build` exports and deploys the web application. Run it only when a
+production deployment is intended.
 
 ### Production backend build
 
@@ -175,22 +180,6 @@ npm run expo:build
 cd backend
 npm run build
 npm start
-```
-
-### Generate MeSH term data
-
-From the project root:
-
-```bash
-python generate_mesh_terms.py
-```
-
-This downloads the MeSH ZIP into `.mesh-cache/`, extracts XML, and generates `terms.json` and `terms.index.json`.
-
-Optional example:
-
-```bash
-python generate_mesh_terms.py --output mesh-terms.json --merge curated_terms.json
 ```
 
 ## Notes
@@ -208,5 +197,4 @@ python generate_mesh_terms.py --output mesh-terms.json --merge curated_terms.jso
 ![Scanner screenshot](images/v1/Screenshot%202026-07-11%20at%2011.31.01%E2%80%AFPM.png)
 
 ![Confusables screenshot](images/v1/Screenshot%202026-07-11%20at%2011.31.15%E2%80%AFPM.png)
-
 

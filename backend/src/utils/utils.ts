@@ -1,3 +1,5 @@
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+
 export async function createDownloadUrl(key: string): Promise<string> {
   const command = new GetObjectCommand({
     Bucket: getBucketName(),
@@ -9,7 +11,6 @@ export async function createDownloadUrl(key: string): Promise<string> {
   });
 }
 
-import { GetObjectCommand } from "@aws-sdk/client-s3";
 /* -------------------------------------------------------------------------- */
 /*                                    Cache                                   */
 /* -------------------------------------------------------------------------- */

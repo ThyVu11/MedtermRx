@@ -1,8 +1,8 @@
 import "dotenv/config";
 
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { confusablesCache, loadCachedData, termsCache } from "../utils/utils";
-import { ConfusablePair, Term } from "../types";
+import { confusablesCache, loadCachedData, rootsCache, termsCache } from "../utils/utils";
+import { ConfusablePair, RootEntry, Term } from "../types";
 
 /* -------------------------------------------------------------------------- */
 /*                                Configuration                               */
@@ -92,4 +92,12 @@ export async function loadJsonFromS3<T>(key: string): Promise<T> {
       }`,
     );
   }
+}
+
+
+export const S3_ROOTS_KEY =
+  process.env.S3_ROOTS_KEY?.trim() || "data/roots.json";
+
+export function getRoots(): Promise<RootEntry[]> {
+  return loadCachedData(rootsCache, S3_ROOTS_KEY);
 }
