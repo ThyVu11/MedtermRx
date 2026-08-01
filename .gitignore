@@ -25,3 +25,4 @@ backend/scripts/
 # Build output
 build/
 backend/.mesh-cache/
+mobile/dist/

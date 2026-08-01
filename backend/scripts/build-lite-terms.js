@@ -18,13 +18,8 @@ const lite = terms.map((t) => ({
   searchTerms: t.searchTerms,
   synonyms: t.synonyms,
   category: t.category,
-  bodySystem: t.bodySystem,
   definition: t.definition,
-  plainDefinition: t.plainDefinition,
-  pronunciation: t.pronunciation,
   commonAbbreviation: t.commonAbbreviation,
-  parts: t.parts, // small, and needed for list-view dissection previews
-  mnemonicSeed: t.mnemonicSeed,
 }));
 
 fs.writeFileSync("terms-lite.json", JSON.stringify(lite));

@@ -7,6 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
     "expo:build": "npx expo export --platform web && eas deploy --environment production && eas deploy --prod"
   },
   "dependencies": {

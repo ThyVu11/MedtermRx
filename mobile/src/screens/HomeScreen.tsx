@@ -33,7 +33,7 @@ export default function HomeScreen({ navigation }: Props) {
             // width: logoWidth,
             // height: logoHeight,
             width: "100%",
-            height: 200,
+            height: 170,
           }}
         />
         <CodeCloth></CodeCloth>
