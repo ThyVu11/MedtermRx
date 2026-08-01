@@ -103,8 +103,7 @@ export default function DashboardScreen({ navigation }: Props) {
         />
       </View>
       <Text style={styles.footerNote}>
-        {terms.length} terms dissected and growing — every scan or search adds
-        new ones to your library.
+        {terms.length} terms dissected and growing
       </Text>
     </ScrollView>
   );

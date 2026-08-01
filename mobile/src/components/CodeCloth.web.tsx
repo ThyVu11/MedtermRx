@@ -12,10 +12,9 @@ import {
 } from "../types/cloth/clothType";
 import { colors, radii, spacing, typography } from "../theme";
 
-const HEIGHT_SCALE = 2.5;
 const WIDTH_SCALE = 0.8;
-const SOUND_COOLDOWN_MS = 150;
-const SOUND_DISTANCE_THRESHOLD = 40;
+const VERTICAL_SPACING_RATIO = 0.55;
+const SOUND_COOLDOWN_MS = 400;
 const LETTER_HOVER_RADIUS = 10;
 const FONT_SIZE = 8;
 const SIMULATION_SPEED = 1.25;
@@ -98,8 +97,9 @@ const updateParticle = (
   zeroVec2(particle.acceleration);
 };
 
-const applyForce = (particle: Particle, vector: Vec2) => {
-  addVec2(particle.acceleration, vector);
+const applyForceXY = (particle: Particle, x: number, y: number) => {
+  particle.acceleration.x += x;
+  particle.acceleration.y += y;
 };
 
 const containParticle = (particle: Particle, config: ClothConfig) => {
@@ -191,18 +191,23 @@ export default function CodeCloth() {
     cellHeight: 0,
     gravity: 0.1,
     damping: 0.96,
-    iterationsPerFrame: 5,
+    iterationsPerFrame: 2,
     compressFactor: 0.8,
     stretchFactor: 1.05,
     mouseSize: 2000,
-    mouseStrength: 6,
+    mouseStrength: 4,
     contain: false,
     randomSolve: false,
   });
 
   const particlesRef = useRef<Particle[]>([]);
   const constraintsRef = useRef<Constraint[]>([]);
+  const constraintMapRef = useRef<Map<number, Constraint>>(new Map());
   const textElementsRef = useRef<Map<number, SVGTextElement>>(new Map());
+  const pendingPointerRef = useRef({ x: 0, y: 0, pending: false });
+  const processPointerRef = useRef<((x: number, y: number) => void) | null>(
+    null,
+  );
 
   const pointerStateRef = useRef<PointerState>({
     mousePos: createVec2(),
@@ -255,14 +260,15 @@ export default function CodeCloth() {
 
       nextConfig.gridWidth = Math.max(
         2,
-        Math.min(50, Math.floor(nextConfig.width / 10)),
+        Math.min(30, Math.floor(nextConfig.width / 13)),
       );
-      nextConfig.gridHeight = Math.floor(nextConfig.width / 12);
+      nextConfig.gridHeight = Math.max(
+        2,
+        Math.min(40, Math.floor(nextConfig.width / 10)),
+      );
       nextConfig.cellWidth =
         (nextConfig.width / (nextConfig.gridWidth - 1)) * WIDTH_SCALE;
-      nextConfig.cellHeight =
-        (nextConfig.height / Math.max(nextConfig.gridHeight - 1, 1)) *
-        HEIGHT_SCALE;
+      nextConfig.cellHeight = nextConfig.cellWidth * VERTICAL_SPACING_RATIO;
 
       const actualClothHeight =
         (nextConfig.gridHeight - 1) * nextConfig.cellHeight;
@@ -335,6 +341,9 @@ export default function CodeCloth() {
       configRef.current = nextConfig;
       particlesRef.current = nextParticles;
       constraintsRef.current = nextConstraints;
+      constraintMapRef.current = new Map(
+        nextConstraints.map((constraint) => [constraint.id, constraint]),
+      );
 
       svgElement.replaceChildren();
       textElementsRef.current.clear();
@@ -382,6 +391,7 @@ export default function CodeCloth() {
       window.removeEventListener("resize", buildSimulation);
       svgElement.replaceChildren();
       textElementsRef.current.clear();
+      constraintMapRef.current.clear();
     };
   }, []);
 
@@ -389,14 +399,14 @@ export default function CodeCloth() {
     const svgElement = svgRef.current;
     if (!svgElement) return;
 
-    const updateMousePosition = (event: PointerEvent): boolean => {
+    const updateMousePosition = (clientX: number, clientY: number): boolean => {
       const rect = svgElement.getBoundingClientRect();
 
       const isInside =
-        event.clientX >= rect.left &&
-        event.clientX <= rect.right &&
-        event.clientY >= rect.top &&
-        event.clientY <= rect.bottom;
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom;
 
       if (!isInside) return false;
 
@@ -405,10 +415,9 @@ export default function CodeCloth() {
       const svgWidth = viewBox.width || rect.width;
       const svgHeight = viewBox.height || rect.height;
 
-      const svgX =
-        ((event.clientX - rect.left) / Math.max(rect.width, 1)) * svgWidth;
+      const svgX = ((clientX - rect.left) / Math.max(rect.width, 1)) * svgWidth;
       const svgY =
-        ((event.clientY - rect.top) / Math.max(rect.height, 1)) * svgHeight;
+        ((clientY - rect.top) / Math.max(rect.height, 1)) * svgHeight;
 
       const actualWidth =
         (currentConfig.gridWidth - 1) * currentConfig.cellWidth;
@@ -424,12 +433,11 @@ export default function CodeCloth() {
       return true;
     };
 
-    const pointerMove = (event: PointerEvent) => {
+    processPointerRef.current = (clientX: number, clientY: number) => {
       const pointerState = pointerStateRef.current;
 
-      if (!updateMousePosition(event)) {
+      if (!updateMousePosition(clientX, clientY)) {
         pointerState.hovering = false;
-        pointerState.soundDistance = 0;
         return;
       }
 
@@ -451,27 +459,11 @@ export default function CodeCloth() {
 
       if (!isOverLetter) {
         pointerState.hovering = false;
-        pointerState.soundDistance = 0;
         return;
       }
 
-      const moveX = pointerState.mousePos.x - pointerState.lastMousePos.x;
-      const moveY = pointerState.mousePos.y - pointerState.lastMousePos.y;
-
-      pointerState.soundDistance += Math.sqrt(moveX * moveX + moveY * moveY);
-
-      resetVec2(
-        pointerState.lastMousePos,
-        pointerState.mousePos.x,
-        pointerState.mousePos.y,
-      );
-
       if (!pointerState.hovering) {
         pointerState.hovering = true;
-        pointerState.soundDistance = 0;
-        playTouchSound();
-      } else if (pointerState.soundDistance > SOUND_DISTANCE_THRESHOLD) {
-        pointerState.soundDistance = 0;
         playTouchSound();
       }
 
@@ -492,17 +484,23 @@ export default function CodeCloth() {
         const safeDistance = Math.max(distance, 0.001);
         const force = influence * currentConfig.mouseStrength;
 
-        applyForce(
+        applyForceXY(
           particle,
-          createVec2(
-            (-dx / safeDistance) * force,
-            (-dy / safeDistance) * force,
-          ),
+          (-dx / safeDistance) * force,
+          (-dy / safeDistance) * force,
         );
       }
     };
 
+    const pointerMove = (event: PointerEvent) => {
+      const pendingPointer = pendingPointerRef.current;
+      pendingPointer.x = event.clientX;
+      pendingPointer.y = event.clientY;
+      pendingPointer.pending = true;
+    };
+
     const pointerLeave = () => {
+      pendingPointerRef.current.pending = false;
       pointerStateRef.current.hovering = false;
     };
 
@@ -515,6 +513,7 @@ export default function CodeCloth() {
     svgElement.addEventListener("contextmenu", preventContextMenu);
 
     return () => {
+      processPointerRef.current = null;
       window.removeEventListener("pointermove", pointerMove);
       svgElement.removeEventListener("pointerleave", pointerLeave);
       svgElement.removeEventListener("contextmenu", preventContextMenu);
@@ -531,10 +530,7 @@ export default function CodeCloth() {
 
       const currentConfig = configRef.current;
       const currentParticles = particlesRef.current;
-      const currentConstraints = constraintsRef.current;
-      const constraintMap = new Map(
-        currentConstraints.map((constraint) => [constraint.id, constraint]),
-      );
+      const constraintMap = constraintMapRef.current;
 
       const svgWidth =
         svgElement.viewBox.baseVal.width || svgElement.clientWidth;
@@ -581,6 +577,12 @@ export default function CodeCloth() {
       const currentConfig = configRef.current;
       const currentParticles = particlesRef.current;
       const currentConstraints = constraintsRef.current;
+      const pendingPointer = pendingPointerRef.current;
+
+      if (pendingPointer.pending) {
+        pendingPointer.pending = false;
+        processPointerRef.current?.(pendingPointer.x, pendingPointer.y);
+      }
 
       const progress = Math.min(frameRef.current / STARTUP_FRAMES, 1);
       const gravity = currentConfig.gravity * (0.2 + progress * 0.8);
@@ -601,7 +603,7 @@ export default function CodeCloth() {
             WIND_STRENGTH *
             rowProgress;
 
-          applyForce(particle, createVec2(wind, 0));
+          applyForceXY(particle, wind, 0);
         }
 
         updateParticle(particle, delta, simulationConfig);
