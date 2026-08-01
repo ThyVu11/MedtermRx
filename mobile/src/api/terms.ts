@@ -3,13 +3,14 @@ import type {
   Category,
   ConfusablePair,
   QuizQuestion,
+  SearchTerm,
   Term,
 } from "../types/types";
 
 type SearchTermsResponse = {
   query: string;
   total: number;
-  results: Term[];
+  results: SearchTerm[];
 };
 const ALLOWED_CATEGORIES = new Set([
   "anatomy",
@@ -54,7 +55,7 @@ export async function searchTerms(
   query: string,
   selectedCategory?: Category,
   limit = 100, // this can change
-): Promise<Term[]> {
+): Promise<SearchTerm[]> {
   const q = query.trim().toLowerCase();
   // const terms = await apiGet<Term[]>(`/terms?query=${encodeURIComponent(q)}`);
 

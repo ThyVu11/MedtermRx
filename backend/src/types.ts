@@ -50,17 +50,22 @@ export interface ConfusablePair {
   diffHighlight: { a: string; b: string };
 }
 
-export interface Term {
+export interface SearchTerm {
   id: string;
   word: string;
   searchTerms: string[];
+  definition: string;
+  category: Category[];
+  synonyms: string[];
+  commonAbbreviation?: string;
+}
+
+export interface Term extends SearchTerm {
   parts: PartType[];
   relatedConfusables: string[];
-  definition: string;
   plainDefinition: string;
   pronunciation: string;
   ipa: string;
-  category: Category[];
 
   bodySystem: string;
 
@@ -70,15 +75,11 @@ export interface Term {
 
   relatedTerms: string[];
 
-  synonyms: string[];
-
   antonyms: string[];
 
   examples: string[];
 
   clinicalPearls: string[];
-
-  commonAbbreviation?: string;
 
   wordFamily: string[];
 

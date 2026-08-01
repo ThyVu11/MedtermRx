@@ -7,7 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "validate:data": "tsx scripts/validate-medical-data.ts"
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1089.0",

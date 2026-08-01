@@ -21,7 +21,7 @@ import {
   loadJsonFromS3,
   s3,
 } from "../services/term-data.service";
-import { ConfusablePair, RootEntry, Term } from "../types";
+import { ConfusablePair, RootEntry, SearchTerm } from "../types";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextFunction } from "express";
 
@@ -31,7 +31,20 @@ type DataCache<T> = {
   request: Promise<T> | null;
 };
 
-export const termsCache: DataCache<Term[]> = {
+export const termsCache: DataCache<SearchTerm[]> = {
+  data: null,
+  loadedAt: 0,
+  request: null,
+};
+
+export interface TermIndexEntry {
+  start: number;
+  end: number;
+}
+
+export type TermIndex = Record<string, TermIndexEntry>;
+
+export const termsIndexCache: DataCache<TermIndex> = {
   data: null,
   loadedAt: 0,
   request: null,
@@ -111,7 +124,7 @@ export function normalizeCategory(category: unknown): string | undefined {
   return normalized || undefined;
 }
 
-export function termHasCategory(term: Term, category: string): boolean {
+export function termHasCategory(term: SearchTerm, category: string): boolean {
   return term.category.some((value) => value.trim().toLowerCase() === category);
 }
 

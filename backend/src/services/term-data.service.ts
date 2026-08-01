@@ -1,8 +1,16 @@
 import "dotenv/config";
 
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { confusablesCache, loadCachedData, rootsCache, termsCache } from "../utils/utils";
-import { ConfusablePair, RootEntry, Term } from "../types";
+import path from "node:path";
+import {
+  confusablesCache,
+  loadCachedData,
+  rootsCache,
+  termsCache,
+  termsIndexCache,
+  type TermIndex,
+} from "../utils/utils";
+import { ConfusablePair, RootEntry, SearchTerm, Term } from "../types";
 
 /* -------------------------------------------------------------------------- */
 /*                                Configuration                               */
@@ -13,7 +21,13 @@ export const AWS_REGION = process.env.AWS_REGION?.trim() || "us-east-1";
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME?.trim();
 
 export const S3_TERMS_KEY =
-  process.env.S3_TERMS_KEY?.trim() || "data/terms/terms-lite.json";
+  process.env.S3_TERMS_KEY?.trim() || "data/terms.json";
+
+export const S3_TERMS_LITE_KEY =
+  process.env.S3_TERMS_LITE_KEY?.trim() || "data/terms/terms-lite.json";
+
+export const S3_TERMS_INDEX_KEY =
+  process.env.S3_TERMS_INDEX_KEY?.trim() || "data/terms.index.json";
 
 // const S3_ROOTS_KEY = process.env.S3_ROOTS_KEY?.trim() || "data/roots.json";
 
@@ -44,8 +58,59 @@ export function getBucketName(): string {
   return S3_BUCKET_NAME;
 }
 
-export function getTerms(): Promise<Term[]> {
-  return loadCachedData(termsCache, S3_TERMS_KEY);
+export function getTerms(): Promise<SearchTerm[]> {
+  return loadCachedData(termsCache, S3_TERMS_LITE_KEY);
+}
+
+export async function getTermById(id: string): Promise<Term | null> {
+  const index = await loadCachedData<TermIndex>(
+    termsIndexCache,
+    S3_TERMS_INDEX_KEY,
+  );
+  const entry = index[id];
+
+  if (!entry) return null;
+
+  if (
+    !Number.isSafeInteger(entry.start) ||
+    !Number.isSafeInteger(entry.end) ||
+    entry.start < 0 ||
+    entry.end < entry.start
+  ) {
+    throw new Error(`Invalid byte range for term "${id}".`);
+  }
+
+  const result = await s3.send(
+    new GetObjectCommand({
+      Bucket: getBucketName(),
+      Key: S3_TERMS_KEY,
+      Range: `bytes=${entry.start}-${entry.end}`,
+    }),
+  );
+
+  if (!result.Body) {
+    throw new Error(`S3 object "${S3_TERMS_KEY}" returned an empty body.`);
+  }
+
+  const jsonText = await result.Body.transformToString("utf-8");
+
+  try {
+    const term = JSON.parse(jsonText) as Term;
+
+    if (String(term.id) !== id) {
+      throw new Error(
+        `Term index mismatch: requested "${id}" but received "${term.id}".`,
+      );
+    }
+
+    return term;
+  } catch (error) {
+    throw new Error(
+      `Unable to parse indexed term "${id}": ${
+        error instanceof Error ? error.message : "Unknown parsing error"
+      }`,
+    );
+  }
 }
 
 export function getConfusables(): Promise<ConfusablePair[]> {
@@ -93,7 +158,6 @@ export async function loadJsonFromS3<T>(key: string): Promise<T> {
     );
   }
 }
-
 
 export const S3_ROOTS_KEY =
   process.env.S3_ROOTS_KEY?.trim() || "data/roots.json";

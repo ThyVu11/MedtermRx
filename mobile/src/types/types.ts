@@ -113,35 +113,30 @@ export interface WordPart {
   origin?: Origin;
 }
 
-export interface Term {
+export interface SearchTerm {
   id: string;
   word: string;
 
   searchTerms: string[];
-  parts: WordPart[];
-
   definition: string;
-  plainDefinition: string;
+  category: Category[];
+  synonyms: string[];
+  commonAbbreviation?: string;
+}
 
+export interface Term extends SearchTerm {
+  parts: WordPart[];
+  plainDefinition: string;
   pronunciation: string;
   ipa?: string;
-
-  category: Category[];
   bodySystem: string;
-
   difficulty: Difficulty;
   partOfSpeech: PartOfSpeech;
-
   relatedTerms: string[];
   relatedConfusables: string[];
-
-  synonyms: string[];
   antonyms: string[];
-
   examples: string[];
   clinicalPearls: string[];
-
-  commonAbbreviation?: string;
   wordFamily: string[];
   tags: string[];
 
@@ -151,7 +146,7 @@ export interface Term {
 
 export interface TermSection {
   title: string;
-  data: Term[];
+  data: SearchTerm[];
 }
 
 /* =========================================================

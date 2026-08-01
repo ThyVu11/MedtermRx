@@ -1,21 +1,23 @@
 import { Index } from "flexsearch";
-import type { Term } from "../types";
+import type { SearchTerm } from "../types";
 
 const termIndex = new Index({
   preset: "memory",
   tokenize: "forward",
   resolution: 2,
   cache: false,
+  encoder: {
+    minlength: 2,
+  },
 });
 
-let indexedTerms: readonly Term[] = [];
+let indexedTerms: readonly SearchTerm[] = [];
 let searchIndexReady = false;
 
-const buildSearchText = (term: Term): string => {
+const buildSearchText = (term: SearchTerm): string => {
   const values = [
     term.id,
     term.word,
-    term.definition,
     term.commonAbbreviation,
     ...(term.synonyms ?? []),
     ...(term.searchTerms ?? []),
@@ -33,7 +35,7 @@ const buildSearchText = (term: Term): string => {
   ].join(" ");
 };
 
-export const buildTermSearchIndex = (terms: readonly Term[]): void => {
+export const buildTermSearchIndex = (terms: readonly SearchTerm[]): void => {
   searchIndexReady = false;
   termIndex.clear();
 
@@ -60,7 +62,7 @@ export const buildTermSearchIndex = (terms: readonly Term[]): void => {
 
 export const isTermSearchReady = (): boolean => searchIndexReady;
 
-export const searchTerms = (query: string, limit = 20): Term[] => {
+export const searchTerms = (query: string, limit = 20): SearchTerm[] => {
   const normalizedQuery = query.trim().toLowerCase();
 
   if (!normalizedQuery || !searchIndexReady) {
@@ -77,7 +79,7 @@ export const searchTerms = (query: string, limit = 20): Term[] => {
   return positions
     .map((position) => indexedTerms[Number(position)])
     .filter(
-      (term): term is Term =>
+      (term): term is SearchTerm =>
         Boolean(term) && buildSearchText(term).includes(normalizedQuery),
     )
     .slice(0, safeLimit);

@@ -16,7 +16,7 @@ import {
   CATEGORIES,
   Category,
   RootStackParamList,
-  Term,
+  SearchTerm,
   TermSection,
 } from "../types/types";
 import { getAllTerms, searchTerms } from "../api/terms";
@@ -44,12 +44,12 @@ const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 export default function DissectorScreen({ navigation, route }: Props) {
   const allTerms = useAppSelector((state) => state.terms.items);
   const termsStatus = useAppSelector((state) => state.terms.status);
-  const [searchResults, setSearchResults] = useState<Term[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchTerm[]>([]);
   const [filter, setFilter] = useState<Category | "all">("all");
   const [query, setQuery] = useState(route.params?.initialQuery ?? "");
   const debouncedQuery = useDebounce(query, 300);
   const [loading, setLoading] = useState(true);
-  const sectionListRef = useRef<SectionList<Term, TermSection>>(null);
+  const sectionListRef = useRef<SectionList<SearchTerm, TermSection>>(null);
   const pendingSectionIndexRef = useRef<number | null>(null);
   const [showAllCategories, setShowAllCategories] = useState(false);
   const displayedTerms =
@@ -84,7 +84,7 @@ export default function DissectorScreen({ navigation, route }: Props) {
   }, [filter, displayedTerms]);
 
   const sections = useMemo<TermSection[]>(() => {
-    const groups = new Map<string, Term[]>();
+    const groups = new Map<string, SearchTerm[]>();
 
     const sortedTerms = [...filteredTerms].sort((a, b) =>
       a.word.localeCompare(b.word, undefined, {

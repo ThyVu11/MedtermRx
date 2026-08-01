@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   ScrollView,
   View,
   Text,
@@ -9,22 +10,49 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { colors, radii, spacing, typography } from "../theme";
-import { useAppDispatch, useAppSelector } from "../hooks";
-import { fetchTerms } from "../features/termsSlice";
-import { fetchConfusables } from "../features/confusablesSlice";
+import { useAppSelector } from "../hooks";
+import { getTermById } from "../api/terms";
 import WordDissector from "../components/WordDissector";
 import { generateMnemonic } from "../utils/mnemonicGenerator";
 import { loadDeck, addTermToDeck } from "../utils/deckStorage";
-import { RootStackParamList } from "../types/types";
+import { RootStackParamList, Term } from "../types/types";
 
 type Props = NativeStackScreenProps<RootStackParamList, "TermDetail">;
 
 export default function TermDetailScreen({ route, navigation }: Props) {
   const { termId } = route.params;
-  const terms = useAppSelector((state) => state.terms.items);
   const confusables = useAppSelector((state) => state.confusables.items);
   const [inDeck, setInDeck] = useState(false);
-  const term = terms.find((t) => t.id === termId);
+  const [term, setTerm] = useState<Term | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    setLoading(true);
+    setLoadError(null);
+
+    getTermById(termId)
+      .then((result) => {
+        if (active) setTerm(result);
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setTerm(null);
+          setLoadError(
+            error instanceof Error ? error.message : "Unable to load term.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [termId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -38,10 +66,19 @@ export default function TermDetailScreen({ route, navigation }: Props) {
     }, [termId]),
   );
 
+  if (loading) {
+    return (
+      <View style={styles.centeredState}>
+        <ActivityIndicator color={colors.prefix} />
+        <Text style={styles.notFound}>Loading term...</Text>
+      </View>
+    );
+  }
+
   if (!term) {
     return (
-      <View style={styles.screen}>
-        <Text style={styles.notFound}>Term not found.</Text>
+      <View style={styles.centeredState}>
+        <Text style={styles.notFound}>{loadError || "Term not found."}</Text>
       </View>
     );
   }
@@ -100,6 +137,12 @@ export default function TermDetailScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
+  centeredState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.paper,
+  },
   notFound: { padding: spacing.lg, color: colors.textSecondary },
   mnemonicCard: {
     backgroundColor: colors.warningBg,

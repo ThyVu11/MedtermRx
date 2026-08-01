@@ -4,6 +4,7 @@ import "dotenv/config";
 import type { QuizQuestion } from "../types";
 import {
   getConfusables,
+  getTermById,
   getTerms,
   S3_CONFUSABLES_KEY,
   S3_TERMS_KEY,
@@ -16,6 +17,7 @@ import {
   shuffle,
   termHasCategory,
   termsCache,
+  termsIndexCache,
 } from "../utils/utils";
 import {
   isTermSearchReady,
@@ -73,6 +75,10 @@ router.post("/cache/clear", (_request, response) => {
   termsCache.data = null;
   termsCache.loadedAt = 0;
   termsCache.request = null;
+
+  termsIndexCache.data = null;
+  termsIndexCache.loadedAt = 0;
+  termsIndexCache.request = null;
 
   confusablesCache.data = null;
   confusablesCache.loadedAt = 0;
@@ -330,9 +336,15 @@ router.get(
  */
 router.get("/:id", async (request, response, next) => {
   try {
-    const terms = await getTerms();
+    const termId = request.params.id.trim();
 
-    const term = terms.find((item) => String(item.id) === request.params.id);
+    if (!termId || !/^[A-Za-z0-9_-]+$/.test(termId)) {
+      return response.status(404).json({
+        error: "Term not found.",
+      });
+    }
+
+    const term = await getTermById(termId);
 
     if (!term) {
       return response.status(404).json({
@@ -342,6 +354,21 @@ router.get("/:id", async (request, response, next) => {
 
     return response.json(term);
   } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      ("name" in error && error.name === "NoSuchKey" ||
+        "$metadata" in error &&
+          typeof error.$metadata === "object" &&
+          error.$metadata !== null &&
+          "httpStatusCode" in error.$metadata &&
+          error.$metadata.httpStatusCode === 404)
+    ) {
+      return response.status(404).json({
+        error: "Term not found.",
+      });
+    }
+
     handleRouteError(error, next);
   }
 });

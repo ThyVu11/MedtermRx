@@ -35,22 +35,26 @@ export interface WordPart {
     origin?: string;
 }
 
-export interface Term extends BaseRecord {
+export interface SearchTerm extends BaseRecord {
     word: string;
-
     searchTerms: string[];
-
-    parts: WordPart[];
-
     definition: string;
+
+    category: string[];
+
+    synonyms: string[];
+
+    commonAbbreviation?: string;
+}
+
+export interface Term extends SearchTerm {
+    parts: WordPart[];
 
     plainDefinition: string;
 
     pronunciation: string;
 
     ipa: string;
-
-    category: string;
 
     bodySystem: string;
 
@@ -62,15 +66,11 @@ export interface Term extends BaseRecord {
 
     relatedConfusables: string[];
 
-    synonyms: string[];
-
     antonyms: string[];
 
     examples: string[];
 
     clinicalPearls: string[];
-
-    commonAbbreviation?: string;
 
     wordFamily: string[];
 
