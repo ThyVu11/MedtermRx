@@ -17,20 +17,19 @@ import { RootStackParamList } from "../types/types";
 type Props = NativeStackScreenProps<RootStackParamList, "Confusables">;
 
 export default function ConfusablesScreen({ navigation }: Props) {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const terms = useAppSelector((state) => state.terms.items);
   const confusables = useAppSelector((state) => state.confusables.items);
-  const termsStatus = useAppSelector((state) => state.terms.status);
   const confusablesStatus = useAppSelector((state) => state.confusables.status);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (confusablesStatus === "idle") {
-      dispatch(fetchConfusables()).finally(() => {
-        setLoading(false);
-      });
+    if (confusablesStatus === "succeeded") {
+      setLoading(false);
     }
-  }, [dispatch, termsStatus, confusablesStatus]);
+  }, [confusablesStatus]);
+
+  console.log("loading", loading);
 
   return (
     <View style={styles.screen}>
@@ -60,7 +59,9 @@ export default function ConfusablesScreen({ navigation }: Props) {
               pair={item}
               termA={termA}
               termB={termB}
-              onPressTerm={(termId) => navigation.navigate("TermDetail", { termId })}
+              onPressTerm={(termId) =>
+                navigation.navigate("TermDetail", { termId })
+              }
             />
           );
         }}
