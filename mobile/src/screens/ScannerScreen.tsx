@@ -22,6 +22,7 @@ import type { Term } from "../types/types";
 import type { RootStackParamList } from "../types/types";
 import { recognizeTextFromImage } from "../utils/recognizeText";
 import { getTermById } from "../api/terms";
+import { cropScanImage } from "../utils/cropScanImage";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Scanner">;
 
@@ -32,6 +33,13 @@ type ScanStatus =
   | "matching"
   | "success"
   | "error";
+
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
 const getPartsPriority = (term: Term): number => {
   const partTypes = new Set((term.parts ?? []).map((part) => part.type));
@@ -75,6 +83,11 @@ export default function ScannerScreen({ navigation }: Props) {
   const isBusy =
     status === "capturing" || status === "recognizing" || status === "matching";
   const scanDisabled = !cameraReady || isBusy || termsStatus !== "succeeded";
+  const [previewSize, setPreviewSize] = useState({
+    width: 0,
+    height: 0,
+  });
+  const [frameRect, setFrameRect] = useState<Rect | null>(null);
 
   useEffect(() => {
     if (matchesTerm && matchesTerm.length > 0) {
@@ -86,6 +99,21 @@ export default function ScannerScreen({ navigation }: Props) {
       });
     }
   }, [matchesTerm]);
+
+  const getTermDetails = async (foundTerms: Term[]): Promise<(Term | null)[]> => {
+    return Promise.all(
+      foundTerms.map(async (term): Promise<Term | null> => {
+        try {
+          const termDetail = await getTermById(term.id);
+
+          return termDetail.parts?.length > 0 ? termDetail : null;
+        } catch (error) {
+          console.error("Error fetching full term details:", error);
+          return null;
+        }
+      })
+    );
+  };
 
   const runTermMatching = useCallback(
     async (text: string) => {
@@ -100,20 +128,10 @@ export default function ScannerScreen({ navigation }: Props) {
       setStatus("matching");
 
       const foundTerms = matchTermsInText(terms, cleanText);
-      const fullTerms = await Promise.all(
-        foundTerms.map((term) => {
-          return getTermById(term.id)
-            .then((termDetail) => {
-              return termDetail;
-            })
-            .catch((error) => {
-              console.error("Error fetching full term details:", error);
-              return term; // Return the original term if fetching fails
-            });
-        }),
-      );
+      const fullTerms = await getTermDetails(foundTerms);
+      const filteredTerms = fullTerms.filter((term): term is Term => term !== null);
 
-      const sortedTerms = [...fullTerms].sort((a, b) => {
+      const sortedTerms = [...filteredTerms].sort((a, b) => {
         const priorityDifference = getPartsPriority(a) - getPartsPriority(b);
 
         if (priorityDifference !== 0) {
@@ -168,13 +186,19 @@ export default function ScannerScreen({ navigation }: Props) {
         throw new Error("The camera did not return a photo.");
       }
 
-      setPhotoUri(photo.uri);
+      if (!frameRect) {
+        throw new Error("Scan frame is not ready.");
+      }
+
+      const croppedUri = await cropScanImage(photo.uri, previewSize, frameRect);
+
+      setPhotoUri(croppedUri);
       setStatus("recognizing");
 
-      const result = await recognizeTextFromImage(photo.uri);
+      const result = await recognizeTextFromImage(croppedUri);
 
       setManualText(result.text);
-      runTermMatching(result.text);
+      await runTermMatching(result.text);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Unable to scan the image.";
@@ -192,7 +216,7 @@ export default function ScannerScreen({ navigation }: Props) {
 
   const resetScan = () => {
     setManualText("");
-    null;
+    setMatchesTerm(null);
     setPhotoUri(null);
     setErrorMessage(null);
     setStatus("idle");
@@ -239,7 +263,13 @@ export default function ScannerScreen({ navigation }: Props) {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.cameraWrap}>
+        <View
+          style={styles.cameraWrap}
+          onLayout={({ nativeEvent }) => {
+            const { width, height } = nativeEvent.layout;
+            setPreviewSize({ width, height });
+          }}
+        >
           <CameraView
             ref={cameraRef}
             style={styles.camera}
@@ -248,7 +278,13 @@ export default function ScannerScreen({ navigation }: Props) {
           />
 
           <View style={styles.scanOverlay} pointerEvents="none">
-            <View style={styles.scanFrame}>
+            <View
+              style={styles.scanFrame}
+              onLayout={({ nativeEvent }) => {
+                const { x, y, width, height } = nativeEvent.layout;
+                setFrameRect({ x, y, width, height });
+              }}
+            >
               <Text style={styles.frameLabel}>
                 Position medical text inside this frame
               </Text>
