@@ -60,6 +60,7 @@ export type RootStackParamList = {
   Dissector:
     | {
         initialQuery?: string;
+        category?: Category;
       }
     | undefined;
 

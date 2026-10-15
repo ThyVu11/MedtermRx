@@ -45,13 +45,15 @@ export default function DissectorScreen({ navigation, route }: Props) {
   const allTerms = useAppSelector((state) => state.terms.items);
   const termsStatus = useAppSelector((state) => state.terms.status);
   const [searchResults, setSearchResults] = useState<SearchTerm[]>([]);
-  const [filter, setFilter] = useState<Category | "all">("all");
+  const routeCategory = route.params?.category;
+  const filter: Category | "all" =
+    routeCategory && CATEGORIES.includes(routeCategory) ? routeCategory : "all";
   const [query, setQuery] = useState(route.params?.initialQuery ?? "");
   const debouncedQuery = useDebounce(query, 300);
   const [loading, setLoading] = useState(true);
   const sectionListRef = useRef<SectionList<SearchTerm, TermSection>>(null);
   const pendingSectionIndexRef = useRef<number | null>(null);
-  const [showAllCategories, setShowAllCategories] = useState(false);
+  const [showAllCategories, setShowAllCategories] = useState(filter !== "all");
   const displayedTerms =
     debouncedQuery.trim() === "" ? allTerms : searchResults;
 
@@ -183,7 +185,11 @@ export default function DissectorScreen({ navigation, route }: Props) {
               styles.filterChip,
               filter === item.key && styles.filterChipActive,
             ]}
-            onPress={() => setFilter(item.key)}
+            onPress={() =>
+              navigation.setParams({
+                category: item.key === "all" ? undefined : item.key,
+              })
+            }
           >
             <Text
               style={[
