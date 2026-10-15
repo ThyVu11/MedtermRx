@@ -21,6 +21,7 @@ import { useAppSelector } from "../hooks";
 import type { Term } from "../types/types";
 import type { RootStackParamList } from "../types/types";
 import { recognizeTextFromImage } from "../utils/recognizeText";
+import { getTermById } from "../api/terms";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Scanner">;
 
@@ -67,7 +68,7 @@ export default function ScannerScreen({ navigation }: Props) {
   const resultsY = useRef(0);
   const [cameraReady, setCameraReady] = useState(false);
   const [manualText, setManualText] = useState("");
-  const [matches, setMatches] = useState<Term[] | null>(null);
+  const [matchesTerm, setMatchesTerm] = useState<Term[] | null>(null);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [status, setStatus] = useState<ScanStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -76,7 +77,7 @@ export default function ScannerScreen({ navigation }: Props) {
   const scanDisabled = !cameraReady || isBusy || termsStatus !== "succeeded";
 
   useEffect(() => {
-    if (matches && matches.length > 0) {
+    if (matchesTerm && matchesTerm.length > 0) {
       requestAnimationFrame(() => {
         scrollViewRef.current?.scrollTo({
           y: resultsY.current - 20,
@@ -84,14 +85,14 @@ export default function ScannerScreen({ navigation }: Props) {
         });
       });
     }
-  }, [matches]);
+  }, [matchesTerm]);
 
   const runTermMatching = useCallback(
-    (text: string) => {
+    async (text: string) => {
       const cleanText = text.trim();
 
       if (!cleanText) {
-        setMatches([]);
+        setMatchesTerm([]);
         setStatus("success");
         return;
       }
@@ -99,8 +100,20 @@ export default function ScannerScreen({ navigation }: Props) {
       setStatus("matching");
 
       const foundTerms = matchTermsInText(terms, cleanText);
+      const fullTerms = await Promise.all(
+        foundTerms.map((term) => {
+          return getTermById(term.id)
+            .then((termDetail) => {
+              return termDetail;
+            })
+            .catch((error) => {
+              console.error("Error fetching full term details:", error);
+              return term; // Return the original term if fetching fails
+            });
+        }),
+      );
 
-      const sortedTerms = [...foundTerms].sort((a, b) => {
+      const sortedTerms = [...fullTerms].sort((a, b) => {
         const priorityDifference = getPartsPriority(a) - getPartsPriority(b);
 
         if (priorityDifference !== 0) {
@@ -111,8 +124,7 @@ export default function ScannerScreen({ navigation }: Props) {
         return a.word.localeCompare(b.word);
       });
 
-      setMatches(sortedTerms);
-      // setMatches(foundTerms);
+      setMatchesTerm(sortedTerms);
       setStatus("success");
 
       if (foundTerms.length > 0) {
@@ -144,7 +156,7 @@ export default function ScannerScreen({ navigation }: Props) {
 
     try {
       setErrorMessage(null);
-      setMatches(null);
+      setMatchesTerm(null);
       setStatus("capturing");
 
       const photo = await cameraRef.current.takePictureAsync({
@@ -169,6 +181,7 @@ export default function ScannerScreen({ navigation }: Props) {
 
       setStatus("error");
       setErrorMessage(message);
+      console.log("Scanner error:", error);
     }
   };
 
@@ -179,7 +192,7 @@ export default function ScannerScreen({ navigation }: Props) {
 
   const resetScan = () => {
     setManualText("");
-    setMatches(null);
+    null;
     setPhotoUri(null);
     setErrorMessage(null);
     setStatus("idle");
@@ -363,7 +376,7 @@ export default function ScannerScreen({ navigation }: Props) {
             </View>
           )}
 
-          {matches !== null && (
+          {matchesTerm !== null && (
             <View
               style={styles.resultsSection}
               onLayout={(event) => {
@@ -371,14 +384,14 @@ export default function ScannerScreen({ navigation }: Props) {
               }}
             >
               <Text style={styles.resultsLabel}>
-                {matches.length > 0
-                  ? `Found ${matches.length} medical term${
-                      matches.length === 1 ? "" : "s"
+                {matchesTerm.length > 0
+                  ? `Found ${matchesTerm.length} medical term${
+                      matchesTerm.length === 1 ? "" : "s"
                     }`
                   : "No known medical terms found"}
               </Text>
 
-              {matches.map((term) => (
+              {matchesTerm.map((term: Term) => (
                 <TouchableOpacity
                   key={term.id}
                   style={styles.matchCard}
