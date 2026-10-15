@@ -15,6 +15,7 @@ import { fetchRoots } from "../features/rootsSlice";
 import { loadDeck, updateCard } from "../utils/deckStorage";
 import { dueCards, scheduleNextReview } from "../utils/spacedRepetition";
 import type { DeckCard, ReviewQuality, Term } from "../types/types";
+import { getTermById } from "../api/terms";
 
 type Mode = "spelling" | "root_recall" | "confusable";
 
@@ -33,7 +34,7 @@ function pickMode(
     (c) => c.termAId === term.id || c.termBId === term.id,
   );
   if (hasConfusable && index % 3 === 0) return "confusable";
-  return index % 2 === 0 ? "spelling" : "root_recall";
+  return index % 2 !== 0 && term.parts?.length ? "root_recall" : "spelling";
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -46,6 +47,7 @@ export default function ReviewScreen() {
   const roots = useAppSelector((state) => state.roots.items);
   const confusables = useAppSelector((state) => state.confusables.items);
   const [queue, setQueue] = useState<Question[] | null>(null);
+  const [queueError, setQueueError] = useState<string | null>(null);
   const [current, setCurrent] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [spellingInput, setSpellingInput] = useState("");
@@ -66,17 +68,38 @@ export default function ReviewScreen() {
   useEffect(() => {
     if (terms.length === 0 || confusables.length === 0) return;
 
-    loadDeck().then((deck) => {
-      const due = dueCards(deck);
-      const qs: Question[] = due
-        .map((card, i) => {
-          const term = terms.find((t) => t.id === card.termId);
-          if (!term) return null;
-          return { card, term, mode: pickMode(term, i, confusables) };
-        })
-        .filter((q): q is Question => q !== null);
-      setQueue(qs);
-    });
+    let cancelled = false;
+    setQueueError(null);
+
+    const buildQueue = async () => {
+      try {
+        const deck = await loadDeck();
+        const due = dueCards(deck);
+        const questions = await Promise.all(
+          due.map(async (card, i): Promise<Question | null> => {
+            if (!terms.some((term) => term.id === card.termId)) return null;
+            const term = await getTermById(card.termId);
+            if (!term) return null;
+            return { card, term, mode: pickMode(term, i, confusables) };
+          }),
+        );
+
+        if (!cancelled) {
+          setQueue(questions.filter((q): q is Question => q !== null));
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setQueueError(
+            error instanceof Error ? error.message : "Unable to load review cards.",
+          );
+        }
+      }
+    };
+
+    void buildQueue();
+    return () => {
+      cancelled = true;
+    };
   }, [terms, confusables]);
 
   const question = queue && queue.length > 0 ? queue[current] : null;
@@ -100,6 +123,14 @@ export default function ReviewScreen() {
       ) ?? null
     );
   }, [question, confusables]);
+
+  if (queueError) {
+    return (
+      <View style={styles.screen}>
+        <Text style={styles.loading}>{queueError}</Text>
+      </View>
+    );
+  }
 
   if (!queue) {
     return (
@@ -285,7 +316,7 @@ export default function ReviewScreen() {
   );
 }
 
-function RateButton({
+const RateButton = ({
   label,
   onPress,
   tone,
@@ -293,7 +324,7 @@ function RateButton({
   label: string;
   onPress: () => void;
   tone: "danger" | "neutral" | "brand" | "success";
-}) {
+}) => {
   const bg = {
     danger: colors.danger,
     neutral: colors.line,
@@ -308,7 +339,7 @@ function RateButton({
       <Text style={styles.rateButtonText}>{label}</Text>
     </TouchableOpacity>
   );
-}
+};
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
