@@ -447,7 +447,7 @@ function CodeClothComponent({
       let nearestParticle: Particle | null = null;
       let nearestDistanceSquared = 30 * 30;
 
-      current.particles.forEach((particle) => {
+      for (const particle of current.particles) {
         const dx = localX - particle.pos.x;
         const dy = localY - particle.pos.y;
         const distanceSquared = dx * dx + dy * dy;
@@ -456,7 +456,7 @@ function CodeClothComponent({
           nearestParticle = particle;
           nearestDistanceSquared = distanceSquared;
         }
-      });
+      }
 
       if (nearestParticle) {
         nearestParticle.originalPinnedState = nearestParticle.pinned;

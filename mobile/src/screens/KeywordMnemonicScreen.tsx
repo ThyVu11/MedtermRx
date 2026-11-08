@@ -9,8 +9,8 @@ import {
   Platform,
 } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Category, RootStackParamList, Term } from "../types/types";
-import { searchTerms } from "../api/terms";
+import type { RootStackParamList, SearchTerm, Term } from "../types/types";
+import { getTermById, searchTerms } from "../api/terms";
 import MnemonicCard from "../components/MnemonicCard";
 
 type Props = NativeStackScreenProps<RootStackParamList, "KeywordMnemonics">;
@@ -19,15 +19,36 @@ const WORD_PART_CATEGORIES = ["Prefix", "Suffix", "Root"] as const;
 type WordPartCategory = (typeof WORD_PART_CATEGORIES)[number];
 
 export default function KeywordMnemonicScreen({ navigation }: Props) {
-  const [terms, setTerms] = useState<Term[]>([]);
+  const [terms, setTerms] = useState<SearchTerm[]>([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [detail, setDetail] = useState<{
+    termId: string;
+    term: Term | null;
+    error: string | null;
+  } | null>(null);
   const [filter, setFilter] = useState<WordPartCategory | "All">("All");
 
   useEffect(() => {
+    let cancelled = false;
     Promise.all(WORD_PART_CATEGORIES.map((c) => searchTerms(c)))
-      .then((results) => setTerms(results.flat()))
-      .finally(() => setLoading(false));
+      .then((results) => {
+        if (!cancelled) setTerms(results.flat());
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setSearchError(
+            error instanceof Error ? error.message : "Unable to load terms.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const visible =
@@ -39,10 +60,50 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
     setIndex(0);
   }, [filter]);
 
+  const safeIndex = Math.min(index, Math.max(0, visible.length - 1));
+  const selectedTermId = visible[safeIndex]?.id;
+
+  useEffect(() => {
+    if (!selectedTermId) return;
+    let cancelled = false;
+    setDetail({ termId: selectedTermId, term: null, error: null });
+
+    getTermById(selectedTermId)
+      .then((term) => {
+        if (!term || term.id !== selectedTermId) {
+          throw new Error("Unable to load the selected term.");
+        }
+        if (!cancelled) {
+          setDetail({ termId: selectedTermId, term, error: null });
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setDetail({
+            termId: selectedTermId,
+            term: null,
+            error: error instanceof Error ? error.message : "Unable to load term details.",
+          });
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTermId]);
+
   if (loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#0F766E" />
+      </View>
+    );
+  }
+
+  if (searchError) {
+    return (
+      <View style={styles.center}>
+        <Text accessibilityRole="alert">{searchError}</Text>
       </View>
     );
   }
@@ -55,7 +116,7 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
     );
   }
 
-  const safeIndex = Math.min(index, visible.length - 1);
+  const selectedDetail = detail?.termId === selectedTermId ? detail : null;
   const atStart = safeIndex === 0;
   const atEnd = safeIndex === visible.length - 1;
 
@@ -92,12 +153,18 @@ export default function KeywordMnemonicScreen({ navigation }: Props) {
             {safeIndex + 1} / {visible.length}
           </Text>
 
-          <MnemonicCard
-            term={visible[safeIndex]}
-            hint={visible[safeIndex].keywordHint}
-            hintLabel="Keyword seed"
-            key={visible[safeIndex].id}
-          />
+          {selectedDetail?.term ? (
+            <MnemonicCard
+              term={selectedDetail.term}
+              hint={selectedDetail.term.keywordHint}
+              hintLabel="Keyword seed"
+              key={selectedDetail.term.id}
+            />
+          ) : selectedDetail?.error ? (
+            <Text accessibilityRole="alert">{selectedDetail.error}</Text>
+          ) : (
+            <ActivityIndicator size="large" color="#0F766E" />
+          )}
 
           <View style={styles.nav}>
             <Pressable

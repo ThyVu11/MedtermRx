@@ -13,7 +13,8 @@
       "distribution": "internal"
     },
     "production": {
-      "environment": "production"
+      "environment": "production",
+      "autoIncrement": true
     }
   },
   "submit": {

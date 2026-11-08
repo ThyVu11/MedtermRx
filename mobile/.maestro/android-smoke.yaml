@@ -1,0 +1,47 @@
+# Run only on the approved disposable QA device with a matching APK.
+# Supply verified dataset expectations with Maestro -e arguments before running:
+# EXPECTED_DEFINITION_REGEX and EXPECTED_PART_TEXT_REGEX.
+# This flow does not clear app data, save notes, rate cards, or upload images.
+appId: com.teacy.medtermstudy
+name: Android launch, search, and full term details
+env:
+  EXPECTED_DEFINITION_REGEX: ${EXPECTED_DEFINITION_REGEX || "__REQUIRES_VERIFIED_DEFINITION__"}
+  EXPECTED_PART_TEXT_REGEX: ${EXPECTED_PART_TEXT_REGEX || "__REQUIRES_VERIFIED_PART__"}
+---
+# Fail before launching if approved fixture expectations were not supplied.
+- assertTrue: ${EXPECTED_DEFINITION_REGEX != "__REQUIRES_VERIFIED_DEFINITION__" && EXPECTED_DEFINITION_REGEX.length > 0}
+- assertTrue: ${EXPECTED_PART_TEXT_REGEX != "__REQUIRES_VERIFIED_PART__" && EXPECTED_PART_TEXT_REGEX.length > 0}
+- launchApp:
+    clearState: false
+    permissions:
+      all: deny
+- extendedWaitUntil:
+    visible:
+      text: "GET START"
+      enabled: true
+    timeout: 90000
+- tapOn:
+    text: "GET START"
+    enabled: true
+- extendedWaitUntil:
+    visible: "Dissector"
+    timeout: 15000
+- tapOn: "Dissector"
+- extendedWaitUntil:
+    visible: 'Try "cholecystitis" or inflammation of the gallbladder'
+    timeout: 15000
+- tapOn: 'Try "cholecystitis" or inflammation of the gallbladder'
+- inputText: "anuria"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "(?i)^anuria$"
+    timeout: 30000
+- tapOn: "(?i)^anuria$"
+# Specimen is rendered only by the full-detail WordDissector component.
+- extendedWaitUntil:
+    visible: "(?i)^specimen$"
+    timeout: 30000
+- assertVisible: "(?i)^anuria$"
+- assertVisible: "(?i)^definition$"
+- assertVisible: "${EXPECTED_DEFINITION_REGEX}"
+- assertVisible: "${EXPECTED_PART_TEXT_REGEX}"

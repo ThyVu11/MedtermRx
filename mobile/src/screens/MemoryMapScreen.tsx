@@ -10,7 +10,7 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import type { Category, RootStackParamList, Term } from "../types/types";
+import type { Category, RootStackParamList, SearchTerm } from "../types/types";
 import { searchTerms } from "../api/terms";
 import { ORGAN_LOCATIONS } from "../data/organLocations";
 import { getMnemonicNotesFor } from "../storage/mnemonics";
@@ -23,7 +23,7 @@ export default function MemoryMapScreen({ navigation }: Props) {
   const [loadingProgress, setLoadingProgress] = useState(false);
 
   // Cache terms without causing loadProgress to be recreated.
-  const termsCacheRef = useRef<Record<string, Term[]>>({});
+  const termsCacheRef = useRef<Record<string, SearchTerm[]>>({});
 
   const loadCategoryProgress = useCallback(
     async (category: string): Promise<void> => {
