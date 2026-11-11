@@ -217,7 +217,7 @@ export default function CodeCloth() {
   });
 
   const touchSound = useAudioPlayer(
-    require("../../assets/sounds/paper-audio.mp3"),
+    require("../../assets/sounds/original-touch.wav"),
   );
   const touchSoundStatus = useAudioPlayerStatus(touchSound);
   const lastSoundTimeRef = useRef(0);

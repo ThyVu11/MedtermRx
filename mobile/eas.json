@@ -10,7 +10,25 @@
       "environment": "development"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://medtermrx-1.onrender.com/api"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "e2e-test": {
+      "distribution": "internal",
+      "environment": "production",
+      "withoutCredentials": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://medtermrx-1.onrender.com/api"
+      },
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "environment": "production",

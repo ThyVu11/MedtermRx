@@ -1,0 +1,20 @@
+name: Android smoke test (manual)
+
+# No automatic event triggers. Start only after approval of a hosted run.
+jobs:
+  build_android:
+    name: Build Android test APK
+    type: build
+    params:
+      platform: android
+      profile: e2e-test
+
+  test_android:
+    name: Run Android smoke test
+    needs: [build_android]
+    type: maestro
+    environment: production
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path: .maestro/android-smoke.yaml
+      retries: 0
