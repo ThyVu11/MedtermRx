@@ -1,23 +1,30 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
+  Alert,
+  Linking,
+  Modal,
+  ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/types";
 import { colors, radii, spacing } from "../theme";
 import { Image } from "expo-image";
 import CodeCloth from "../components/CodeCloth";
 import { useAppSelector } from "../hooks";
+import AboutScreen from "./AboutScreen";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const LOGO_RATIO = 1662 / 758;
 
 export default function HomeScreen({ navigation }: Props) {
+  const [aboutVisible, setAboutVisible] = useState(false);
   const termsStatus = useAppSelector((state) => state.terms.status);
   const { width } = useWindowDimensions();
 
@@ -49,7 +56,77 @@ export default function HomeScreen({ navigation }: Props) {
             {termsStatus === "loading" ? "LOADING TERMS..." : "GET START"}
           </Text>
         </TouchableOpacity>
+        {/* <TouchableOpacity
+          accessibilityRole="button"
+          style={styles.aboutButton}
+          onPress={() => setAboutVisible(true)}
+        >
+          <Text style={styles.aboutLink}>About & data sources</Text>
+        </TouchableOpacity> */}
       </View>
+      {/* <Modal
+        visible={aboutVisible}
+        animationType="slide"
+        onRequestClose={() => setAboutVisible(false)}
+      >
+        <SafeAreaView style={styles.aboutSafe}>
+          <ScrollView contentContainerStyle={styles.aboutContent}>
+            <Text accessibilityRole="header" style={styles.aboutTitle}>
+              About & data sources
+            </Text>
+            <Text style={styles.aboutParagraph}>
+              MedTerm Study is an educational medical terminology study tool.
+              It is not intended to diagnose or treat medical conditions or
+              provide medical advice. Consult a qualified healthcare professional
+              for medical concerns.
+            </Text>
+            <Text accessibilityRole="header" style={styles.aboutHeading}>
+              Medical Subject Headings (MeSH)
+            </Text>
+            <Text style={styles.aboutParagraph}>
+              Includes information derived from Medical Subject Headings (MeSH),
+              U.S. National Library of Medicine (NLM).
+            </Text>
+            <Text style={styles.aboutParagraph}>
+              This app may not reflect the most current or accurate MeSH data
+              available from NLM. NLM does not endorse this app.
+            </Text>
+            <TouchableOpacity
+              accessibilityRole="link"
+              accessibilityLabel="Visit the National Library of Medicine MeSH website"
+              style={styles.aboutButton}
+              onPress={() => {
+                Linking.openURL("https://www.nlm.nih.gov/mesh/meshhome.html").catch(() => {
+                  Alert.alert("Unable to open link", "Please try again later.");
+                });
+              }}
+            >
+              <Text style={styles.aboutLink}>Visit the NLM MeSH website</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              accessibilityRole="link"
+              accessibilityLabel="Read the MedTerm Study privacy policy"
+              style={styles.aboutButton}
+              onPress={() => {
+                Linking.openURL("https://medterm.expo.app/privacy.html").catch(() => {
+                  Alert.alert("Unable to open privacy policy", "Please try again later.");
+                });
+              }}
+            >
+              <Text style={styles.aboutLink}>Privacy policy</Text>
+            </TouchableOpacity>
+          </ScrollView>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel="Close About and data sources"
+            style={styles.aboutClose}
+            onPress={() => setAboutVisible(false)}
+          >
+            <Text style={styles.primaryButtonText}>Close</Text>
+          </TouchableOpacity>
+        </SafeAreaView>
+      </Modal> */}
+      <AboutScreen />
     </View>
   );
 }

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="How MedTerm Study handles camera scans, learning records, service requests and privacy requests.">
+<title>Privacy policy | MedTerm Study</title>
+<style>
+:root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #243746; background: #f4faf8; }
+* { box-sizing: border-box; }
+body { margin: 0; line-height: 1.75; font-size: 1rem; }
+main { max-width: 51rem; margin: 3rem auto; padding: 2.5rem; background: #fff; border: 1px solid #d9e7e2; border-radius: 1rem; }
+a { color: #076b65; text-decoration-thickness: .08em; text-underline-offset: .15em; overflow-wrap: anywhere; }
+a:focus-visible { outline: 3px solid #0f766e; outline-offset: 4px; }
+h1, h2, h3 { color: #075753; line-height: 1.3; }
+h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); margin: .75rem 0 1.5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.2rem; }
+h3 { font-size: 1.15rem; margin-top: 1.7rem; }
+p, li { overflow-wrap: break-word; }
+li + li { margin-top: .75rem; }
+@media (max-width: 600px) { main { margin: 0; padding: 1.25rem; border: 0; border-radius: 0; } }
+@media print { body { background: #fff; } main { margin: 0; padding: 0; border: 0; } }
+</style>
+</head>
+<body>
+<main>
+<a href="/">MedTerm Study</a>
+<h1>MedTerm Study privacy policy</h1>
+<p><strong>Effective date:</strong> November 11, 2026</p>
+<p>MedTerm Study, also referred to as MedTermRx, is provided by <strong>teacy</strong>. This policy explains how the Android app and website handle information when you study medical terminology. Contact <strong><a href="mailto:medtermrxstudy@gmail.com">medtermrxstudy@gmail.com</a></strong> with privacy questions or requests.</p>
+<h2>Camera and text recognition</h2>
+<p>Camera permission lets you photograph text for recognition and term matching. Camera scanning is unavailable without this permission. You can manage camera permission in your device or browser settings. Avoid scanning patient records or other private information.</p>
+<p>On Android, Google ML Kit processes scan images and recognized text on your device. The native scanner does not send these images to our website OCR endpoint. ML Kit separately sends diagnostic and usage information to Google, as described under Providers and SDKs below.</p>
+<p>On the website, scanning sends the captured image to our backend hosted on Render for text recognition. The OCR route processes the image in memory and does not intentionally save it to a database or image store. This is not a promise that all processing copies or provider records are immediately deleted.</p>
+<p>Recognized text is matched to medical terms. Requests to open matched terms send their term identifiers to our backend.</p>
+<h2>Search and service requests</h2>
+<p>Search text is sent to our backend to return results. Opening term details, quizzes and other study content also sends service requests. Request URLs can contain search text or term identifiers. Our hosting and SDK providers receive network information needed to handle requests, such as IP addresses, and may process technical, security and service-operation records under their policies.</p>
+<h2>Learning records, notes and backups</h2>
+<p>Review-deck information and mnemonic notes are stored in local app storage. The app does not actively synchronize those records to our backend. The app does not add its own encryption to these local records.</p>
+<p>Android backup is enabled. Depending on your device and backup settings, learning records and notes may be backed up and restored after reinstalling the app. Removing a local copy does not by itself remove backup copies. Backups are managed through your operating system and backup provider.</p>
+<h2>Providers and SDKs</h2>
+<ul><li><strong>Render</strong> hosts our backend, including content requests and website OCR.</li><li><strong>Expo</strong> hosts the website and provides Android app-update infrastructure. The app checks for updates on launch. Update requests include a client identifier, Android platform/runtime information and update identifiers; they can also include a previous fatal-error diagnostic.</li><li><strong>Google ML Kit</strong> provides Android text recognition. Google describes diagnostic and usage collection including device/app information, installation identifiers, performance/error metrics and API configuration. Recognition input images, text and recognition outputs are processed on-device.</li><li><strong>Amazon Web Services S3</strong> supplies terminology datasets to our backend. Our OCR route does not write scan images to S3.</li></ul>
+<p>For information about these providers&#x27; practices, see <a href="https://render.com/privacy">Render</a>, <a href="https://expo.dev/privacy">Expo</a>, <a href="https://developers.google.com/ml-kit/terms">ML Kit terms and privacy</a>, <a href="https://developers.google.com/ml-kit/android-data-disclosure">ML Kit data disclosures</a> and <a href="https://aws.amazon.com/privacy/">AWS</a>.</p>
+<h2>Retention and deletion</h2>
+<p>Local learning records remain until removed through available controls or app/device storage management, subject to backup restoration. Where note editing is available, saving an empty mnemonic note removes that note.</p>
+<p>Android camera captures and cropped scan images are stored in app cache. The scanner&#x27;s Clear action clears its displayed state; it does not delete cached image files. The app does not set a deletion deadline for scan-cache files. Android Auto Backup normally excludes app cache directories; that does not mean the files are immediately deleted from your device.</p>
+<p>Our Render workspace has external log streaming disabled. Render documents seven days of dashboard log availability for our Hobby workspace. This is a dashboard access window, not a guarantee that every provider-held record is deleted after seven days. The app has no separate log-expiry job. Provider-held records are subject to the provider&#x27;s practices and applicable arrangements; we do not promise a universal deletion deadline for them.</p>
+<h3>Privacy requests</h3>
+<p>Email <strong><a href="mailto:medtermrxstudy@gmail.com">medtermrxstudy@gmail.com</a></strong> and describe your request and whether it concerns Android or the website. The app owner monitors this address. Do not include patient records, passwords, identity documents or sensitive scan images in your initial message.</p>
+<p>We review what information is involved and whether we control it. We request only information reasonably needed to understand the request and, when necessary, verify that you are entitled to act on it. This might include confirming the originating email address or approximate interaction date. We do not request account passwords. If we cannot reliably identify relevant records, we explain that limitation; an email address alone does not let us locate a person&#x27;s backend request history.</p>
+<p>For information we can identify and control, we explain the available action and report its outcome or why we cannot take the requested action.</p>
+<p>Device-only learning records, notes and scan-cache files cannot be erased remotely by emailing us. We can explain app or Android storage-management options. Clearing cache does not remove all learning data; clearing app storage also removes local settings and learning records. Manage backup copies separately through your device or backup provider; backups may restore data.</p>
+<p>For provider-controlled records, we explain our access limits and identify a relevant provider request channel where available. We do not promise to erase Google, Expo or Render records or operating-system backups ourselves.</p>
+<p>We use request correspondence to review and respond to the request. We retain privacy-request emails for <strong>one year after the request is closed</strong>, then delete them from the mailbox. This period applies to our request correspondence, not backup copies or provider-controlled records.</p>
+<h2>Audience and release features</h2>
+<p>MedTerm Study is an educational medical terminology app for people aged 13 and older. It is not intended for children under 13. The initial release has no ads, in-app purchases, subscriptions or user login.</p>
+<h2>Changes and contact</h2>
+<p>We may update this policy as the app or its practices change. The published policy will show its effective date. Contact <strong>teacy</strong> at <strong><a href="mailto:medtermrxstudy@gmail.com">medtermrxstudy@gmail.com</a></strong> with questions.</p>
+</main>
+</body>
+</html>
