@@ -1,8 +1,53 @@
 pluginManagement {
+  def findNodeCmd = { ->
+    def nodeBinary = System.getenv("NODE_BINARY")
+    if (nodeBinary && new File(nodeBinary).exists()) {
+      return nodeBinary
+    }
+    
+    def userHome = System.getProperty("user.home")
+    def searchPaths = [
+      "/opt/homebrew/bin/node",
+      "/usr/local/bin/node",
+      "/usr/bin/node",
+      "${userHome}/.nvm/versions/node",
+      "${userHome}/.fnm/current/bin/node",
+      "${userHome}/.volta/bin/node",
+      "${userHome}/.asdf/shims/node",
+      "${userHome}/.n/bin/node",
+      "C:\\Program Files\\nodejs\\node.exe"
+    ]
+
+    for (path in searchPaths) {
+      if (path.contains(".nvm")) {
+        def nvmDir = new File(path)
+        if (nvmDir.exists() && nvmDir.isDirectory()) {
+          def versions = nvmDir.listFiles()
+          if (versions && versions.length > 0) {
+            def latest = versions.max { it.name }
+            def nodeBin = new File(latest, "bin/node")
+            if (nodeBin.exists()) return nodeBin.absolutePath
+          }
+        }
+      } else {
+        def file = new File(path)
+        if (file.exists() && file.isFile()) {
+          return file.absolutePath
+        }
+      }
+    }
+
+    return "node"
+  }
+
+  def nodeCmd = findNodeCmd()
+  def extraPath = "/opt/homebrew/bin:/usr/local/bin:" + (System.getenv("PATH") ?: "")
+
   def reactNativeGradlePlugin = new File(
     providers.exec {
       workingDir(rootDir)
-      commandLine("node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })")
+      environment("PATH", extraPath)
+      commandLine(nodeCmd, "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })")
     }.standardOutput.asText.get().trim()
   ).getParentFile().absolutePath
   includeBuild(reactNativeGradlePlugin)
@@ -10,7 +55,8 @@ pluginManagement {
   def expoPluginsPath = new File(
     providers.exec {
       workingDir(rootDir)
-      commandLine("node", "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })")
+      environment("PATH", extraPath)
+      commandLine(nodeCmd, "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })")
     }.standardOutput.asText.get().trim(),
     "../android/expo-gradle-plugin"
   ).absolutePath
