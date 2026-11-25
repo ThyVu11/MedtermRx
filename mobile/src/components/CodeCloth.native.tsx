@@ -289,7 +289,7 @@ function CodeClothComponent({
   padding = 20,
 }: CodeClothProps) {
   const touchSound = useAudioPlayer(
-    require("../../assets/sounds/original-touch.wav"),
+    require("../../assets/sounds/paper-audio.mp3"),
   );
 
   const touchSoundStatus = useAudioPlayerStatus(touchSound);
