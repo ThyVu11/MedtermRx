@@ -1,4 +1,6 @@
 import { Router, Request, Response, NextFunction } from "express";
+import { promisify } from "node:util";
+import { gzip } from "node:zlib";
 import "dotenv/config";
 
 import type { QuizQuestion } from "../types";
@@ -25,6 +27,27 @@ import {
 } from "../services/term-search.service";
 
 const router = Router();
+const gzipAsync = promisify(gzip);
+const catalogBodies = new WeakMap<
+  Awaited<ReturnType<typeof getTerms>>,
+  Promise<{ json: Buffer; compressed: Buffer }>
+>();
+
+function getCatalogBodies(terms: Awaited<ReturnType<typeof getTerms>>) {
+  const cached = catalogBodies.get(terms);
+  if (cached) return cached;
+
+  const json = Buffer.from(JSON.stringify(terms), "utf8");
+  const bodies = gzipAsync(json)
+    .then((compressed) => ({ json, compressed }))
+    .catch((error: unknown) => {
+      catalogBodies.delete(terms);
+      throw error;
+    });
+
+  catalogBodies.set(terms, bodies);
+  return bodies;
+}
 
 /* -------------------------------------------------------------------------- */
 /*                           Presigned download URLs                          */
@@ -98,10 +121,14 @@ router.post("/cache/clear", (_request, response) => {
  * GET /api/terms?q=cardio
  * GET /api/terms?category=cardiovascular
  */
-router.get("/", async (_request, response, next) => {
+router.get("/", async (request, response, next) => {
   try {
-    const terms = await getTerms();
-    return response.json(terms);
+    const { json, compressed } = await getCatalogBodies(await getTerms());
+    response.vary("Accept-Encoding").type("application/json");
+    if (request.acceptsEncodings("gzip", "identity") === "gzip") {
+      return response.set("Content-Encoding", "gzip").send(compressed);
+    }
+    return response.send(json);
   } catch (error) {
     handleRouteError(error, next);
   }
